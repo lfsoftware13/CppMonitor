@@ -1,0 +1,17 @@
+#User-specific files
+*.suo
+*.user
+
+#Build results
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+*.obj
+*.log
+*.cache
+*.pdb
+*.tlb
