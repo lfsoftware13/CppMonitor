@@ -14,7 +14,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     class ContentBindEvent : IBindEvent
     {
         private enum Operation {
-            Add, Delete, Null
+            Insert, Delete, Null
         }
 
         private DTE2 Dte2;
@@ -24,6 +24,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private TextEditorEvents TextEvents;
 
         private DocumentEvents DocEvents;
+
+        private SelectionEvents SelectEvents;
 
         private ILoggerDao Logger;
 
@@ -49,6 +51,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DteEvents = Dte2.Events;
             TextEvents = DteEvents.TextEditorEvents;
             DocEvents = DteEvents.DocumentEvents;
+            SelectEvents = DteEvents.SelectionEvents;
 
             Logger = LoggerFactory.loggerFactory.getLogger("Content");
 
@@ -60,6 +63,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         void IBindEvent.RegisterEvent()
         {
             TextEvents.LineChanged += OnTextChange;
+
             DocEvents.DocumentOpened += OnDocOpened;
             DocEvents.DocumentClosing += OnDocClosing;
         }
@@ -68,16 +72,24 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             //获得增加的文本
             EditPoint StartEdit = StartPoint.CreateEditPoint();
-            String AddText = StartEdit.GetText(EndPoint);
+            String InsertedText = StartEdit.GetText(EndPoint);
 
             //删除文本
-            if (AddText.Equals(""))
+            if (InsertedText.Equals(""))
             {
-                HandleTextDeleted(StartPoint);
+                HandleTextDeleted(EndPoint);
             }
+            //增加文本
+            else
+            {
+                HandleTextInserted(EndPoint, InsertedText);
+            }
+
+            LastDocContent = getDocContent();
+            LastEditPoint = EndPoint;
         }
 
-        private void HandleTextDeleted(TextPoint StartPoint)
+        private void HandleTextDeleted(TextPoint EndPoint)
         {
             String DelText = GetDeletedText();
 
@@ -94,7 +106,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 Debug.Assert(LastEditPoint != null);
 
                 int LastOffset = LastEditPoint.AbsoluteCharOffset;
-                int NowOffset = StartPoint.AbsoluteCharOffset;
+                int NowOffset = EndPoint.AbsoluteCharOffset;
                 int DelLength = GetDeletedTextLength();
 
                 //如果上次也是删除事件并且删除位置连续，聚合删除内容
@@ -111,6 +123,40 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             }
 
             LastOperation = Operation.Delete;
+        }
+
+        private void HandleTextInserted(TextPoint EndPoint, String InsertedText)
+        {
+            //第一次编辑文本
+            if (LastEditPoint == null)
+            {
+                Debug.Assert(LastOperation == Operation.Null);
+                Debug.Assert(Buffer.Length == 0);
+
+                Buffer.Append(InsertedText);
+            }
+            else
+            {
+                Debug.Assert(LastEditPoint != null);
+
+                int LastOffset = LastEditPoint.AbsoluteCharOffset;
+                int NowOffset = EndPoint.AbsoluteCharOffset;
+                int InsertLength = InsertedText.Length;
+
+                //如果上次也是插入事件并且插入位置连续，聚合插入内容
+                if (LastOperation == Operation.Insert
+                    && NowOffset - LastOffset == InsertLength)
+                {
+                    Buffer.Append(InsertedText);
+                }
+                else
+                {
+                    FlushBuffer();
+                    Buffer.Append(InsertedText);
+                }
+            }
+
+            LastOperation = Operation.Insert;
         }
 
         private void OnDocOpened(Document Doc)
