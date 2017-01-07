@@ -7,8 +7,9 @@ using EnvDTE;
 using System.Windows.Forms;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
+using System.Diagnostics;
+using System.Threading;
 using static NanjingUniversity.CppMonitor.Util.ServiceCookie;
-using NanjingUniversity.CppMonitor.Monitor.DebugMonitor.Events;
 
 namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 {
@@ -23,56 +24,30 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         public void RegisterEvent()
         {
-            uint cookie;
-            debugger.AdviseDebuggerEvents(new CppDebuggerEvents(), out cookie);
-            cookies["IVsDebuggerEvents.DebuggerEvents"] = cookie;
-            dte.Events.SolutionEvents.Opened += SolutionEvents_Opened;
-            dte.Events.SolutionEvents.ProjectAdded += SolutionEvents_ProjectAdded;
-            dte.Events.CommandEvents.BeforeExecute += CommandEvents_BeforeExecute;
-            dte.Events.DebuggerEvents.OnEnterBreakMode += DebuggerEvents_OnEnterBreakMode;
-            dte.Events.DocumentEvents.DocumentOpening += DocumentEvents_DocumentOpening;
-            
-        }
+            dte.Events.WindowEvents.WindowCreated += (window) =>
+            {
+                Debug.WriteLine("[Info] Window opened: " + window.Caption);
+                
+                new System.Threading.Thread(() => 
+                {
+                    while (true)
+                    {
+                        var breakPoints = window.DTE.Debugger.Breakpoints;
+                        foreach (Breakpoint breakPoint in breakPoints)
+                        {
+                            Debug.WriteLine("[BreakPoint] " + breakPoint.File + " " + breakPoint.FileLine);
+                        }
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }).Start();  
+            };
 
-        private void SolutionEvents_Opened()
-        {
-            MessageBox.Show("open project");
+            dte.Events.WindowEvents.WindowClosing += (window) =>
+            {
+                Debug.WriteLine("[Info] Window closing: " + window.Caption);
+            };
         }
-
-        private void SolutionEvents_ProjectAdded(Project Project)
-        {
-            MessageBox.Show("add project: " + Project.Name);
-        }
-
-        private void DocumentEvents_DocumentOpening(string DocumentPath, bool ReadOnly)
-        {
-            MessageBox.Show("open: " + DocumentPath);
-        }
-
-        private void DebuggerEvents_OnEnterBreakMode(dbgEventReason Reason, ref dbgExecutionAction ExecutionAction)
-        {
-            MessageBox.Show("reason: " + Reason + "\naction: " + ExecutionAction);
-        }
-
-        private void CommandEvents_BeforeExecute(string Guid, int ID, object CustomIn, object CustomOut, ref bool CancelDefault)
-        {
-            MessageBox.Show("guid: " + Guid + "\nid: " + ID);
-        }
-
         private DTE dte;
         private IVsDebugger debugger;
     }
-
-    namespace Events
-    {
-        class CppDebuggerEvents : IVsDebuggerEvents
-        {
-            public int OnModeChange(DBGMODE dbgmodeNew)
-            {
-                MessageBox.Show(dbgmodeNew.ToString());
-                return 0;
-            }
-        }
-    }
-    
 }

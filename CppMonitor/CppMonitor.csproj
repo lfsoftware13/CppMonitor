@@ -209,6 +209,7 @@
     <Compile Include="Monitor\CommandMonitor\CommandBindEvent.cs" />
     <Compile Include="Monitor\ContentMointor\ContentBindEvent.cs" />
     <Compile Include="Monitor\DebugMonitor\DebugBindEvent.cs" />
+    <Compile Include="Monitor\DebugMonitor\IBreakPointWather.cs" />
     <Compile Include="Monitor\FileMonitor\FileBindEvent.cs" />
     <Compile Include="Monitor\MonitorFactory.cs" />
     <Compile Include="Resources.Designer.cs">
