@@ -53,7 +53,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DocEvents = DteEvents.DocumentEvents;
             SelectEvents = DteEvents.SelectionEvents;
 
-            Logger = LoggerFactory.loggerFactory.getLogger("Content");
+            // TODO
+            //Logger = LoggerFactory.loggerFactory.getLogger("Content");
+            Logger = new LoggerDAOImpl_Stub();
 
             Buffer = new StringBuilder();
 
@@ -196,7 +198,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void FlushBuffer()
         {
-
+            List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("test", "test"));
+            Logger.LogInfo(list);
         }
 
         private String GetDeletedText()
