@@ -61,7 +61,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         /// </summary>
         private static void refreshWindow()
         {
-            foreach (string key in windowCache.Keys)
+            // 这段代码是错误的
+            // 正在思考怎么改
+            List<string> keyList = windowCache.Keys.ToList();
+            foreach (string key in keyList)
             {
                 BreakpointWatcher watcher = windowCache[key];
                 if (!key.Equals(watcher.document.FullName))
