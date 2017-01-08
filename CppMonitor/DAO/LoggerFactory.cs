@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NanjingUniversity.CppMonitor.DAO.imp;
 
 namespace NanjingUniversity.CppMonitor.DAO
 {
@@ -27,7 +28,7 @@ namespace NanjingUniversity.CppMonitor.DAO
 
         public ILoggerDao getLogger(String key)
         {
-            return null;
+            return new BuildLoggerImpl();
         }
 
     }
