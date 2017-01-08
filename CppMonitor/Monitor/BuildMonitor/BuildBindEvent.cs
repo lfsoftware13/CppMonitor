@@ -10,7 +10,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor
     {
         void IBindEvent.RegisterEvent()
         {
-            throw new NotImplementedException();
+            ProjectEngineRegister engine = ProjectEngineRegister.projectEngineRegister;
+            engine.Register();
+
+            DteBuildRegister build = DteBuildRegister.dteBuildRegister;
+            build.Register();
         }
     }
 }
