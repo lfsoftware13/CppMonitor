@@ -27,19 +27,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             dte.Events.WindowEvents.WindowCreated += (window) =>
             {
                 Debug.WriteLine("[Info] Window opened: " + window.Caption);
-                
-                new System.Threading.Thread(() => 
+                var watcher = BreakpointWatcher.Watch(window);
+                watcher.BreakpointCreatedEvents += (bp) =>
                 {
-                    while (true)
-                    {
-                        var breakPoints = window.DTE.Debugger.Breakpoints;
-                        foreach (Breakpoint breakPoint in breakPoints)
-                        {
-                            Debug.WriteLine("[BreakPoint] " + breakPoint.File + " " + breakPoint.FileLine);
-                        }
-                        System.Threading.Thread.Sleep(1000);
-                    }
-                }).Start();  
+                    MessageBox.Show("添加了断点:" + bp.Tag);
+                };
             };
 
             dte.Events.WindowEvents.WindowClosing += (window) =>
@@ -49,5 +41,21 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         }
         private DTE dte;
         private IVsDebugger debugger;
+    }
+
+    class BreakpointEvents1 : IBreakpointHandler
+    {
+        public void OnBreakpointCreated(Breakpoint bp)
+        {
+            MessageBox.Show("添加了断点:" + bp.Tag);
+        }
+
+        public void OnBreakpointDisabled(Breakpoint bp) { }
+
+        public void OnBreakpointEnabled(Breakpoint bp) { }
+
+        public void OnBreakpointModified(Breakpoint bp) { }
+
+        public void OnBreakpointRemoved(Breakpoint bp) { }
     }
 }

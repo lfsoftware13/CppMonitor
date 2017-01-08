@@ -209,7 +209,7 @@
     <Compile Include="Monitor\CommandMonitor\CommandBindEvent.cs" />
     <Compile Include="Monitor\ContentMointor\ContentBindEvent.cs" />
     <Compile Include="Monitor\DebugMonitor\DebugBindEvent.cs" />
-    <Compile Include="Monitor\DebugMonitor\IBreakPointWather.cs" />
+    <Compile Include="Monitor\DebugMonitor\Breakpoint.cs" />
     <Compile Include="Monitor\FileMonitor\FileBindEvent.cs" />
     <Compile Include="Monitor\MonitorFactory.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -221,7 +221,7 @@
     <Compile Include="CppMonitorPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Monitor\IBindEvent.cs" />
-    <Compile Include="Util\ServiceCookie.cs" />
+    <Compile Include="Util\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
