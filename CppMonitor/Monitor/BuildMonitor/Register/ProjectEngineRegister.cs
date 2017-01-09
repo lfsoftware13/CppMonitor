@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor
+namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
 {
     class ProjectEngineRegister
     {
@@ -71,6 +71,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor
         public void ProjectBuildStarted(object Cfg)
         {
             VCConfiguration con = Cfg as VCConfiguration;
+            string StartTime = DateTime.Now.ToString();
         }
 
 

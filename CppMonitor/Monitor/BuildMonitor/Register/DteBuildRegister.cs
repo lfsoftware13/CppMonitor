@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor
+namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
 {
     class DteBuildRegister
     {
@@ -65,7 +65,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor
 
         public void OnBuildBegin(vsBuildScope Scope, vsBuildAction Action)
         {
-            //MessageBox.Show("OnBuildBegin(Solution):");
+            
         }
 
         public void OnBuildDone(vsBuildScope Scope, vsBuildAction Action)
