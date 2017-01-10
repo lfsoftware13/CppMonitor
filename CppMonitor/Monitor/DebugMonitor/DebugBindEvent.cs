@@ -10,7 +10,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
     {
         public void RegisterEvent()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

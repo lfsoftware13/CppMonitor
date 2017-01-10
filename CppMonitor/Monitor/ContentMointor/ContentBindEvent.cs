@@ -8,9 +8,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 {
     class ContentBindEvent : IBindEvent
     {
-        void IBindEvent.RegisterEvent()
+        public void RegisterEvent()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }
