@@ -1,10 +1,13 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
+using NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
 {
@@ -65,13 +68,31 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
 
         public void OnBuildBegin(vsBuildScope Scope, vsBuildAction Action)
         {
-            
+            BuildMonitorManager manager = BuildBindEvent.Manager;
+            if (manager != null)
+            {
+                manager.StartBuild();
+            }
         }
 
+        BackgroundWorker worker;
         public void OnBuildDone(vsBuildScope Scope, vsBuildAction Action)
         {
-            //MessageBox.Show("OnBuildDone(Solution):");
+            worker = new BackgroundWorker();
+            worker.DoWork += new DoWorkEventHandler(EndBuildAsync);
+            worker.RunWorkerAsync();
         }
+
+        void EndBuildAsync(object sender, DoWorkEventArgs e)
+        {
+            System.Threading.Thread.Sleep(2000);
+            BuildMonitorManager manager = BuildBindEvent.Manager;
+            if (manager != null)
+            {
+                manager.EndBuild();
+            }
+        }
+
 
     }
 }

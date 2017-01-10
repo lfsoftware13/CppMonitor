@@ -3,6 +3,7 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,8 +12,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
 {
     class BuildMonitorUtil
     {
-
-
 
         public static string GetOrderBuildOutput()
         {
@@ -49,6 +48,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
                 TextDocument doc = buildPane.TextDocument;
                 EditPoint2 strtPt = (EditPoint2)doc.StartPoint.CreateEditPoint();
                 content = strtPt.GetText(doc.EndPoint);
+
+                if ("".Equals(content))
+                {
+                    System.Threading.Thread.Sleep(3000);
+                    content = strtPt.GetText(doc.EndPoint);
+                }
+
             }
             else
             {
@@ -102,8 +108,29 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
 
         public static string ReadFile(string path)
         {
-            return "";
+            FileStream fs=null;
+            string content="";
+            try
+            {
+                fs = new FileStream(path, FileMode.Open);
+            }
+            catch(FileNotFoundException e)
+            {
+                return "Can't Find the Log File in Path : "+path;
+            }
+            catch
+            {
+                return "Open File Error";
+            }
+            if (fs != null)
+            {
+                StreamReader reader = new StreamReader(fs);
+                content=reader.ReadToEnd();
+            }
+
+            return content;
         }
+
 
     }
 }

@@ -9,6 +9,23 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor
 {
     class BuildBindEvent : IBindEvent
     {
+        public static BuildMonitorManager _Manager;
+        public static BuildMonitorManager Manager
+        {
+            get
+            {
+                if (_Manager == null)
+                {
+                    _Manager = new BuildMonitorManager();
+                }
+                return _Manager;
+            }
+            set
+            {
+                _Manager = value;
+            }
+        }
+
         void IBindEvent.RegisterEvent()
         {
             ProjectEngineRegister engine = ProjectEngineRegister.projectEngineRegister;

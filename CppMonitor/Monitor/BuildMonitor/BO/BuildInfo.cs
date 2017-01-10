@@ -8,15 +8,20 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
 {
     class BuildInfo
     {
+        private string _BuildStartTime;
+        private string _BuildEndTime;
+        private string _Content;
+        private List<BuildProjectInfo> _Projects;
+
         public string BuildStartTime
         {
             get
             {
-                return BuildStartTime;
+                return _BuildStartTime;
             }
             set
             {
-                BuildStartTime=value;
+                _BuildStartTime=value;
             }
         }
 
@@ -24,11 +29,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return BuildEndTime;
+                return _BuildEndTime;
             }
             set
             {
-                BuildEndTime = value;
+                _BuildEndTime = value;
             }
         }
 
@@ -36,11 +41,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return Content;
+                return _Content;
             }
             set
             {
-                Content = value;
+                _Content = value;
             }
         }
 
@@ -48,11 +53,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return Projects;
+                if (_Projects == null)
+                {
+                    _Projects = new List<BuildProjectInfo>();
+                }
+                return _Projects;
             }
             set
             {
-                Projects = value;
+                _Projects = value;
             }
         }
 

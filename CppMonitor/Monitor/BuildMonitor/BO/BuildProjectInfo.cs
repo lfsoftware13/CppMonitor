@@ -8,15 +8,27 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
 {
     class BuildProjectInfo
     {
+        private string _BuildProjectStartTime;
+        private string _BuildProjectEndTime;
+        private string _ConfigurationName;
+        private string _ConfigurationType;
+        private string _ProjectName;
+        private string _CommandArguments;
+        private string _RunCommand;
+        private string _BuildLogFile;
+        private string _BuildLogContent;
+        private string _CompilerCommand;
+        private string _LinkCommand;
+
         public string BuildProjectStartTime
         {
             get
             {
-                return BuildProjectStartTime;
+                return _BuildProjectStartTime;
             }
             set
             {
-                BuildProjectStartTime = value;
+                _BuildProjectStartTime = value;
             }
         }
 
@@ -24,11 +36,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return BuildProjectEndTime;
+                return _BuildProjectEndTime;
             }
             set
             {
-                BuildProjectEndTime = value;
+                _BuildProjectEndTime = value;
             }
         }
 
@@ -36,11 +48,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return ConfigurationName;
+                return _ConfigurationName;
             }
             set
             {
-                ConfigurationName = value;
+                _ConfigurationName = value;
             }
         }
 
@@ -48,11 +60,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return ConfigurationType;
+                return _ConfigurationType;
             }
             set
             {
-                ConfigurationType = value;
+                _ConfigurationType = value;
             }
         }
 
@@ -60,11 +72,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return ProjectName;
+                return _ProjectName;
             }
             set
             {
-                ProjectName = value;
+                _ProjectName = value;
             }
         }
 
@@ -72,11 +84,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return CommandArguments;
+                return _CommandArguments;
             }
             set
             {
-                CommandArguments = value;
+                _CommandArguments = value;
             }
 
         }
@@ -85,11 +97,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return RunCommand;
+                return _RunCommand;
             }
             set
             {
-                RunCommand = value;
+                _RunCommand = value;
             }
         }
 
@@ -97,11 +109,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return BuildLogFile;
+                return _BuildLogFile;
             }
             set
             {
-                BuildLogFile = value;
+                _BuildLogFile = value;
             }
         }
 
@@ -109,11 +121,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return BuildLogContent;
+                return _BuildLogContent;
             }
             set
             {
-                BuildLogContent = value;
+                _BuildLogContent = value;
             }
         }
 
@@ -121,11 +133,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return CompilerCommand;
+                return _CompilerCommand;
             }
             set
             {
-                CompilerCommand = value;
+                _CompilerCommand = value;
             }
         }
 
@@ -133,11 +145,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         {
             get
             {
-                return LinkCommand;
+                return _LinkCommand;
             }
             set
             {
-                LinkCommand = value;
+                _LinkCommand = value;
             }
         }
 
