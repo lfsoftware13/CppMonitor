@@ -78,6 +78,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
+            if (!isCppFile(Dte2.ActiveWindow.Document.Name)) return;
+
             //获得增加的文本
             EditPoint StartEdit = StartPoint.CreateEditPoint();
             String InsertedText = StartEdit.GetText(EndPoint);
@@ -281,6 +283,19 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                     || c == ' ' || c == '\r')) return false;
             }
             return true;
+        }
+
+        private bool isCppFile(String name)
+        {
+            try
+            {
+                String[] temp = name.Split(new char[] { '.' } );
+                return temp[1].Equals("h") || temp[1].Equals("cpp");
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
