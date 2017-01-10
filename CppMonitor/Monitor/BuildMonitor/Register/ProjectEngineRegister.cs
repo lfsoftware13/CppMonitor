@@ -67,51 +67,21 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
         {
             VCConfiguration con = Cfg as VCConfiguration;
             BuildMonitorManager manager = BuildBindEvent.Manager;
-            manager.EndBuildVCProject(con);
+            if (manager != null)
+            {
+                manager.EndBuildVCProject(con);
+            }
         }
 
         public void ProjectBuildStarted(object Cfg)
         {
             VCConfiguration con = Cfg as VCConfiguration;
-            SetBuildLogSwitch(con);
             BuildMonitorManager manager = BuildBindEvent.Manager;
-            manager.StartBuildVCProject(con);
-        }
-
-        void SetBuildLogSwitch(VCConfiguration con)
-        {
-            if (con != null)
+            if (manager != null)
             {
-                IVCRulePropertyStorage cl = con.Rules.Item("CL");
-                cl.SetPropertyValue("SuppressStartupBanner", "false");
-                string clAddOption = cl.GetEvaluatedPropertyValue("AdditionalOptions");
-                string[] clstr = clAddOption.Split(' ');
-                for (int i = 0; i < clstr.Count(); i++ )
-                {
-                    if ("/nologo".Equals(clstr[i]))
-                    {
-                        clstr[i] = "";
-                    }
-                }
-                string clnew = string.Join(" ", clstr);
-                cl.SetPropertyValue("AdditionalOptions", clnew);
-
-                IVCRulePropertyStorage link = con.Rules.Item("CL");
-                link.SetPropertyValue("SuppressStartupBanner", "false");
-                string linkAddOption = link.GetEvaluatedPropertyValue("AdditionalOptions");
-                string[] linkstr = linkAddOption.Split(' ');
-                for (int i = 0; i < linkstr.Count(); i++)
-                {
-                    if ("/nologo".Equals(linkstr[i]))
-                    {
-                        linkstr[i] = "";
-                    }
-                }
-                string linknew = string.Join(" ", linkstr);
-                link.SetPropertyValue("AdditionalOptions", linknew);
+                manager.StartBuildVCProject(con);
             }
         }
-
 
     }
 }

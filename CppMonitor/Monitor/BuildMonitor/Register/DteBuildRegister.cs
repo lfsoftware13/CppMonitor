@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.VCProjectEngine;
 using NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util;
 using System;
 using System.Collections.Generic;
@@ -69,6 +70,25 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
         public void OnBuildBegin(vsBuildScope Scope, vsBuildAction Action)
         {
             BuildMonitorManager manager = BuildBindEvent.Manager;
+
+            DTE dte = (DTE)ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+            if (dte.Solution != null && dte.Solution.Projects!=null)
+            {
+                foreach (Project project in dte.Solution.Projects)
+                {
+                    VCProject pro = project.Object as VCProject;
+                    if (pro != null)
+                    {
+                        foreach (VCConfiguration con in pro.Configurations)
+                        {
+                            SetBuildLogSwitch(con);
+                        }
+                    }
+                    
+                }
+            }
+
+
             if (manager != null)
             {
                 manager.StartBuild();
@@ -90,6 +110,40 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
             if (manager != null)
             {
                 manager.EndBuild();
+            }
+        }
+
+        void SetBuildLogSwitch(VCConfiguration con)
+        {
+            if (con != null)
+            {
+                IVCRulePropertyStorage cl = con.Rules.Item("CL");
+                cl.SetPropertyValue("SuppressStartupBanner", "false");
+                string clAddOption = cl.GetEvaluatedPropertyValue("AdditionalOptions");
+                string[] clstr = clAddOption.Split(' ');
+                for (int i = 0; i < clstr.Count(); i++)
+                {
+                    if ("/nologo".Equals(clstr[i]))
+                    {
+                        clstr[i] = "";
+                    }
+                }
+                string clnew = string.Join(" ", clstr);
+                cl.SetPropertyValue("AdditionalOptions", clnew);
+
+                IVCRulePropertyStorage link = con.Rules.Item("Link");
+                link.SetPropertyValue("SuppressStartupBanner", "false");
+                string linkAddOption = link.GetEvaluatedPropertyValue("AdditionalOptions");
+                string[] linkstr = linkAddOption.Split(' ');
+                for (int i = 0; i < linkstr.Count(); i++)
+                {
+                    if ("/nologo".Equals(linkstr[i]))
+                    {
+                        linkstr[i] = "";
+                    }
+                }
+                string linknew = string.Join(" ", linkstr);
+                link.SetPropertyValue("AdditionalOptions", linknew);
             }
         }
 
