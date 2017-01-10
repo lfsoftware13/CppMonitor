@@ -13,10 +13,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 {
     class ContentBindEvent : IBindEvent
     {
-        private enum Operation {
+        private enum Operation
+        {
             Insert, Delete, Null
         }
 
+        private enum RecordKey
+        {
+            Operation, FileName, Content, Offset
+        }
+    
         private DTE2 Dte2;
 
         private Events DteEvents;
@@ -30,7 +36,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private ILoggerDao Logger;
 
         //最后一次编辑的位置
-        private TextPoint LastEditPoint;
+        private int LastStartOffset;
 
         //最后一次编辑操作的类型
         private Operation LastOperation;
@@ -79,24 +85,24 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             //删除文本
             if (InsertedText.Equals(""))
             {
-                HandleTextDeleted(EndPoint);
+                HandleTextDeleted(StartPoint, EndPoint);
             }
             //增加文本
             else
             {
-                HandleTextInserted(EndPoint, InsertedText);
+                HandleTextInserted(StartPoint, InsertedText);
             }
 
             LastDocContent = getDocContent();
-            LastEditPoint = EndPoint;
+            LastStartOffset = StartPoint.AbsoluteCharOffset;
         }
 
-        private void HandleTextDeleted(TextPoint EndPoint)
+        private void HandleTextDeleted(TextPoint StartPoint, TextPoint EndPoint)
         {
-            String DelText = GetDeletedText();
+            String DelText = GetDeletedText(StartPoint);
 
             //第一次编辑文本
-            if (LastEditPoint == null)
+            if (LastStartOffset == -1)
             {
                 Debug.Assert(LastOperation == Operation.Null);
                 Debug.Assert(Buffer.Length == 0);
@@ -105,15 +111,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             }
             else
             {
-                Debug.Assert(LastEditPoint != null);
+                Debug.Assert(LastStartOffset != -1);
 
-                int LastOffset = LastEditPoint.AbsoluteCharOffset;
-                int NowOffset = EndPoint.AbsoluteCharOffset;
+                int NowOffset = StartPoint.AbsoluteCharOffset;
                 int DelLength = GetDeletedTextLength();
 
                 //如果上次也是删除事件并且删除位置连续，聚合删除内容
                 if (LastOperation == Operation.Delete
-                    && LastOffset - NowOffset == DelLength)
+                    && LastStartOffset - NowOffset == DelLength)
                 {
                     Buffer.Insert(0, DelText);
                 }
@@ -127,10 +132,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             LastOperation = Operation.Delete;
         }
 
-        private void HandleTextInserted(TextPoint EndPoint, String InsertedText)
+        private void HandleTextInserted(TextPoint StartPoint, String InsertedText)
         {
             //第一次编辑文本
-            if (LastEditPoint == null)
+            if (LastStartOffset == -1)
             {
                 Debug.Assert(LastOperation == Operation.Null);
                 Debug.Assert(Buffer.Length == 0);
@@ -139,15 +144,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             }
             else
             {
-                Debug.Assert(LastEditPoint != null);
+                Debug.Assert(LastStartOffset != -1);
 
-                int LastOffset = LastEditPoint.AbsoluteCharOffset;
-                int NowOffset = EndPoint.AbsoluteCharOffset;
+                int NowOffset = StartPoint.AbsoluteCharOffset;
                 int InsertLength = InsertedText.Length;
 
                 //如果上次也是插入事件并且插入位置连续，聚合插入内容
                 if (LastOperation == Operation.Insert
-                    && NowOffset - LastOffset == InsertLength)
+                    && (NowOffset - LastStartOffset == InsertLength))
                 {
                     Buffer.Append(InsertedText);
                 }
@@ -169,7 +173,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             }
 
             ActiveDoc = Doc;
-            LastEditPoint = null;
+            LastStartOffset = -1;
             LastDocContent = getDocContent();
             LastOperation = Operation.Null;
         }
@@ -179,7 +183,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             FlushBuffer();
 
             ActiveDoc = null;
-            LastEditPoint = null;
+            LastStartOffset = -1;
             LastDocContent = null;
             LastOperation = Operation.Null;
         }
@@ -199,18 +203,84 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private void FlushBuffer()
         {
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("test", "test"));
+
+            list.Add(new KeyValuePair<string, Object>(
+                RecordKey.Operation.ToString(),
+                LastOperation.ToString()
+            ));
+
+            String Content = Buffer.ToString();
+            list.Add(new KeyValuePair<string, object>(
+                RecordKey.Content.ToString(), Content
+            ));
+            Buffer.Clear();
+
+            list.Add(new KeyValuePair<string, object>(
+                RecordKey.FileName.ToString(), ActiveDoc.Name
+            ));
+
+            list.Add(new KeyValuePair<string, object>(
+                RecordKey.Offset.ToString(), LastStartOffset
+            ));
+
             Logger.LogInfo(list);
         }
 
-        private String GetDeletedText()
+        private String GetDeletedText(TextPoint StartPoint)
         {
-            return null;
+            String[] Lines = LastDocContent.Split(new char[] { '\n' });
+            int StartOffset = StartPoint.LineCharOffset;
+            int StartLine = StartPoint.Line;
+            int DelCharNum = GetDeletedTextLength();
+
+            String DelText = "";
+            // 只删除一行
+            if (Lines[StartLine - 1].Length - StartOffset >= DelCharNum)
+            {
+                DelText = Lines[StartLine - 1].Substring(
+                    StartOffset - 1, DelCharNum
+                );
+            }
+            // 删除多行
+            else
+            {
+                StringBuilder Temp = new StringBuilder("");
+                // 获得删除的第一行
+                String FirstLine = Lines[StartLine - 1];
+                Temp.Append(FirstLine.Substring(StartOffset - 1)).Append('\n');
+                // 获得删除的剩余行
+                for (int i = StartLine; DelCharNum > Temp.Length; ++i)
+                {
+                    if (DelCharNum - Temp.Length > Lines[i].Length)
+                    {
+                        Temp.Append(Lines[i].Substring(0, Lines[i].Length)).Append('\n');
+                    }
+                    else
+                    {
+                        Temp.Append(Lines[i].Substring(0, DelCharNum - Temp.Length));
+                    }
+                }
+
+                DelText = Temp.ToString();
+            }
+
+            return DelText;
         }
 
         private int GetDeletedTextLength()
         {
-            return 0;
+            String CurrentDoc = getDocContent();
+            return LastDocContent.Length - CurrentDoc.Length;
+        }
+
+        private bool IsWhitespace(String str)
+        {
+            foreach (char c in str)
+            {
+                if (!(c == '\t' || c == '\n'
+                    || c == ' ' || c == '\r')) return false;
+            }
+            return true;
         }
     }
 }
