@@ -26,11 +26,20 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 return;
             }
 
-            // 如果发生了插入事件，则切换上下文的状态
-            int DeltaLength = Context.GetContentDelta(DocContent);
-            if (DeltaLength > 0)
+            // 如果发生了文本替换事件，则切换到替换状态
+            Tuple<String, String> ReplaceText = GetReplaceText(StartPoint, DocContent);
+            if (ReplaceText.Item2.Length > 0 && ReplaceText.Item1.Length > 0)
             {
-                TransferToInsertState(StartPoint, EndPoint);
+                Context.TransferToReplaceState(
+                    ReplaceText.Item2, ReplaceText.Item1
+                );
+                return;
+            }
+
+            // 如果发生了插入事件，则切换到插入状态状态
+            if (ReplaceText.Item1.Length > 0)
+            {
+                Context.TransferToInsertState(StartPoint, EndPoint);
                 return;
             }
 
@@ -42,20 +51,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         {
             if (Context.Buffer.Length > 0)
             {
-                Context.FlushBuffer(ContentBindEvent.Operation.Delete);
+                Context.FlushBuffer(
+                    ContentBindEvent.Operation.Delete,
+                    Context.Buffer.ToString(),
+                    String.Empty
+                );
             }
-        }
-
-        private void TransferToInsertState(TextPoint StartPoint, TextPoint EndPoint)
-        {
-            // 如果之前删除内容不为空，则清空缓存
-            if (Context.Buffer.Length > 0)
-            {
-                Context.FlushBuffer(ContentBindEvent.Operation.Delete);
-            }
-
-            Context.SetState(new InsertState(Context));
-            Context.ReLog(StartPoint, EndPoint);
         }
 
         private void HandleDeleteText(TextPoint StartPoint,
@@ -87,10 +88,58 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 }
                 else
                 {
-                    Context.FlushBuffer(ContentBindEvent.Operation.Delete);
+                    Context.FlushBuffer(
+                        ContentBindEvent.Operation.Delete,
+                        Context.Buffer.ToString(),
+                        String.Empty
+                    );
                     Buffer.Append(DelText);
                 }
             }
+        }
+
+        /**
+         * @returns Item1 Replacing Text
+         *          Item2 Replaced Text
+         */
+        private Tuple<String, String> GetReplaceText(TextPoint StartPoint, String CurrentDoc)
+        {
+            String LastDoc = Context.LastDocContent;
+            int Start = 0;
+            int OldLength = LastDoc.Length;
+            int NewLength = CurrentDoc.Length;
+
+            // 截去两个文本前面相同的部分
+            while (Start < OldLength && Start < NewLength)
+            {
+                if (CurrentDoc[Start] != LastDoc[Start]) break;
+                ++Start;
+            }
+
+            if (Start == OldLength || Start == NewLength)
+            {
+                return new Tuple<string, string>(
+                    Start == NewLength ? String.Empty : CurrentDoc.Substring(Start),
+                    Start == OldLength ? String.Empty : LastDoc.Substring(Start)
+                );
+            }
+
+            // 截去两个文本后面相同的部分
+            String OldDoc = LastDoc.Substring(Start);
+            String NewDoc = CurrentDoc.Substring(Start);
+            int OldIndex = OldDoc.Length - 1;
+            int NewIndex = NewDoc.Length - 1;
+            while (OldIndex >= 0 && NewIndex >= 0)
+            {
+                if (OldDoc[OldIndex] != NewDoc[NewIndex]) break;
+                --OldIndex;
+                --NewIndex;
+            }
+
+            return new Tuple<string, string>(
+                NewDoc.Substring(0, NewIndex + 1),
+                OldDoc.Substring(0, OldIndex + 1)
+            );
         }
 
         private String GetDeletedText(TextPoint StartPoint, String CurrentDoc)

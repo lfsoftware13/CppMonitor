@@ -1,18 +1,19 @@
 ﻿using EnvDTE;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
 {
-    class InsertState : IEditState
+    class ReplaceState : IEditState
     {
         private ContentBindEvent Context;
 
-        public InsertState(ContentBindEvent Context)
+        private String ReplacedText = String.Empty;
+
+        public ReplaceState(ContentBindEvent Context)
         {
             this.Context = Context;
         }
@@ -30,11 +31,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             int DeltaLength = Context.GetContentDelta(DocContent);
             if (DeltaLength < 0)
             {
-                Context.TransferToDeleteState(StartPoint, EndPoint);
+                TransferToDeleteState(StartPoint, EndPoint);
                 return;
             }
 
             Context.HandleInsertText(StartPoint, EndPoint, DocContent);
+        }
+
+        private void TransferToDeleteState(TextPoint StartPoint, TextPoint EndPoint)
+        {
+            FlushBuffer();
+            Context.SetState(new DeleteState(Context));
+            Context.ReLog(StartPoint, EndPoint);
         }
 
         public void FlushBuffer()
@@ -42,12 +50,20 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (Context.Buffer.Length > 0)
             {
                 Context.FlushBuffer(
-                    ContentBindEvent.Operation.Insert,
-                    String.Empty,
-                    Context.Buffer.ToString()
+                    ContentBindEvent.Operation.Replace,
+                    ReplacedText, Context.Buffer.ToString()
                 );
             }
+            ReplacedText = String.Empty;
         }
 
+        /**
+         * 刚刚检测到替换事件的发生，则调用这个方法
+         */
+        public void JustReplace(String ReplacingText, String ReplacedText)
+        {
+            this.ReplacedText = ReplacedText;
+            Context.Buffer.Append(ReplacingText);
+        }
     }
 }

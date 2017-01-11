@@ -16,12 +16,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     {
         public enum Operation
         {
-            Insert, Delete, Save
+            Insert, Delete, Replace, Save
         }
 
         private enum RecordKey
         {
-            Operation, FileName, Content, Offset
+            Operation, FileName, From, To, Offset
         }
     
         private DTE2 Dte2;
@@ -78,6 +78,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             Context.LastStartOffset = StartPoint.AbsoluteCharOffset;
         }
 
+        /*====================== Document Event Method Start ==================================*/
+
         private void OnDocOpened(Document Doc)
         {
             if (Context.ActiveDoc != null)
@@ -103,8 +105,78 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             EditState.FlushBuffer();
 
-            FlushBuffer(Operation.Save);
+            FlushBuffer(Operation.Save, String.Empty, String.Empty);
         }
+
+        /*====================== Document Event Method End ==================================*/
+
+        /*====================== Edit State Method Start ==================================*/
+
+        public void TransferToDeleteState(TextPoint StartPoint, TextPoint EndPoint)
+        {
+            EditState.FlushBuffer();
+            SetState(new DeleteState(this));
+            ReLog(StartPoint, EndPoint);
+        }
+
+        public void TransferToReplaceState(String ReplacedText, String ReplacingText)
+        {
+            EditState.FlushBuffer();
+            ReplaceState State = new ReplaceState(this);
+            State.JustReplace(ReplacingText, ReplacedText);
+            SetState(State);
+        }
+
+        public void TransferToInsertState(TextPoint StartPoint, TextPoint EndPoint)
+        {
+            EditState.FlushBuffer();
+            SetState(new InsertState(this));
+            ReLog(StartPoint, EndPoint);
+        }
+
+        public void HandleInsertText(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
+        {
+            StringBuilder Buffer = Context.Buffer;
+            String InsertedText = GetInsertedText(StartPoint, EndPoint);
+
+            //第一次编辑文本或者刚从其他状态切换过来
+            if (Context.LastStartOffset == -1 || Context.Buffer.Length == 0)
+            {
+                Debug.Assert(Buffer.Length == 0);
+
+                Buffer.Append(InsertedText);
+            }
+            else
+            {
+                int NowOffset = StartPoint.AbsoluteCharOffset;
+                int InsertLength = InsertedText.Length;
+
+                //如果上次也是插入事件并且插入位置连续，聚合插入内容
+                if (NowOffset - Context.LastStartOffset == InsertLength)
+                {
+                    Context.Buffer.Append(InsertedText);
+                }
+                else
+                {
+                    FlushBuffer(
+                        ContentBindEvent.Operation.Insert,
+                        String.Empty,
+                        Context.Buffer.ToString()
+                    );
+                    Context.Buffer.Append(InsertedText);
+                }
+            }
+        }
+
+        private String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
+        {
+            EditPoint StartEdit = StartPoint.CreateEditPoint();
+            String InsertedText = StartEdit.GetText(EndPoint);
+            return InsertedText;
+        }
+
+        /*====================== Edit State Method End ==================================*/
 
         private String GetDocContent()
         {
@@ -118,7 +190,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             return DocStart.GetText(Doc.EndPoint);
         }
 
-        public void FlushBuffer(Operation Op)
+        public void FlushBuffer(Operation Op, String From, String To)
         {
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
@@ -127,10 +199,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 Op.ToString()
             ));
 
-            String Content = Context.Buffer.ToString();
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.Content.ToString(), Content
+                RecordKey.From.ToString(), From
             ));
+
+            list.Add(new KeyValuePair<string, object>(
+                RecordKey.To.ToString(), To
+            ));
+
             Context.Buffer.Clear();
 
             list.Add(new KeyValuePair<string, object>(
@@ -174,6 +250,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             EditState = State;
         }
 
+        /*====================== Get Property Method Start ==================================*/
+
         public int LastStartOffset
         {
             get { return Context.LastStartOffset; }
@@ -194,6 +272,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             get { return Context.LastDocContent; }
         }
 
-        
+        /*====================== Get Property Method End ==================================*/
     }
 }
