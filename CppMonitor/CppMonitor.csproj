@@ -131,6 +131,7 @@
     <Compile Include="Monitor\ContentMointor\LoggerDAOImpl_Stub.cs" />
     <Compile Include="Monitor\ContentMointor\State\DeleteState.cs" />
     <Compile Include="Monitor\ContentMointor\State\IEditState.cs" />
+    <Compile Include="Monitor\ContentMointor\State\InsertAfterEnterState.cs" />
     <Compile Include="Monitor\ContentMointor\State\InsertState.cs" />
     <Compile Include="Monitor\ContentMointor\State\ReplaceState.cs" />
     <Compile Include="Monitor\ContentMointor\State\StartState.cs" />

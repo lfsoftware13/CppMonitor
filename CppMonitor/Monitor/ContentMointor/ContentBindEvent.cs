@@ -134,6 +134,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ReLog(StartPoint, EndPoint);
         }
 
+        private void TransferToInsertAfterEnterState(
+            String InsertedText)
+        {
+            Context.Buffer.Insert(0, InsertedText);
+            SetState(new InsertAfterEnterState(this));
+        }
+
+        public bool IsEnterFollow(String Text, int OffsetDiff)
+        {
+            return Text.Equals("\r\n") && OffsetDiff == 1;
+        }
+
         public void HandleInsertText(TextPoint StartPoint,
             TextPoint EndPoint, String DocContent)
         {
@@ -151,25 +163,37 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             {
                 int NowOffset = StartPoint.AbsoluteCharOffset;
                 int InsertLength = InsertedText.Length;
+                int OffsetDiff = NowOffset - Context.LastStartOffset;
 
-                //如果上次也是插入事件并且插入位置连续，聚合插入内容
+                // 如果满足以下条件中的任意一个，则聚合所要插入的内容
+                // 1、被插入字符长度 = 前后两次偏移之差
+                // 2、被插入的字符是"\r\n"，而且前后字符偏移只差1，
+                //    说明插入紧接着的是换行符，这是观察VS而得到的结论，
+                //    这种情况下，切换到InsertAfterEnterState
+
+                if (IsEnterFollow(InsertedText, OffsetDiff))
+                {
+                    TransferToInsertAfterEnterState(InsertedText);
+                    return;
+                }
+
                 if (NowOffset - Context.LastStartOffset == InsertLength)
                 {
-                    Context.Buffer.Append(InsertedText);
+                    Buffer.Append(InsertedText);
                 }
                 else
                 {
                     FlushBuffer(
                         ContentBindEvent.Operation.Insert,
                         String.Empty,
-                        Context.Buffer.ToString()
+                        Buffer.ToString()
                     );
-                    Context.Buffer.Append(InsertedText);
+                    Buffer.Append(InsertedText);
                 }
             }
         }
 
-        private String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
+        public String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
         {
             EditPoint StartEdit = StartPoint.CreateEditPoint();
             String InsertedText = StartEdit.GetText(EndPoint);

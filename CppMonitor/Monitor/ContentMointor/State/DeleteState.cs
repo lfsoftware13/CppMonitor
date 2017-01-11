@@ -78,11 +78,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 int DelLength = -Context.GetContentDelta(DocContent);
                 int OffsetDiff = Context.LastStartOffset - NowOffset;
 
-                // 如果满足一下条件，则聚合所要删除的内容
+                // 如果满足以下条件中的任意一个，则聚合所要删除的内容
                 // 1、被删除字符长度 = 前后两次偏移之差
                 // 2、被删除的字符是"\r\n"，而且前后偏移字符只差为1，
-                //    说明删除的紧接着的换行符，这是观察VS而得到的结论
-                if (OffsetDiff == DelLength || (DelText.Equals("\r\n") && OffsetDiff == 1))
+                //    说明删除紧接着的是换行符，这是观察VS而得到的结论
+                if (OffsetDiff == DelLength || Context.IsEnterFollow(DelText, OffsetDiff))
                 {
                     Buffer.Insert(0, DelText);
                 }
