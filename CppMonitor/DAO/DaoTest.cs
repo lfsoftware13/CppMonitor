@@ -3,25 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SQLite;
+using System.Threading;
+using NanjingUniversity.CppMonitor.DAO.imp;
 namespace NanjingUniversity.CppMonitor.DAO
 {
     class DaoTest
     {
         static void Main(string[] args)
         {
-            DaoTest test = new DaoTest();
-            test.testConnect();
+            DaoTest.testInsert();
         }
 
-        public void testConnect()
+        public static void testInsert()
         {
-            SQLiteConnection.CreateFile("pluginLog.sqlite");
-            SQLiteConnection m_dbConnection = new SQLiteConnection("Data Source=pluginLog.sqlite;Version=3;");
-            m_dbConnection.Open();
-            string sql = "create table buildLog (time varchar(20), score int)";
-            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-            command.ExecuteNonQuery();
+            DBHelper helper = DBHelper.getInstance();
+            helper.insertMulti();
+        }
+
+        public void testShow()
+        {
+            DBHelper helper = DBHelper.getInstance();
+            helper.printData();
+        }
+
+        public void testMultiThread()
+        {
+            System.DateTime start = System.DateTime.Now;
+            Thread t1 = new Thread(new ThreadStart(testInsert));
+            DaoTest.testInsert();
+            t1.Start();
+            System.DateTime end = System.DateTime.Now;
+            TimeSpan span = end - start;
+            Console.WriteLine(span.TotalMilliseconds / 1000);
+        }
+
+        public static void testClear()
+        {
+            DBHelper helper = DBHelper.getInstance();
+            helper.clearLog("build_log");
         }
     }
 }
