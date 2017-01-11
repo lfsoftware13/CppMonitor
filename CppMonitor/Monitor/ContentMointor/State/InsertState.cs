@@ -22,7 +22,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             // 如果文本内容没有变化而被调用，清空缓冲区
             if (StartPoint == null || EndPoint == null || DocContent == null)
             {
-                Context.FlushBuffer(ContentBindEvent.Operation.Insert);
+                FlushBuffer();
                 return;
             }
 
@@ -68,6 +68,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                     Context.FlushBuffer(ContentBindEvent.Operation.Insert);
                     Context.Buffer.Append(InsertedText);
                 }
+            }
+        }
+
+        public void FlushBuffer()
+        {
+            if (Context.Buffer.Length > 0)
+            {
+                Context.FlushBuffer(ContentBindEvent.Operation.Insert);
             }
         }
 

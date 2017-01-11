@@ -16,7 +16,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     {
         public enum Operation
         {
-            Insert, Delete
+            Insert, Delete, Save
         }
 
         private enum RecordKey
@@ -67,6 +67,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
             DocEvents.DocumentOpened += OnDocOpened;
             DocEvents.DocumentClosing += OnDocClosing;
+            DocEvents.DocumentSaved += OnDocSaved;
         }
 
         public void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
@@ -81,7 +82,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             if (Context.ActiveDoc != null)
             {
-                EditState.LogInfo(null, null, null);
+                EditState.FlushBuffer();
             }
 
             Context.ActiveDoc = Doc;
@@ -91,11 +92,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocClosing(Document Doc)
         {
-            EditState.LogInfo(null, null, null);
+            EditState.FlushBuffer();
 
             Context.ActiveDoc = null;
             Context.LastStartOffset = -1;
             Context.LastDocContent = null;
+        }
+
+        private void OnDocSaved(Document Doc)
+        {
+            EditState.FlushBuffer();
+
+            FlushBuffer(Operation.Save);
         }
 
         private String GetDocContent()

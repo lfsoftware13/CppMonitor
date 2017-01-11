@@ -22,7 +22,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             // 如果文本内容没有变化而被调用，清空缓冲区
             if (StartPoint == null || EndPoint == null || DocContent == null)
             {
-                Context.FlushBuffer(ContentBindEvent.Operation.Delete);
+                FlushBuffer();
                 return;
             }
 
@@ -30,22 +30,41 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             int DeltaLength = Context.GetContentDelta(DocContent);
             if (DeltaLength > 0)
             {
-                // 如果之前删除内容不为空，则清空缓存
-                if (Context.Buffer.Length > 0)
-                {
-                    Context.FlushBuffer(ContentBindEvent.Operation.Delete);
-                }
-
-                Context.SetState(new InsertState(Context));
-                Context.ReLog(StartPoint, EndPoint);
+                TransferToInsertState(StartPoint, EndPoint);
                 return;
             }
 
             // 对删除事件进行处理
+            HandleDeleteText(StartPoint, EndPoint, DocContent);
+        }
+
+        public void FlushBuffer()
+        {
+            if (Context.Buffer.Length > 0)
+            {
+                Context.FlushBuffer(ContentBindEvent.Operation.Delete);
+            }
+        }
+
+        private void TransferToInsertState(TextPoint StartPoint, TextPoint EndPoint)
+        {
+            // 如果之前删除内容不为空，则清空缓存
+            if (Context.Buffer.Length > 0)
+            {
+                Context.FlushBuffer(ContentBindEvent.Operation.Delete);
+            }
+
+            Context.SetState(new InsertState(Context));
+            Context.ReLog(StartPoint, EndPoint);
+        }
+
+        private void HandleDeleteText(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
+        {
             String DelText = GetDeletedText(StartPoint, DocContent);
             StringBuilder Buffer = Context.Buffer;
 
-            //第一次编辑文本或者刚从其他状态切换过来
+            // 第一次编辑文本或者刚从其他状态切换过来
             if (Context.LastStartOffset == -1 || Context.Buffer.Length == 0)
             {
                 Debug.Assert(Buffer.Length == 0);
@@ -56,9 +75,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             {
                 int NowOffset = StartPoint.AbsoluteCharOffset;
                 int DelLength = -Context.GetContentDelta(DocContent);
+                int OffsetDiff = Context.LastStartOffset - NowOffset;
 
-                //如果上次也是删除事件并且删除位置连续，聚合删除内容
-                if (Context.LastStartOffset - NowOffset == DelLength)
+                // 如果满足一下条件，则聚合所要删除的内容
+                // 1、被删除字符长度 = 前后两次偏移之差
+                // 2、被删除的字符是"\r\n"，而且前后偏移字符只差为1，
+                //    说明删除的紧接着的换行符，这是观察VS而得到的结论
+                if (OffsetDiff == DelLength || (DelText.Equals("\r\n") && OffsetDiff == 1))
                 {
                     Buffer.Insert(0, DelText);
                 }

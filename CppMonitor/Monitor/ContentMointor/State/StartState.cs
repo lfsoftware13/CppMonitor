@@ -35,5 +35,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             // 重新响应事件
             Context.ReLog(StartPoint, EndPoint);
         }
+
+        public void FlushBuffer()
+        {
+            return;
+        }
     }
 }
