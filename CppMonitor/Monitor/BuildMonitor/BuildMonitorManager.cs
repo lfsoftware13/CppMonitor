@@ -122,9 +122,49 @@ namespace NanjingUniversity.CppMonitor.Monitor
                             info.BuildLogFile = con.Evaluate("$(ProjectDir)")+info.BuildLogFile;
                         }
                         info.BuildLogContent = BuildMonitorUtil.ReadFile(info.BuildLogFile);
+
+                        info.CompilerCommand = GetCLCommand(info.BuildLogContent);
+                        info.LinkCommand = GetLinkCommand(info.BuildLogContent);
+
                     }
                 }
             }
+        }
+
+        string GetCLCommand(string content)
+        {
+            string command="";
+            if(content==null){
+                return command;
+            }
+            string[] strs = content.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            foreach(string str in strs){
+                string line = str.Trim();
+                if (line.Length > 3 && "cl ".Equals(line.Substring(0, 3)) && (".cpp".Equals(line.Substring(line.Length - 4, 4)) || ".cxx".Equals(line.Substring(line.Length - 4, 4)) || ".c".Equals(line.Substring(line.Length - 2, 2)) || ".C".Equals(line.Substring(line.Length - 2, 2))))
+                {
+                    command = line;
+                }
+            }
+            return command;
+        }
+
+        string GetLinkCommand(string content)
+        {
+            string command = "";
+            if (content == null)
+            {
+                return command;
+            }
+            string[] strs = content.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            foreach (string str in strs)
+            {
+                string line = str.Trim();
+                if (line.Length>6 && "\"/OUT:".Equals(line.Substring(0, 6)) && ".obj".Equals(line.Substring(line.Length-4, 4)))
+                {
+                    command = line;
+                }
+            }
+            return command;
         }
 
         
