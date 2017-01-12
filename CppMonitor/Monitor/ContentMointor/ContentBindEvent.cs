@@ -137,7 +137,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private void TransferToInsertAfterEnterState(
             String InsertedText)
         {
-            Context.Buffer.Insert(0, InsertedText);
+            Context.Buffer.Append(InsertedText);
             SetState(new InsertAfterEnterState(this));
         }
 
