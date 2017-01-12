@@ -30,7 +30,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 FlushBuffer();
                 return;
             }
-
+   
             // 如果发生了文本删除事件，则切换到删除状态
             int DeltaLength = Context.GetContentDelta(DocContent);
             if (DeltaLength < 0) {

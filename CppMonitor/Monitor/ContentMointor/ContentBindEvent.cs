@@ -16,12 +16,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     {
         public enum Operation
         {
-            Insert, Delete, Replace, Save
+            Insert, Delete, Replace, AutoComplete, Save
         }
 
         private enum RecordKey
         {
-            Operation, FileName, From, To, Offset
+            Operation, FileName, From, To, EndCharOffset
         }
     
         private DTE2 Dte2;
@@ -34,7 +34,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private SelectionEvents SelectEvents;
 
-        private ILoggerDao Logger;
+        private LoggerDAOImpl_Stub Logger;
 
         //当前编辑的上下文信息
         private ContextState Context;
@@ -193,11 +193,54 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             }
         }
 
+        /**
+         * @returns Item1 Replacing Text
+         *          Item2 Replaced Text
+         */
+        public Tuple<String, String> GetReplaceText(TextPoint StartPoint, String CurrentDoc)
+        {
+            String LastDoc = Context.LastDocContent;
+            int Start = GetCharOffset(StartPoint);
+            int OldLength = LastDoc.Length;
+            int NewLength = CurrentDoc.Length;
+
+            if (Start >= OldLength || Start >= NewLength)
+            {
+                return new Tuple<string, string>(
+                    Start >= NewLength ? String.Empty : CurrentDoc.Substring(Start),
+                    Start >= OldLength ? String.Empty : LastDoc.Substring(Start)
+                );
+            }
+
+            // 截去两个文本后面相同的部分
+            String OldDoc = LastDoc.Substring(Start);
+            String NewDoc = CurrentDoc.Substring(Start);
+            int OldIndex = OldDoc.Length - 1;
+            int NewIndex = NewDoc.Length - 1;
+            while (OldIndex >= 0 && NewIndex >= 0)
+            {
+                if (OldDoc[OldIndex] != NewDoc[NewIndex]) break;
+                --OldIndex;
+                --NewIndex;
+            }
+
+            return new Tuple<string, string>(
+                NewDoc.Substring(0, NewIndex + 1),
+                OldDoc.Substring(0, OldIndex + 1)
+            );
+        }
+
         public String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
         {
             EditPoint StartEdit = StartPoint.CreateEditPoint();
             String InsertedText = StartEdit.GetText(EndPoint);
             return InsertedText;
+        }
+
+        private int GetCharOffset(TextPoint StartPoint)
+        {
+            // 观察VS得到的结论
+            return StartPoint.AbsoluteCharOffset + StartPoint.Line - 2;
         }
 
         /*====================== Edit State Method End ==================================*/
@@ -238,7 +281,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.Offset.ToString(), Context.LastStartOffset
+                RecordKey.EndCharOffset.ToString(), Context.LastStartOffset
             ));
 
             Logger.LogInfo(list);

@@ -37,5 +37,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             
             return true;
         }
+
+        public void LogTemp(String Text)
+        {
+            StreamWriter Out = new StreamWriter(new FileStream(
+                "C:/Users/Y481L/Desktop/msg.txt", FileMode.Append | FileMode.OpenOrCreate
+            ));
+            Out.WriteLine(Text);
+            Out.Flush();
+            Out.Close();
+        }
     }
 }

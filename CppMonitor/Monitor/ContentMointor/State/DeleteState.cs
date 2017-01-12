@@ -27,7 +27,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             }
 
             // 如果发生了文本替换事件，则切换到替换状态
-            Tuple<String, String> ReplaceText = GetReplaceText(StartPoint, DocContent);
+            Tuple<String, String> ReplaceText = Context.GetReplaceText(StartPoint, DocContent);
             if (ReplaceText.Item2.Length > 0 && ReplaceText.Item1.Length > 0)
             {
                 Context.TransferToReplaceState(
@@ -96,50 +96,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                     Buffer.Append(DelText);
                 }
             }
-        }
-
-        /**
-         * @returns Item1 Replacing Text
-         *          Item2 Replaced Text
-         */
-        private Tuple<String, String> GetReplaceText(TextPoint StartPoint, String CurrentDoc)
-        {
-            String LastDoc = Context.LastDocContent;
-            int Start = 0;
-            int OldLength = LastDoc.Length;
-            int NewLength = CurrentDoc.Length;
-
-            // 截去两个文本前面相同的部分
-            while (Start < OldLength && Start < NewLength)
-            {
-                if (CurrentDoc[Start] != LastDoc[Start]) break;
-                ++Start;
-            }
-
-            if (Start == OldLength || Start == NewLength)
-            {
-                return new Tuple<string, string>(
-                    Start == NewLength ? String.Empty : CurrentDoc.Substring(Start),
-                    Start == OldLength ? String.Empty : LastDoc.Substring(Start)
-                );
-            }
-
-            // 截去两个文本后面相同的部分
-            String OldDoc = LastDoc.Substring(Start);
-            String NewDoc = CurrentDoc.Substring(Start);
-            int OldIndex = OldDoc.Length - 1;
-            int NewIndex = NewDoc.Length - 1;
-            while (OldIndex >= 0 && NewIndex >= 0)
-            {
-                if (OldDoc[OldIndex] != NewDoc[NewIndex]) break;
-                --OldIndex;
-                --NewIndex;
-            }
-
-            return new Tuple<string, string>(
-                NewDoc.Substring(0, NewIndex + 1),
-                OldDoc.Substring(0, OldIndex + 1)
-            );
         }
 
         private String GetDeletedText(TextPoint StartPoint, String CurrentDoc)
