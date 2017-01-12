@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DAO\imp\" />
+    <Folder Include="Monitor\ContentMointor\TestCase\" />
   </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>

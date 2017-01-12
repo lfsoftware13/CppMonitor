@@ -325,9 +325,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             return CurrentContent.Length - Context.LastDocContent.Length;
         }
 
-        public void SetState(IEditState State1)
+        public void SetState(IEditState State)
         {
-            EditState = State1;
+            EditState = State;
         }
 
         /*====================== Get Property Method Start ==================================*/
