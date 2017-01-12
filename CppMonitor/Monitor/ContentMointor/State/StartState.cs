@@ -23,17 +23,31 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 return;
             }
 
-            if (Context.GetContentDelta(DocContent) < 0)
+            Tuple<string, string> ReplaceText = ContentUtil.GetReplaceText(
+                StartPoint, Context.LastDocContent, DocContent
+            );
+            String ReplacingText = ReplaceText.Item1;
+            String ReplacedText = ReplaceText.Item2;
+
+            if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText))
             {
-                Context.SetState(new DeleteState(Context));
+                Context.TransferToDeleteState(
+                    StartPoint, EndPoint, DocContent
+                );
             }
-            else
+            else if (ContentUtil.IsInsertEvent(ReplacingText, ReplacedText))
             {
-                Context.SetState(new InsertState(Context));
+                Context.TransferToInsertState(
+                    StartPoint, EndPoint, DocContent
+                );
+            }
+            else if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText))
+            {
+                Context.TransferToReplaceState(
+                    StartPoint, ReplacingText, ReplacedText
+                );
             }
 
-            // 重新响应事件
-            Context.ReLog(StartPoint, EndPoint);
         }
 
         public void FlushBuffer()

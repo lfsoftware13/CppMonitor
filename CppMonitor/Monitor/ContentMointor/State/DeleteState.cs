@@ -26,20 +26,27 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 return;
             }
 
+            Tuple<String, String> ReplaceText = ContentUtil.GetReplaceText(
+                StartPoint, Context.LastDocContent, DocContent
+            );
+            String ReplacingText = ReplaceText.Item1;
+            String ReplacedText = ReplaceText.Item2;
+
             // 如果发生了文本替换事件，则切换到替换状态
-            Tuple<String, String> ReplaceText = Context.GetReplaceText(StartPoint, DocContent);
-            if (ReplaceText.Item2.Length > 0 && ReplaceText.Item1.Length > 0)
+            if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText))
             {
                 Context.TransferToReplaceState(
-                    StartPoint, ReplaceText.Item2, ReplaceText.Item1
+                    StartPoint, ReplacingText, ReplacedText
                 );
                 return;
             }
 
-            // 如果发生了插入事件，则切换到插入状态状态
-            if (ReplaceText.Item1.Length > 0)
+            // 如果发生了插入事件，则切换到插入状态
+            if (ContentUtil.IsInsertEvent(ReplacingText, ReplacedText))
             {
-                Context.TransferToInsertState(StartPoint, EndPoint);
+                Context.TransferToInsertState(
+                    StartPoint, EndPoint, DocContent
+                );
                 return;
             }
 
@@ -64,8 +71,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         {
             String DelText = GetDeletedText(StartPoint, DocContent);
             StringBuilder Buffer = Context.Buffer;
-            // 第一次编辑文本或者刚从其他状态切换过来
-            if (Context.LastStartOffset == -1 || Context.Buffer.Length == 0)
+
+            bool FirstEdit = ContentUtil.IsFirstEdit(Context.LastStartOffset);
+            bool TransferFromOthers = Buffer.Length == 0;
+            if (FirstEdit || TransferFromOthers)
             {
                 Debug.Assert(Buffer.Length == 0);
 
@@ -81,7 +90,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 // 1、被删除字符长度 = 前后两次偏移之差
                 // 2、被删除的字符是"\r\n"，而且前后偏移字符只差为1，
                 //    说明删除紧接着的是换行符，这是观察VS而得到的结论
-                if (OffsetDiff == DelLength || Context.IsTypeEnter(DelText, OffsetDiff))
+                if (OffsetDiff == DelLength || ContentUtil.IsTypeEnter(DelText, OffsetDiff))
                 {
                     Buffer.Insert(0, DelText);
                 }
@@ -97,7 +106,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             }
 
             Context.LineBeforeFlush = StartPoint.Line;
-            Context.StartOffsetBeforeFlush = StartPoint.LineCharOffset;
+            Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
         }
 
         private String GetDeletedText(TextPoint StartPoint, String CurrentDoc)

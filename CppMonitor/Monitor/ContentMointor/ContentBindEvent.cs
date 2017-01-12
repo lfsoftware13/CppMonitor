@@ -72,7 +72,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
-            ReLog(StartPoint, EndPoint);
+            ReLog(StartPoint, EndPoint, GetDocContent());
 
             Context.LastDocContent = GetDocContent();
             Context.LastStartOffset = StartPoint.AbsoluteCharOffset;
@@ -82,23 +82,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocOpened(Document Doc)
         {
-            if (Context.ActiveDoc != null)
-            {
-                EditState.FlushBuffer();
-            }
-
-            Context.ActiveDoc = Doc;
-            Context.LastStartOffset = -1;
-            Context.LastDocContent = GetDocContent();
+            TransferToStartState();
         }
 
         private void OnDocClosing(Document Doc)
         {
-            EditState.FlushBuffer();
-
-            Context.ActiveDoc = null;
-            Context.LastStartOffset = -1;
-            Context.LastDocContent = null;
+            TransferToStartState();
         }
 
         private void OnDocSaved(Document Doc)
@@ -112,15 +101,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         /*====================== Edit State Method Start ==================================*/
 
-        public void TransferToDeleteState(TextPoint StartPoint, TextPoint EndPoint)
+        public void TransferToDeleteState(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
         {
             EditState.FlushBuffer();
             SetState(new DeleteState(this));
-            ReLog(StartPoint, EndPoint);
+            ReLog(StartPoint, EndPoint, DocContent);
         }
 
         public void TransferToReplaceState(TextPoint StartPoint,
-            String ReplacedText, String ReplacingText)
+            String ReplacingText, String ReplacedText)
         {
             EditState.FlushBuffer();
             ReplaceState State = new ReplaceState(this);
@@ -128,129 +118,27 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             SetState(State);
         }
 
-        public void TransferToInsertState(TextPoint StartPoint, TextPoint EndPoint)
+        public void TransferToInsertState(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
         {
             EditState.FlushBuffer();
             SetState(new InsertState(this));
-            ReLog(StartPoint, EndPoint);
+            ReLog(StartPoint, EndPoint, DocContent);
         }
 
-        private void TransferToInsertAfterEnterState(
-            String InsertedText)
+        private void TransferToStartState()
         {
-            Context.Buffer.Append(InsertedText);
-            SetState(new InsertAfterEnterState(this));
+            EditState.FlushBuffer();
+            SetState(new StartState(this));
+            Context = new ContextState(-1, -1, -1, Buffer, Dte2.ActiveDocument, null);
         }
 
-        public bool IsTypeEnter(String Text, int OffsetDiff)
-        {
-            return Text.Equals("\r\n") && OffsetDiff == 1;
-        }
-
-        public void HandleInsertText(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
-        {
-            StringBuilder Buffer = Context.Buffer;
-            String InsertedText = GetInsertedText(StartPoint, EndPoint);
-
-            //第一次编辑文本或者刚从其他状态切换过来
-            if (Context.LastStartOffset == -1 || Context.Buffer.Length == 0)
-            {
-                Debug.Assert(Buffer.Length == 0);
-
-                Context.LineBeforeFlush = StartPoint.Line;
-                Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
-
-                if (InsertedText.Equals("\r\n"))
-                {
-                    TransferToInsertAfterEnterState(InsertedText);
-                    return;
-                }
-
-                Buffer.Append(InsertedText);
-            }
-            else
-            {
-                int InsertLength = InsertedText.Length;
-                int NowOffset = StartPoint.AbsoluteCharOffset;
-                int OffsetDiff = NowOffset - Context.LastStartOffset;
-
-                // 被插入的字符是"\r\n"，而且前后字符偏移只差1，
-                // 说明插入紧接着的是换行符，这是观察VS而得到的结论，
-                // 这种情况下，切换到InsertAfterEnterState
-                if (IsTypeEnter(InsertedText, OffsetDiff))
-                {
-                    TransferToInsertAfterEnterState(InsertedText);
-                    return;
-                }
-
-                // 如果满足以下条件中的任意一个，则聚合所要插入的内容
-                // 1、被插入字符长度 = 前后两次偏移之差
-                if (NowOffset - Context.LastStartOffset == InsertLength)
-                {
-                    Buffer.Append(InsertedText);
-                }
-                else
-                {
-                    FlushBuffer(
-                        ContentBindEvent.Operation.Insert,
-                        String.Empty,
-                        Buffer.ToString()
-                    );
-                    Buffer.Append(InsertedText);
-                }
-            }
-        }
-
-        /**
-         * @returns Item1 Replacing Text
-         *          Item2 Replaced Text
-         */
-        public Tuple<String, String> GetReplaceText(TextPoint StartPoint, String CurrentDoc)
-        {
-            String LastDoc = Context.LastDocContent;
-            int Start = GetCharOffset(StartPoint);
-            int OldLength = LastDoc.Length;
-            int NewLength = CurrentDoc.Length;
-
-            if (Start >= OldLength || Start >= NewLength)
-            {
-                return new Tuple<string, string>(
-                    Start >= NewLength ? String.Empty : CurrentDoc.Substring(Start),
-                    Start >= OldLength ? String.Empty : LastDoc.Substring(Start)
-                );
-            }
-
-            // 截去两个文本后面相同的部分
-            String OldDoc = LastDoc.Substring(Start);
-            String NewDoc = CurrentDoc.Substring(Start);
-            int OldIndex = OldDoc.Length - 1;
-            int NewIndex = NewDoc.Length - 1;
-            while (OldIndex >= 0 && NewIndex >= 0)
-            {
-                if (OldDoc[OldIndex] != NewDoc[NewIndex]) break;
-                --OldIndex;
-                --NewIndex;
-            }
-
-            return new Tuple<string, string>(
-                NewDoc.Substring(0, NewIndex + 1),
-                OldDoc.Substring(0, OldIndex + 1)
-            );
-        }
-
-        public String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
-        {
-            EditPoint StartEdit = StartPoint.CreateEditPoint();
-            String InsertedText = StartEdit.GetText(EndPoint);
-            return InsertedText;
-        }
-
-        private int GetCharOffset(TextPoint StartPoint)
-        {
-            // 观察VS得到的结论
-            return StartPoint.AbsoluteCharOffset + StartPoint.Line - 2;
-        }
+        //public void TransferToInsertAfterEnterState(
+        //    String InsertedText)
+        //{
+        //    Context.Buffer.Append(InsertedText);
+        //    SetState(new InsertAfterEnterState(this));
+        //}
 
         /*====================== Edit State Method End ==================================*/
 
@@ -313,11 +201,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             }
         }
 
-        public void ReLog(TextPoint StartPoint, TextPoint EndPoint)
+        public void ReLog(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
         {
             if (!isCppFile(Dte2.ActiveWindow.Document.Name)) return;
 
-            EditState.LogInfo(StartPoint, EndPoint, GetDocContent());
+            EditState.LogInfo(StartPoint, EndPoint, DocContent);
         }
 
         public int GetContentDelta(String CurrentContent)
@@ -337,7 +226,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             get { return Context.LastStartOffset; }
         }
 
-        public int StartOffsetBeforeFlush
+        public int LineOffsetBeforeFlush
         {
             get { return Context.LineOffsetBeforeFlush; }
             set { Context.LineOffsetBeforeFlush = value; }

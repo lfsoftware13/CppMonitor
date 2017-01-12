@@ -30,59 +30,29 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 FlushBuffer();
                 return;
             }
-   
+
+            Tuple<string, string> ReplaceText = ContentUtil.GetReplaceText(
+                StartPoint, Context.LastDocContent, DocContent
+            );
+            String ReplacingText = ReplaceText.Item1;
+            String ReplacedText = ReplaceText.Item2;
+
             // 如果发生了文本删除事件，则切换到删除状态
-            int DeltaLength = Context.GetContentDelta(DocContent);
-            if (DeltaLength < 0) {
-                Context.TransferToDeleteState(StartPoint, EndPoint);
+            if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText)) {
+                Context.TransferToDeleteState(
+                    StartPoint, EndPoint, DocContent
+                );
                 return;
             }
 
-            int NowOffset = StartPoint.AbsoluteCharOffset;
-            int OffsetDiff = NowOffset - Context.LastStartOffset;
-            String InsertedText = Context.GetInsertedText(StartPoint, EndPoint);
-    
-            // 如果满足以下条件中的任意一个，则聚合所要插入的内容
-            // 1、被插入字符长度 = 前后两次偏移之差
-            // 2、被插入的字符是"\r\n"，而且前后字符偏移只差1，
-            //    说明插入紧接着的是换行符，这是观察VS而得到的结论，
-            // 3、被插入的字符是一个字符，而且前面全部是空白符，
-            //    同时前后字符偏移只差1，说明这是换行之后插入的第一个字符，
-            //    这是观察VS而得出的结论
-            // 4、被插入的字符是一个字符，字符偏移等于换行后第一次插入
-            //    (包括空白符）的长度，说明这是换行之后插入的第二个字符，
-            //    这是观察VS而得出的结论
-            ++InsertNum;
-            if (InsertNum == 1)
-            {
-                FirstLength = InsertedText.Length;
-                if (DeltaLength == OffsetDiff ||
-                    Context.IsTypeEnter(InsertedText, OffsetDiff) ||
-                    isTextAfterEnter(InsertedText, OffsetDiff))
-                {
-                    Context.Buffer.Append(InsertedText);
-                }
-                else
-                {
-                    TransferToInsertState(StartPoint, EndPoint);
-                }
-            }
-            else if (InsertNum == 2)
-            {
-                if (FirstLength == OffsetDiff && InsertedText.Length == 1)
-                {
-                    Context.Buffer.Append(InsertedText);
-                }
-                else
-                {
-                    TransferToInsertState(StartPoint, EndPoint);
-                }
-            }
-            else
-            {
-                TransferToInsertState(StartPoint, EndPoint);
+            // 如果发生了文本替换事件，则切换到文本替换状态
+            if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText)) {
+                Context.TransferToReplaceState(StartPoint, ReplacingText, ReplacedText);
+                return;
             }
 
+            // 处理文本插入事件
+            HandleInsertText(StartPoint, EndPoint, DocContent);
         }
 
         public void FlushBuffer()
@@ -97,10 +67,59 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             }
         }
 
-        private void TransferToInsertState(TextPoint StartPoint, TextPoint EndPoint)
+        private void HandleInsertText(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
+        {
+            int NowOffset = StartPoint.AbsoluteCharOffset;
+            int OffsetDiff = NowOffset - Context.LastStartOffset;
+            int DeltaLength = Context.GetContentDelta(DocContent);
+            String InsertedText = ContentUtil.GetInsertedText(StartPoint, EndPoint);
+
+            // 如果满足以下条件中的任意一个，则聚合所要插入的内容
+            // 1、被插入字符长度 = 前后两次偏移之差
+            // 2、被插入的字符是"\r\n"，而且前后字符偏移只差1，
+            //    说明插入紧接着的是换行符，这是观察VS而得到的结论，
+            // 3、被插入的字符是一个字符，而且前面全部是空白符，
+            //    同时前后字符偏移只差1，说明这是换行之后插入的第一个字符，
+            //    这是观察VS而得出的结论
+            // 4、被插入的字符是一个字符，字符偏移等于换行后第一次插入
+            //    (包括空白符）的长度，说明这是换行之后插入的第二个字符，
+            //    这是观察VS而得出的结论
+            ++InsertNum;
+            if (InsertNum == 1)
+            {
+                FirstLength = InsertedText.Length;
+                if (IsFirstCharAfterEnter(InsertedText, OffsetDiff))
+                {
+                    Context.Buffer.Append(InsertedText);
+                }
+                else
+                {
+                    TransferToInsertState(StartPoint, EndPoint, DocContent);
+                }
+            }
+            else if (InsertNum == 2)
+            {
+                if (IsSecondCharAfterEnter(OffsetDiff))
+                {
+                    Context.Buffer.Append(InsertedText);
+                }
+                else
+                {
+                    TransferToInsertState(StartPoint, EndPoint, DocContent);
+                }
+            }
+            else
+            {
+                TransferToInsertState(StartPoint, EndPoint, DocContent);
+            }
+        }
+
+        private void TransferToInsertState(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
         {
             Context.SetState(new InsertState(Context));
-            Context.ReLog(StartPoint, EndPoint);
+            Context.ReLog(StartPoint, EndPoint, DocContent);
         }
 
         private bool isTextAfterEnter(String InsertedText, int OffsetDiff)
@@ -111,6 +130,17 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 if (!isWhiteSpace(InsertedText[i])) return false;
             }
             return OffsetDiff == 1;
+        }
+
+        private bool IsFirstCharAfterEnter(String InsertedText, int OffsetDiff)
+        {
+            return ContentUtil.IsTypeEnter(InsertedText, OffsetDiff)
+                || isTextAfterEnter(InsertedText, OffsetDiff);
+        }
+
+        private bool IsSecondCharAfterEnter(int OffsetDiff)
+        {
+            return FirstLength == OffsetDiff;
         }
 
         private bool isWhiteSpace(char c)

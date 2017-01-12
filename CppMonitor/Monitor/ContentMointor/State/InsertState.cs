@@ -26,28 +26,30 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 return;
             }
 
-            // 如果发生了以下任意一种情况，认为用户使用了IDE的自动补全功能
-            // 1、被替换文本和替换文本的长度都大于0，即发生了替换操作，
-            //    这个结论是因为通过对VS的观察，在插入状态下发生替换，表示
-            //    发生了IDE的自动补全，否则，替换操作会在删除状态下被捕获
-            //Tuple<string, string> ReplaceText = Context.GetReplaceText(StartPoint, DocContent);
-            //String ReplacingText = ReplaceText.Item1;
-            //String ReplacedText = ReplaceText.Item2;
-            //if (ReplacingText.Length > 0 && ReplacedText.Length > 0)
-            //{
-            //    HandleAutoComplete(ReplaceText);
-            //    return;
-            //}
+            Tuple<string, string> ReplaceText = ContentUtil.GetReplaceText(
+                StartPoint, Context.LastDocContent, DocContent
+            );
+            String ReplacingText = ReplaceText.Item1;
+            String ReplacedText = ReplaceText.Item2;
 
-            // 如果发生了删除事件，切换上下文的状态
-            int DeltaLength = Context.GetContentDelta(DocContent);
-            if (DeltaLength < 0)
+            // 如果发生了文本替换事件，切换到文本替换状态
+            if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText))
             {
-                Context.TransferToDeleteState(StartPoint, EndPoint);
+                Context.TransferToReplaceState(StartPoint, ReplacingText, ReplacedText);
                 return;
             }
 
-            Context.HandleInsertText(StartPoint, EndPoint, DocContent);
+            // 如果发生了删除事件，切换到删除状态
+            if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText))
+            {
+                Context.TransferToDeleteState(
+                    StartPoint, EndPoint, DocContent
+                );
+                return;
+            }
+
+            // 处理文本插入事件
+            HandleInsertText(StartPoint, EndPoint, DocContent);
         }
 
         public void FlushBuffer()
@@ -61,6 +63,57 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 );
             }
         }
+
+        private void HandleInsertText(TextPoint StartPoint,
+            TextPoint EndPoint, String DocContent)
+        {
+            StringBuilder Buffer = Context.Buffer;
+            String InsertedText = ContentUtil.GetInsertedText(StartPoint, EndPoint);
+
+            bool FirstEdit = ContentUtil.IsFirstEdit(Context.LastStartOffset);
+            bool TransferFromOthers = Buffer.Length == 0;
+            if (FirstEdit || TransferFromOthers)
+            {
+                Debug.Assert(Buffer.Length == 0);
+
+                Context.LineBeforeFlush = StartPoint.Line;
+                Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
+
+                Buffer.Append(InsertedText);
+            }
+            else
+            {
+                int InsertLength = InsertedText.Length;
+                int NowOffset = StartPoint.AbsoluteCharOffset;
+                int OffsetDiff = NowOffset - Context.LastStartOffset;
+
+                //// 被插入的字符是"\r\n"，而且前后字符偏移只差1，
+                //// 说明插入紧接着的是换行符，这是观察VS而得到的结论，
+                //// 这种情况下，切换到InsertAfterEnterState
+                //if (ContentUtil.IsTypeEnter(InsertedText, OffsetDiff))
+                //{
+                //    Context.TransferToInsertAfterEnterState(InsertedText);
+                //    return;
+                //}
+
+                // 如果满足以下条件中的任意一个，则聚合所要插入的内容
+                // 1、被插入字符长度 = 前后两次偏移之差
+                if (NowOffset - Context.LastStartOffset == InsertLength)
+                {
+                    Buffer.Append(InsertedText);
+                }
+                else
+                {
+                    Context.FlushBuffer(
+                        ContentBindEvent.Operation.Insert,
+                        String.Empty,
+                        Buffer.ToString()
+                    );
+                    Buffer.Append(InsertedText);
+                }
+            }
+        }
+
 
         //private void HandleAutoComplete(Tuple<string, string> ReplaceText)
         //{

@@ -27,15 +27,32 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 return;
             }
 
-            // 如果发生了删除事件，切换上下文的状态
-            int DeltaLength = Context.GetContentDelta(DocContent);
-            if (DeltaLength < 0)
+            Tuple<string, string> ReplaceText = ContentUtil.GetReplaceText(
+                StartPoint, Context.LastDocContent, DocContent
+            );
+            String ReplacingText = ReplaceText.Item1;
+            String ReplacedText = ReplaceText.Item2;
+
+            // 如果发生了删除事件，切换到删除状态
+            if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText))
             {
-                Context.TransferToDeleteState(StartPoint, EndPoint);
+                Context.TransferToDeleteState(
+                    StartPoint, EndPoint, DocContent
+                );
                 return;
             }
 
-            Context.HandleInsertText(StartPoint, EndPoint, DocContent);
+            // 如果发生了插入事件，切换到插入状态
+            if (ContentUtil.IsInsertEvent(ReplacingText, ReplacedText))
+            {
+                Context.TransferToInsertState(
+                    StartPoint, EndPoint, DocContent
+                );
+                return;
+            }
+
+            // 处理文本替换事件
+            HandleReplaceText(ReplacingText, ReplacedText);
         }
 
         public void FlushBuffer()
@@ -59,7 +76,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             this.ReplacedText = ReplacedText;
             Context.Buffer.Append(ReplacingText);
             Context.LineBeforeFlush = StartPoint.Line;
-            Context.StartOffsetBeforeFlush = StartPoint.LineCharOffset;
+            Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
+        }
+
+        private void HandleReplaceText(String ReplacingText, String ReplacedText)
+        {
+            Context.FlushBuffer(
+                ContentBindEvent.Operation.Replace,
+                ReplacedText, ReplacingText
+            );
         }
     }
 }

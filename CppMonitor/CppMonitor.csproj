@@ -127,6 +127,7 @@
     <Compile Include="Monitor\BuildMonitor\BuildBindEvent.cs" />
     <Compile Include="Monitor\CommandMonitor\CommandBindEvent.cs" />
     <Compile Include="Monitor\ContentMointor\ContentBindEvent.cs" />
+    <Compile Include="Monitor\ContentMointor\ContentUtil.cs" />
     <Compile Include="Monitor\ContentMointor\ContextState.cs" />
     <Compile Include="Monitor\ContentMointor\LoggerDAOImpl_Stub.cs" />
     <Compile Include="Monitor\ContentMointor\State\DeleteState.cs" />
@@ -172,7 +173,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DAO\imp\" />
-    <Folder Include="Monitor\ContentMointor\TestCase\" />
   </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
