@@ -12,8 +12,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         // 最后一次编辑的位置
         private int _LastStartOffset;
 
-        // 聚合的编辑内容的开始位置
-        private int _StartOffsetBeforeFlush;
+        // 聚合的编辑内容的行内偏移
+        private int _LineOffsetBeforeFlush;
+
+        // 聚合的编辑内容的所在行
+        private int _LineBeforeFlush;
 
         // 所编辑内容的缓冲区
         private StringBuilder _Buffer;
@@ -26,15 +29,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public ContextState(
             int LastStartOffset, int StartOffsetBeforeFlush,
-            StringBuilder Buffer, Document ActiveDoc,
-            String LastDocContent
+            int LineBeforeFlush, StringBuilder Buffer,
+            Document ActiveDoc, String LastDocContent
         )
         {
             _LastStartOffset = LastStartOffset;
             _Buffer = Buffer;
             _ActiveDoc = ActiveDoc;
             _LastDocContent = LastDocContent;
-            _StartOffsetBeforeFlush = StartOffsetBeforeFlush;
+            _LineOffsetBeforeFlush = StartOffsetBeforeFlush;
+            _LineBeforeFlush = LineBeforeFlush;
         }
 
         public int LastStartOffset
@@ -43,10 +47,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             set { _LastStartOffset = value; }
         }
 
-        public int StartOffsetBeforeFlush
+        public int LineOffsetBeforeFlush
         {
-            get { return _StartOffsetBeforeFlush; }
-            set { _StartOffsetBeforeFlush = value; }
+            get { return _LineOffsetBeforeFlush; }
+            set { _LineOffsetBeforeFlush = value; }
+        }
+
+        public int LineBeforeFlush
+        {
+            get { return _LineBeforeFlush; }
+            set { _LineBeforeFlush = value; }
         }
 
         public StringBuilder Buffer {

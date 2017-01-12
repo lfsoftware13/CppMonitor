@@ -21,7 +21,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private enum RecordKey
         {
-            Operation, FileName, From, To, Offset
+            Operation, FileName, From, To, Line, LineOffset
         }
     
         private DTE2 Dte2;
@@ -56,7 +56,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             //Logger = LoggerFactory.loggerFactory.getLogger("Content");
             Logger = new LoggerDAOImpl_Stub();
 
-            Context = new ContextState(-1, -1, new StringBuilder(), null, null);
+            Context = new ContextState(-1, -1, -1, new StringBuilder(), null, null);
 
             EditState = new StartState(this);
         }
@@ -159,7 +159,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 Debug.Assert(Buffer.Length == 0);
 
                 Buffer.Append(InsertedText);
-                Context.StartOffsetBeforeFlush = StartPoint.AbsoluteCharOffset;
+                Context.LineBeforeFlush = StartPoint.Line;
+                Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
             }
             else
             {
@@ -283,7 +284,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.Offset.ToString(), Context.StartOffsetBeforeFlush
+                RecordKey.Line.ToString(), Context.LineBeforeFlush
+            ));
+
+            list.Add(new KeyValuePair<string, object>(
+                RecordKey.LineOffset.ToString(), Context.LineOffsetBeforeFlush
             ));
 
             Logger.LogInfo(list);
@@ -328,8 +333,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public int StartOffsetBeforeFlush
         {
-            get { return Context.StartOffsetBeforeFlush; }
-            set { Context.StartOffsetBeforeFlush = value; }
+            get { return Context.LineOffsetBeforeFlush; }
+            set { Context.LineOffsetBeforeFlush = value; }
+        }
+
+        public int LineBeforeFlush
+        {
+            get { return Context.LineBeforeFlush; }
+            set { Context.LineBeforeFlush = value; }
         }
 
         public StringBuilder Buffer

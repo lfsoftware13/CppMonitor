@@ -65,7 +65,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         {
             this.ReplacedText = ReplacedText;
             Context.Buffer.Append(ReplacingText);
-            Context.StartOffsetBeforeFlush = StartPoint.AbsoluteCharOffset;
+            Context.LineBeforeFlush = StartPoint.Line;
+            Context.StartOffsetBeforeFlush = StartPoint.LineCharOffset;
         }
     }
 }

@@ -97,7 +97,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 }
             }
 
-            Context.StartOffsetBeforeFlush = StartPoint.AbsoluteCharOffset;
+            Context.LineBeforeFlush = StartPoint.Line;
+            Context.StartOffsetBeforeFlush = StartPoint.LineCharOffset;
         }
 
         private String GetDeletedText(TextPoint StartPoint, String CurrentDoc)
