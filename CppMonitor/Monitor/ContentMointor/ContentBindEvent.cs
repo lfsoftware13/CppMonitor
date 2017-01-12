@@ -21,7 +21,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private enum RecordKey
         {
-            Operation, FileName, From, To, EndCharOffset
+            Operation, FileName, From, To, Offset
         }
     
         private DTE2 Dte2;
@@ -56,7 +56,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             //Logger = LoggerFactory.loggerFactory.getLogger("Content");
             Logger = new LoggerDAOImpl_Stub();
 
-            Context = new ContextState(-1, new StringBuilder(), null, null);
+            Context = new ContextState(-1, -1, new StringBuilder(), null, null);
 
             EditState = new StartState(this);
         }
@@ -119,11 +119,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ReLog(StartPoint, EndPoint);
         }
 
-        public void TransferToReplaceState(String ReplacedText, String ReplacingText)
+        public void TransferToReplaceState(TextPoint StartPoint,
+            String ReplacedText, String ReplacingText)
         {
             EditState.FlushBuffer();
             ReplaceState State = new ReplaceState(this);
-            State.JustReplace(ReplacingText, ReplacedText);
+            State.JustReplace(StartPoint, ReplacingText, ReplacedText);
             SetState(State);
         }
 
@@ -158,6 +159,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 Debug.Assert(Buffer.Length == 0);
 
                 Buffer.Append(InsertedText);
+                Context.StartOffsetBeforeFlush = StartPoint.AbsoluteCharOffset;
             }
             else
             {
@@ -281,7 +283,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.EndCharOffset.ToString(), Context.LastStartOffset
+                RecordKey.Offset.ToString(), Context.StartOffsetBeforeFlush
             ));
 
             Logger.LogInfo(list);
@@ -322,6 +324,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public int LastStartOffset
         {
             get { return Context.LastStartOffset; }
+        }
+
+        public int StartOffsetBeforeFlush
+        {
+            get { return Context.StartOffsetBeforeFlush; }
+            set { Context.StartOffsetBeforeFlush = value; }
         }
 
         public StringBuilder Buffer

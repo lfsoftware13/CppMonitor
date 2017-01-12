@@ -60,10 +60,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         /**
          * 刚刚检测到替换事件的发生，则调用这个方法
          */
-        public void JustReplace(String ReplacingText, String ReplacedText)
+        public void JustReplace(TextPoint StartPoint,
+            String ReplacingText, String ReplacedText)
         {
             this.ReplacedText = ReplacedText;
             Context.Buffer.Append(ReplacingText);
+            Context.StartOffsetBeforeFlush = StartPoint.AbsoluteCharOffset;
         }
     }
 }

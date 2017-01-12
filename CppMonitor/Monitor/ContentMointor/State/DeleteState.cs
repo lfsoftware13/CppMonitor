@@ -31,7 +31,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (ReplaceText.Item2.Length > 0 && ReplaceText.Item1.Length > 0)
             {
                 Context.TransferToReplaceState(
-                    ReplaceText.Item2, ReplaceText.Item1
+                    StartPoint, ReplaceText.Item2, ReplaceText.Item1
                 );
                 return;
             }
@@ -96,6 +96,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                     Buffer.Append(DelText);
                 }
             }
+
+            Context.StartOffsetBeforeFlush = StartPoint.AbsoluteCharOffset;
         }
 
         private String GetDeletedText(TextPoint StartPoint, String CurrentDoc)
