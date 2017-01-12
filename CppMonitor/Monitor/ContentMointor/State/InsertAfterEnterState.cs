@@ -49,7 +49,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             // 3、被插入的字符是一个字符，而且前面全部是空白符，
             //    同时前后字符偏移只差1，说明这是换行之后插入的第一个字符，
             //    这是观察VS而得出的结论
-            // 4、倍插入的字符是一个字符，字符偏移等于换行后第一次插入
+            // 4、被插入的字符是一个字符，字符偏移等于换行后第一次插入
             //    (包括空白符）的长度，说明这是换行之后插入的第二个字符，
             //    这是观察VS而得出的结论
             ++InsertNum;
@@ -57,7 +57,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             {
                 FirstLength = InsertedText.Length;
                 if (DeltaLength == OffsetDiff ||
-                    Context.IsEnterFollow(InsertedText, OffsetDiff) ||
+                    Context.IsTypeEnter(InsertedText, OffsetDiff) ||
                     isTextAfterEnter(InsertedText, OffsetDiff))
                 {
                     Context.Buffer.Append(InsertedText);

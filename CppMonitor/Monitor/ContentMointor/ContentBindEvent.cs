@@ -142,7 +142,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             SetState(new InsertAfterEnterState(this));
         }
 
-        public bool IsEnterFollow(String Text, int OffsetDiff)
+        public bool IsTypeEnter(String Text, int OffsetDiff)
         {
             return Text.Equals("\r\n") && OffsetDiff == 1;
         }
@@ -158,28 +158,34 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             {
                 Debug.Assert(Buffer.Length == 0);
 
-                Buffer.Append(InsertedText);
                 Context.LineBeforeFlush = StartPoint.Line;
                 Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
-            }
-            else
-            {
-                int NowOffset = StartPoint.AbsoluteCharOffset;
-                int InsertLength = InsertedText.Length;
-                int OffsetDiff = NowOffset - Context.LastStartOffset;
 
-                // 如果满足以下条件中的任意一个，则聚合所要插入的内容
-                // 1、被插入字符长度 = 前后两次偏移之差
-                // 2、被插入的字符是"\r\n"，而且前后字符偏移只差1，
-                //    说明插入紧接着的是换行符，这是观察VS而得到的结论，
-                //    这种情况下，切换到InsertAfterEnterState
-
-                if (IsEnterFollow(InsertedText, OffsetDiff))
+                if (InsertedText.Equals("\r\n"))
                 {
                     TransferToInsertAfterEnterState(InsertedText);
                     return;
                 }
 
+                Buffer.Append(InsertedText);
+            }
+            else
+            {
+                int InsertLength = InsertedText.Length;
+                int NowOffset = StartPoint.AbsoluteCharOffset;
+                int OffsetDiff = NowOffset - Context.LastStartOffset;
+
+                // 被插入的字符是"\r\n"，而且前后字符偏移只差1，
+                // 说明插入紧接着的是换行符，这是观察VS而得到的结论，
+                // 这种情况下，切换到InsertAfterEnterState
+                if (IsTypeEnter(InsertedText, OffsetDiff))
+                {
+                    TransferToInsertAfterEnterState(InsertedText);
+                    return;
+                }
+
+                // 如果满足以下条件中的任意一个，则聚合所要插入的内容
+                // 1、被插入字符长度 = 前后两次偏移之差
                 if (NowOffset - Context.LastStartOffset == InsertLength)
                 {
                     Buffer.Append(InsertedText);
@@ -319,9 +325,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             return CurrentContent.Length - Context.LastDocContent.Length;
         }
 
-        public void SetState(IEditState State)
+        public void SetState(IEditState State1)
         {
-            EditState = State;
+            EditState = State1;
         }
 
         /*====================== Get Property Method Start ==================================*/

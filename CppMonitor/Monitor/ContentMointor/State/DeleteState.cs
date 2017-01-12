@@ -64,7 +64,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         {
             String DelText = GetDeletedText(StartPoint, DocContent);
             StringBuilder Buffer = Context.Buffer;
-
             // 第一次编辑文本或者刚从其他状态切换过来
             if (Context.LastStartOffset == -1 || Context.Buffer.Length == 0)
             {
@@ -82,7 +81,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 // 1、被删除字符长度 = 前后两次偏移之差
                 // 2、被删除的字符是"\r\n"，而且前后偏移字符只差为1，
                 //    说明删除紧接着的是换行符，这是观察VS而得到的结论
-                if (OffsetDiff == DelLength || Context.IsEnterFollow(DelText, OffsetDiff))
+                if (OffsetDiff == DelLength || Context.IsTypeEnter(DelText, OffsetDiff))
                 {
                     Buffer.Insert(0, DelText);
                 }

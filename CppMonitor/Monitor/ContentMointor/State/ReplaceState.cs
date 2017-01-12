@@ -31,18 +31,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             int DeltaLength = Context.GetContentDelta(DocContent);
             if (DeltaLength < 0)
             {
-                TransferToDeleteState(StartPoint, EndPoint);
+                Context.TransferToDeleteState(StartPoint, EndPoint);
                 return;
             }
 
             Context.HandleInsertText(StartPoint, EndPoint, DocContent);
-        }
-
-        private void TransferToDeleteState(TextPoint StartPoint, TextPoint EndPoint)
-        {
-            FlushBuffer();
-            Context.SetState(new DeleteState(Context));
-            Context.ReLog(StartPoint, EndPoint);
         }
 
         public void FlushBuffer()
