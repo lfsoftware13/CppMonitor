@@ -5,8 +5,10 @@ using NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -82,6 +84,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
                         foreach (VCConfiguration con in pro.Configurations)
                         {
                             SetBuildLogSwitch(con);
+                            CheckLogFile(con);
                         }
                     }
                     
@@ -145,6 +148,58 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
                 string linknew = string.Join(" ", linkstr);
                 link.SetPropertyValue("AdditionalOptions", linknew);
             }
+        }
+
+        const string ProjectPath = "$(ProjectDir)";
+        const string DefaultLogPath = "$(IntDir)$(MSBuildProjectName).log";
+
+        void CheckLogFile(VCConfiguration con)
+        {
+
+            if (con == null)
+            {
+                return ;
+            }
+
+            if (con.BuildLogFile == null)
+            {
+                con.BuildLogFile = DefaultLogPath;
+            }
+            string path = con.Evaluate(con.BuildLogFile);
+
+            FileStream fs = null;
+            try
+            {
+                fs = new FileStream(path, FileMode.OpenOrCreate);
+            }
+            catch
+            {
+                
+            }
+
+            if (fs == null)
+            {
+                try
+                {
+                    path = con.Evaluate(ProjectPath) + path;
+                    fs = new FileStream(path, FileMode.OpenOrCreate);
+                }
+                catch
+                {
+
+                }
+                if (fs == null)
+                {
+                    con.BuildLogFile = DefaultLogPath;
+                }
+
+            }
+
+            if (fs != null)
+            {
+                fs.Close();
+            }
+
         }
 
 

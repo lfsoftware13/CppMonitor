@@ -126,6 +126,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
             {
                 StreamReader reader = new StreamReader(fs);
                 content=reader.ReadToEnd();
+                reader.Close();
+                fs.Close();
             }
 
             return content;
