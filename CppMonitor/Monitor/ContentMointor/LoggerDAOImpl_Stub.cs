@@ -15,7 +15,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     class LoggerDAOImpl_Stub : ILoggerDao
     {
         //private StreamWriter Writer;
-
         private const String PATH = "C:/Users/Y481L/Desktop/temp.txt";
 
         private const FileMode FILE_MODE = FileMode.Append | FileMode.OpenOrCreate;

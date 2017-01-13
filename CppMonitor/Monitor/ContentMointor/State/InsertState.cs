@@ -103,6 +103,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 else
                 {
                     FlushBuffer();
+                    Context.LineBeforeFlush = StartPoint.Line;
+                    Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
                     Buffer.Append(InsertedText);
                 }
             }
