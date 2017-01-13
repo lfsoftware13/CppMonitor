@@ -16,7 +16,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
         public void RegisterEvent()
         {
             MessageBox.Show("file monitor init!");
-            DTE dte = (DTE)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(EnvDTE.DTE));
+            DTE dte = (DTE)ServiceProvider.GlobalProvider.GetService(typeof(DTE));
             DTE2 dte2 = ServiceProvider.GlobalProvider.GetService(typeof(SDTE)) as DTE2;
 
             SolutionListener sl = new SolutionListener(dte, dte2);

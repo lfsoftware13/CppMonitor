@@ -1,15 +1,18 @@
-﻿using System;
+﻿using EnvDTE;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
 {
     class CopyUtil
     {
-        public static String backupDirPath = @"D:\cr_vs2013\vs_plugin\CppMonitor\Monitor\FileMonitor\backup";
+        public static String backupStartDirPath = @"D:\cr_vs2013\vs_plugin\CppMonitor\Monitor\FileMonitor\backup\start files";
+        public static String backupMiddleDirPath = @"D:\cr_vs2013\vs_plugin\CppMonitor\Monitor\FileMonitor\backup\middle files";
 
         public static void copyDir(string sourceDir, string targetDir)
         {
@@ -37,17 +40,65 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             }
         }
 
-        public static void copyFile(string source, string target)
+        public static bool copyFile(string source, string target)
         {
             //若不存在，直接复制文件；若存在，覆盖复制
-            if (File.Exists(target))
+            if (File.Exists(source))
             {
-                File.Copy(source, target, true);
+                String dirPath = Path.GetDirectoryName(target);
+                if (!Directory.Exists(dirPath))
+                {
+                    Directory.CreateDirectory(dirPath);
+                }
+                if (File.Exists(target))
+                {
+                    File.Copy(source, target, true);
+                }
+                else
+                {
+                    File.Copy(source, target);
+                }
+                return true;
             }
-            else
+            return false;
+        }
+
+        public static bool copyProjectFilesToTmp(ProjectItems parentItems, String parentDir)
+        {
+            bool containsFile = false;//判断是否有文件
+            foreach (ProjectItem item in parentItems)
             {
-                File.Copy(source, target);
+                string itemName = item.Name;
+                string subParentPath = Path.Combine(parentDir, itemName);
+                try
+                {
+                    item.Properties.Item("ItemType");//确保存在这个属性
+                    //MessageBox.Show((String)item.Properties.Item("ItemType").Value);
+                    if (item.Properties.Item("ItemType").Value.Equals("ClInclude") || item.Properties.Item("ItemType").Value.Equals("ClCompile"))
+                    {
+                        for (short i = 0; i < item.FileCount; i++)
+                        {
+                            String fileFullPath = item.get_FileNames(i);
+                            if (File.Exists(fileFullPath))
+                            {
+                                containsFile = containsFile | CopyUtil.copyFile(fileFullPath, Path.Combine(parentDir, Path.GetFileName(fileFullPath)));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        containsFile = containsFile | copyProjectFilesToTmp(item.ProjectItems, subParentPath);
+                    }
+                }
+                catch (Exception)
+                {
+                    //MessageBox.Show("exception");
+                    containsFile = containsFile | copyProjectFilesToTmp(item.ProjectItems, subParentPath);
+                    continue;
+                }
             }
+
+            return containsFile;
         }
     }
 }
