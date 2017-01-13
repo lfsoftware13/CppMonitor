@@ -71,7 +71,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             TextPoint EndPoint, String DocContent)
         {
             int NowOffset = StartPoint.AbsoluteCharOffset;
-            int OffsetDiff = NowOffset - Context.LastStartOffset;
+            int OffsetDiff = NowOffset - Context.LastEndOffset;
             int DeltaLength = Context.GetContentDelta(DocContent);
             String InsertedText = ContentUtil.GetInsertedText(StartPoint, EndPoint);
 

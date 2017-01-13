@@ -72,19 +72,17 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             String DelText = GetDeletedText(StartPoint, DocContent);
             StringBuilder Buffer = Context.Buffer;
 
-            bool FirstEdit = ContentUtil.IsFirstEdit(Context.LastStartOffset);
+            bool FirstEdit = ContentUtil.IsFirstEdit(Context.LastEndOffset);
             bool TransferFromOthers = Buffer.Length == 0;
             if (FirstEdit || TransferFromOthers)
             {
-                Debug.Assert(Buffer.Length == 0);
-
                 Buffer.Append(DelText);
             }
             else
             {
-                int NowOffset = StartPoint.AbsoluteCharOffset;
+                int NowOffset = EndPoint.AbsoluteCharOffset;
                 int DelLength = -Context.GetContentDelta(DocContent);
-                int OffsetDiff = Context.LastStartOffset - NowOffset;
+                int OffsetDiff = Context.LastEndOffset - NowOffset;
 
                 // 如果满足以下条件中的任意一个，则聚合所要删除的内容
                 // 1、被删除字符长度 = 前后两次偏移之差
@@ -96,11 +94,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 }
                 else
                 {
-                    Context.FlushBuffer(
-                        ContentBindEvent.Operation.Delete,
-                        Context.Buffer.ToString(),
-                        String.Empty
-                    );
+                    FlushBuffer();
                     Buffer.Append(DelText);
                 }
             }

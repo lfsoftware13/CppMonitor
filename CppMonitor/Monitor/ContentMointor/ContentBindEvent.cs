@@ -34,7 +34,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private SelectionEvents SelectEvents;
 
-        private LoggerDAOImpl_Stub Logger;
+        private ILoggerDao Logger;
 
         //当前编辑的上下文信息
         private ContextState Context;
@@ -52,11 +52,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DocEvents = DteEvents.DocumentEvents;
             SelectEvents = DteEvents.SelectionEvents;
 
-            // TODO
             //Logger = LoggerFactory.loggerFactory.getLogger("Content");
             Logger = new LoggerDAOImpl_Stub();
 
-            Context = new ContextState(-1, -1, -1, new StringBuilder(), null, null);
+            Context = new ContextState(
+                -1, -1, -1, new StringBuilder(), null, null
+            );
 
             EditState = new StartState(this);
         }
@@ -75,18 +76,36 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ReLog(StartPoint, EndPoint, GetDocContent());
 
             Context.LastDocContent = GetDocContent();
-            Context.LastStartOffset = StartPoint.AbsoluteCharOffset;
+            Context.LastEndOffset = EndPoint.AbsoluteCharOffset;
         }
 
         /*====================== Document Event Method Start ==================================*/
 
         private void OnDocOpened(Document Doc)
         {
+            if (!ContentUtil.isCppFile(Doc.Name))
+            {
+                return;
+            }
+
+            if (Context.ActiveDoc != null)
+            {
+                EditState.FlushBuffer();
+            }
+
+            Context.ActiveDoc = Doc;
+            Context.LastEndOffset = -1;
+            Context.LastDocContent = GetDocContent();
             TransferToStartState();
         }
 
         private void OnDocClosing(Document Doc)
         {
+            EditState.FlushBuffer();
+
+            Context.ActiveDoc = null;
+            Context.LastEndOffset = -1;
+            Context.LastDocContent = GetDocContent();
             TransferToStartState();
         }
 
@@ -128,9 +147,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void TransferToStartState()
         {
-            EditState.FlushBuffer();
             SetState(new StartState(this));
-            Context = new ContextState(-1, -1, -1, Buffer, Dte2.ActiveDocument, null);
         }
 
         //public void TransferToInsertAfterEnterState(
@@ -142,13 +159,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         /*====================== Edit State Method End ==================================*/
 
-        private String GetDocContent()
+        public String GetDocContent()
         {
             if (Context.ActiveDoc == null)
             {
-                Context.ActiveDoc = Dte2.ActiveDocument;
+                Context.ActiveDoc = Dte2.ActiveWindow.Document;
             }
-
             TextDocument Doc = (TextDocument)Context.ActiveDoc.Object("TextDocument");
             EditPoint DocStart = Doc.StartPoint.CreateEditPoint();
             return DocStart.GetText(Doc.EndPoint);
@@ -188,23 +204,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             Logger.LogInfo(list);
         }
 
-        private bool isCppFile(String name)
-        {
-            try
-            {
-                String[] temp = name.Split(new char[] { '.' });
-                return temp[1].Equals("h") || temp[1].Equals("cpp") || temp[1].Equals("cs");
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public void ReLog(TextPoint StartPoint,
             TextPoint EndPoint, String DocContent)
         {
-            if (!isCppFile(Dte2.ActiveWindow.Document.Name)) return;
+            if (!ContentUtil.isCppFile(Dte2.ActiveWindow.Document.Name)) return;
 
             EditState.LogInfo(StartPoint, EndPoint, DocContent);
         }
@@ -221,9 +224,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         /*====================== Get Property Method Start ==================================*/
 
-        public int LastStartOffset
+        public int LastEndOffset
         {
-            get { return Context.LastStartOffset; }
+            get { return Context.LastEndOffset; }
         }
 
         public int LineOffsetBeforeFlush
@@ -251,6 +254,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public String LastDocContent
         {
             get { return Context.LastDocContent; }
+            set { Context.LastDocContent = value; }
         }
 
         /*====================== Get Property Method End ==================================*/

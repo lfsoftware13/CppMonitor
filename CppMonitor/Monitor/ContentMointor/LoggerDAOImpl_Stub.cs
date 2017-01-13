@@ -1,4 +1,7 @@
-﻿using NanjingUniversity.CppMonitor.DAO;
+﻿using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using NanjingUniversity.CppMonitor.DAO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +14,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 {
     class LoggerDAOImpl_Stub : ILoggerDao
     {
-        private StreamWriter Writer;
+        //private StreamWriter Writer;
 
         private const String PATH = "C:/Users/Y481L/Desktop/temp.txt";
 
@@ -19,33 +22,25 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public LoggerDAOImpl_Stub()
         {
-            Writer = new StreamWriter(new FileStream(PATH, FILE_MODE));
+            //Writer = new StreamWriter(new FileStream(PATH, FILE_MODE));
         }
 
         ~LoggerDAOImpl_Stub()
         {
-            if (Writer != null) Writer.Close();
+            //if (Writer != null) Writer.Close();
         }
 
         public Boolean LogInfo(List<KeyValuePair<String, Object>> list)
         {
+            StringBuilder Msg = new StringBuilder();
             foreach(KeyValuePair<String, Object> pair in list) {
-                Writer.WriteLine(pair.Key + " : " + pair.Value.ToString());
+                Msg.Append(pair.Key + " : " + pair.Value.ToString()).Append("\n");
             }
 
-            Writer.Flush();
+            System.Windows.Forms.MessageBox.Show(Msg.ToString());
             
             return true;
         }
 
-        public void LogTemp(String Text)
-        {
-            StreamWriter Out = new StreamWriter(new FileStream(
-                "C:/Users/Y481L/Desktop/msg.txt", FileMode.Append | FileMode.OpenOrCreate
-            ));
-            Out.WriteLine(Text);
-            Out.Flush();
-            Out.Close();
-        }
     }
 }

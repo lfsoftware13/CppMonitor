@@ -70,12 +70,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             StringBuilder Buffer = Context.Buffer;
             String InsertedText = ContentUtil.GetInsertedText(StartPoint, EndPoint);
 
-            bool FirstEdit = ContentUtil.IsFirstEdit(Context.LastStartOffset);
+            bool FirstEdit = ContentUtil.IsFirstEdit(Context.LastEndOffset);
             bool TransferFromOthers = Buffer.Length == 0;
             if (FirstEdit || TransferFromOthers)
             {
-                Debug.Assert(Buffer.Length == 0);
-
                 Context.LineBeforeFlush = StartPoint.Line;
                 Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
 
@@ -84,8 +82,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             else
             {
                 int InsertLength = InsertedText.Length;
-                int NowOffset = StartPoint.AbsoluteCharOffset;
-                int OffsetDiff = NowOffset - Context.LastStartOffset;
+                int NowOffset = EndPoint.AbsoluteCharOffset;
+                int OffsetDiff = NowOffset - Context.LastEndOffset;
 
                 //// 被插入的字符是"\r\n"，而且前后字符偏移只差1，
                 //// 说明插入紧接着的是换行符，这是观察VS而得到的结论，
@@ -98,17 +96,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
 
                 // 如果满足以下条件中的任意一个，则聚合所要插入的内容
                 // 1、被插入字符长度 = 前后两次偏移之差
-                if (NowOffset - Context.LastStartOffset == InsertLength)
+                if (OffsetDiff == InsertLength)
                 {
                     Buffer.Append(InsertedText);
                 }
                 else
                 {
-                    Context.FlushBuffer(
-                        ContentBindEvent.Operation.Insert,
-                        String.Empty,
-                        Buffer.ToString()
-                    );
+                    FlushBuffer();
                     Buffer.Append(InsertedText);
                 }
             }

@@ -41,9 +41,28 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             return ReplacingText.Length > 0 && ReplacedText.Length > 0;
         }
 
+        /**
+         * 判断文档是否是第一次编辑
+         */
         public static bool IsFirstEdit(int Offset)
         {
             return Offset == -1;
+        }
+
+        /**
+         * 判断当前文档是否是cpp文件或头文件
+         */
+        public static bool isCppFile(String name)
+        {
+            try
+            {
+                String[] temp = name.Split(new char[] { '.' });
+                return temp[1].Equals("h") || temp[1].Equals("cpp") || temp[1].Equals("cs");
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         /**
@@ -84,6 +103,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             );
         }
 
+        /**
+         * 获得插入的文本
+         */
         public static String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
         {
             EditPoint StartEdit = StartPoint.CreateEditPoint();

@@ -10,7 +10,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     class ContextState
     {
         // 最后一次编辑的位置
-        private int _LastStartOffset;
+        private int _LastEndOffset;
 
         // 聚合的编辑内容的行内偏移
         private int _LineOffsetBeforeFlush;
@@ -28,12 +28,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private String _LastDocContent;
 
         public ContextState(
-            int LastStartOffset, int StartOffsetBeforeFlush,
+            int LastEndOffset, int StartOffsetBeforeFlush,
             int LineBeforeFlush, StringBuilder Buffer,
             Document ActiveDoc, String LastDocContent
         )
         {
-            _LastStartOffset = LastStartOffset;
+            _LastEndOffset = LastEndOffset;
             _Buffer = Buffer;
             _ActiveDoc = ActiveDoc;
             _LastDocContent = LastDocContent;
@@ -41,10 +41,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             _LineBeforeFlush = LineBeforeFlush;
         }
 
-        public int LastStartOffset
+        public int LastEndOffset
         {
-            get { return _LastStartOffset; }
-            set { _LastStartOffset = value; }
+            get { return _LastEndOffset; }
+            set { _LastEndOffset = value; }
         }
 
         public int LineOffsetBeforeFlush

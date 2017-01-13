@@ -136,6 +136,7 @@
     <Compile Include="Monitor\ContentMointor\State\InsertState.cs" />
     <Compile Include="Monitor\ContentMointor\State\ReplaceState.cs" />
     <Compile Include="Monitor\ContentMointor\State\StartState.cs" />
+    <Compile Include="Monitor\ContentMointor\TestFile.cs" />
     <Compile Include="Monitor\DebugMonitor\DebugBindEvent.cs" />
     <Compile Include="Monitor\FileMonitor\FileBindEvent.cs" />
     <Compile Include="Monitor\MonitorFactory.cs" />

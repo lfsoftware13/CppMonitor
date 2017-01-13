@@ -23,7 +23,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             // 如果文本内容没有变化而被调用，清空缓冲区
             if (StartPoint == null || EndPoint == null || DocContent == null)
             {
-                FlushBuffer();
+                //FlushBuffer();
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             }
 
             // 处理文本替换事件
-            HandleReplaceText(ReplacingText, ReplacedText);
+            HandleReplaceText(StartPoint, ReplacingText, ReplacedText);
         }
 
         public void FlushBuffer()
@@ -77,14 +77,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             Context.Buffer.Append(ReplacingText);
             Context.LineBeforeFlush = StartPoint.Line;
             Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
+            FlushBuffer();
         }
 
-        private void HandleReplaceText(String ReplacingText, String ReplacedText)
+        private void HandleReplaceText(TextPoint StartPoint,
+            String ReplacingText, String ReplacedText)
         {
-            Context.FlushBuffer(
-                ContentBindEvent.Operation.Replace,
-                ReplacedText, ReplacingText
-            );
+            Context.LineBeforeFlush = StartPoint.Line;
+            Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
+
+            FlushBuffer();
         }
     }
 }
