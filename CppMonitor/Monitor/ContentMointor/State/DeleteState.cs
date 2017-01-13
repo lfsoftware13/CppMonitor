@@ -36,7 +36,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText))
             {
                 Context.TransferToReplaceState(
-                    StartPoint, ReplacingText, ReplacedText
+                    StartPoint, EndPoint, DocContent
                 );
                 return;
             }

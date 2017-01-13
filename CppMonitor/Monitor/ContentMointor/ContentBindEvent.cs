@@ -16,7 +16,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     {
         public enum Operation
         {
-            Insert, Delete, Replace, AutoComplete, Save
+            Insert, Delete, Replace, Save
         }
 
         private enum RecordKey
@@ -73,6 +73,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
+            if (!ContentUtil.isCppFile(Dte2.ActiveDocument.Name))
+            {
+                return;
+            }
+
             ReLog(StartPoint, EndPoint, GetDocContent());
 
             Context.LastDocContent = GetDocContent();
@@ -129,12 +134,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         }
 
         public void TransferToReplaceState(TextPoint StartPoint,
-            String ReplacingText, String ReplacedText)
+            TextPoint EndPoint, String DocContent)
         {
             EditState.FlushBuffer();
-            ReplaceState State = new ReplaceState(this);
-            State.JustReplace(StartPoint, ReplacingText, ReplacedText);
-            SetState(State);
+            SetState(new ReplaceState(this));
+            ReLog(StartPoint, EndPoint, DocContent);
         }
 
         public void TransferToInsertState(TextPoint StartPoint,
@@ -198,7 +202,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.LineOffset.ToString(), Context.LineOffsetBeforeFlush
+                RecordKey.LineOffset.ToString(), Context.LineOffsetBeforeFlush - 1
             ));
 
             Logger.LogInfo(list);

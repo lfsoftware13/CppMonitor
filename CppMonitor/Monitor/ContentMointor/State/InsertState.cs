@@ -35,7 +35,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             // 如果发生了文本替换事件，切换到文本替换状态
             if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText))
             {
-                Context.TransferToReplaceState(StartPoint, ReplacingText, ReplacedText);
+                Context.TransferToReplaceState(StartPoint, EndPoint, DocContent);
                 return;
             }
 

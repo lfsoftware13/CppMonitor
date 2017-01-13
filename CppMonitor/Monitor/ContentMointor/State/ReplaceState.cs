@@ -11,6 +11,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
     {
         private ContentBindEvent Context;
 
+        private String ReplacingText = String.Empty;
+
         private String ReplacedText = String.Empty;
 
         public ReplaceState(ContentBindEvent Context)
@@ -57,27 +59,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
 
         public void FlushBuffer()
         {
-            if (Context.Buffer.Length > 0)
+            if (ReplacingText.Length > 0 || ReplacedText.Length > 0)
             {
                 Context.FlushBuffer(
                     ContentBindEvent.Operation.Replace,
-                    ReplacedText, Context.Buffer.ToString()
+                    ReplacedText, ReplacingText
                 );
             }
+            ReplacingText = String.Empty;
             ReplacedText = String.Empty;
-        }
-
-        /**
-         * 刚刚检测到替换事件的发生，则调用这个方法
-         */
-        public void JustReplace(TextPoint StartPoint,
-            String ReplacingText, String ReplacedText)
-        {
-            this.ReplacedText = ReplacedText;
-            Context.Buffer.Append(ReplacingText);
-            Context.LineBeforeFlush = StartPoint.Line;
-            Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
-            FlushBuffer();
         }
 
         private void HandleReplaceText(TextPoint StartPoint,
@@ -85,7 +75,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         {
             Context.LineBeforeFlush = StartPoint.Line;
             Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
-
+            this.ReplacingText = ReplacingText;
+            this.ReplacedText = ReplacedText;
             FlushBuffer();
         }
     }
