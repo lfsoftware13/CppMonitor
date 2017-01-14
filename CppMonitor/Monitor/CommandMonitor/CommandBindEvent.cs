@@ -37,6 +37,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
         private ILoggerDao Logger;
 
+        private HandleClipBoard HandleClip;
+
 
         private IDictionary<int, Delegate> BefEventTable;
         private IDictionary<int, Delegate> AftEventTable;
@@ -56,23 +58,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             //Handle command events
             CmdEvents = DteEvents.CommandEvents;
 
+            //init handleClipBoard
+            HandleClip = new HandleClipBoard();
+
             //database handle
             Logger = new ILoggerDaoImpl_stub();
 
 
             // Initialize key event handlers table
             BefEventTable = new Dictionary<int, Delegate>();
-
-            BefEventTable.Add(
-                (int)VSConstants.VSStd97CmdID.Copy,
-                new KeyEventHandler(HandleCopyEvent)
-            );
-
-            BefEventTable.Add(
-                (int)VSConstants.VSStd97CmdID.Cut,
-                new KeyEventHandler(HandleCutEvent)
-            );
-
             BefEventTable.Add(
                 (int)VSConstants.VSStd97CmdID.Paste,
                 new KeyEventHandler(HandlePasteEvent)
@@ -88,7 +82,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
                 new KeyEventHandler(HandleRedoEvent)
             );
 
-            AftEventTable = new Dictionary<int,Delegate>();
+            AftEventTable = new Dictionary<int, Delegate>();
+            AftEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.Copy,
+                new KeyEventHandler(HandleCopyEventAft)
+            );
+            AftEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.Cut,
+                new KeyEventHandler(HandleCutEventAft)
+            );
             AftEventTable.Add(
                 (int)VSConstants.VSStd97CmdID.Undo,
                 new KeyEventHandler(HandleUndoEventAft)
@@ -176,20 +178,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         /**
          * Handle copy command event
          */
-        private void HandleCopyEvent()
+        private void HandleCopyEventAft()
         {
-            Document Doc = Dte.ActiveDocument;
-            TextSelection Selection = (TextSelection)Doc.Selection;
-            List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-
-            if (Selection.Text != null)
-            {
-                list.Add(new KeyValuePair<String, object>("Avtion", "Copy"));
-                list.Add(new KeyValuePair<String, object>("CopyFrom_Name", Doc.Name));
-                list.Add(new KeyValuePair<String, object>("Path", Doc.Path));
-                list.Add(new KeyValuePair<String, object>("Content", Selection.Text));
-                Logger.LogInfo(list);
-            }
+            HandleClip.handleCopy(Logger);
 
         }
 
@@ -198,54 +189,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
          */
         private void HandlePasteEvent()
         {
-            Document Doc = Dte.ActiveDocument;
-            String PasteContent;
-            try
-            {
-                PasteContent = Clipboard.GetText(TextDataFormat.Text);
-            }
-            catch (Exception)
-            {
-                PasteContent = "Fail to get clipboard content";
-            }
-
-            List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            if (PasteContent != null)
-            {
-                list.Add(new KeyValuePair<String, object>("Avtion", "Paste"));
-                list.Add(new KeyValuePair<String, object>("PasteTo_Name", Doc.Name));
-                list.Add(new KeyValuePair<String, object>("Path", Doc.Path));
-                list.Add(new KeyValuePair<String, object>("Content", PasteContent));
-                Logger.LogInfo(list);
-            }
+            HandleClip.handlePaste(Logger);
 
         }
 
         /**
          * Handle cut command event
          */
-        private void HandleCutEvent()
+        private void HandleCutEventAft()
         {
-            Document Doc = Dte.ActiveDocument;
-            String CutContent;
-            try
-            {
-                CutContent = Clipboard.GetText(TextDataFormat.Text);
-            }
-            catch (Exception)
-            {
-                CutContent = "Fail to get clipboard content";
-            }
-
-            List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            if (CutContent != null)
-            {
-                list.Add(new KeyValuePair<String, object>("Avtion", "Cut"));
-                list.Add(new KeyValuePair<String, object>("CutFrom_Name", Doc.Name));
-                list.Add(new KeyValuePair<String, object>("Path", Doc.Path));
-                list.Add(new KeyValuePair<String, object>("Text", CutContent));
-                Logger.LogInfo(list);
-            }
+            HandleClip.handleCut(Logger);
 
         }
 
@@ -301,8 +254,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Content", content));
             Logger.LogInfo(list);
         }
-
-
 
     }
 }

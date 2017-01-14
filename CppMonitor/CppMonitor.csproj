@@ -122,6 +122,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DAO\ILoggerDao.cs" />
+    <Compile Include="Monitor\CommandMonitor\ClipBoardDetail\HandleCopy.cs" />
+    <Compile Include="Monitor\CommandMonitor\ClipBoardDetail\HandleCut.cs" />
+    <Compile Include="Monitor\CommandMonitor\ClipBoardDetail\HandlePaste.cs" />
+    <Compile Include="Monitor\CommandMonitor\HandleClipBoard.cs" />
+    <Compile Include="Monitor\CommandMonitor\IHandleClipBoard.cs" />
     <Compile Include="Monitor\CommandMonitor\ILoggerDaoImpl_stub.cs" />
     <Compile Include="DAO\LoggerFactory.cs" />
     <Compile Include="Guids.cs" />

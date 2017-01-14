@@ -27,23 +27,24 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             }
         }
 
-        ~ILoggerDaoImpl_stub()
-        {
-            try
-            {
-                if (Writer != null)
-                {
-                    Writer.Close();
-                }
-            }
-            catch (IOException)
-            {
+        //~ILoggerDaoImpl_stub()
+        //{
+        //    try
+        //    {
+        //        if (Writer != null)
+        //        {
+        //            Writer.Close();
+        //        }
+        //    }
+        //    catch (IOException)
+        //    {
 
-            }
-        }
+        //    }
+        //}
 
         public Boolean LogInfo(List<KeyValuePair<String, Object>> list)
         {
+            
             foreach(KeyValuePair<String, Object> one in list) {
                 Writer.WriteLine(one.Key + " : " + one.Value.ToString());
             }
