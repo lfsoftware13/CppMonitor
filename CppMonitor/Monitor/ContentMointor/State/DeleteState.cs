@@ -112,7 +112,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
 
             String DelText = "";
             // 只删除一行
-            if (Lines[StartLine - 1].Length - StartOffset >= DelCharNum)
+            if (Lines[StartLine - 1].Length - (StartOffset - 1) >= DelCharNum)
             {
                 DelText = Lines[StartLine - 1].Substring(
                     StartOffset - 1, DelCharNum

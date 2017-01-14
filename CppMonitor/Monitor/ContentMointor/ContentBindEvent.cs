@@ -178,31 +178,59 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
+            //list.Add(new KeyValuePair<string, Object>(
+            //    RecordKey.Operation.ToString(),
+            //    Op.ToString()
+            //));
+
+            //list.Add(new KeyValuePair<string, object>(
+            //    RecordKey.From.ToString(), From
+            //));
+
+            //list.Add(new KeyValuePair<string, object>(
+            //    RecordKey.To.ToString(), To
+            //));
+
+            //Context.Buffer.Clear();
+
+            //list.Add(new KeyValuePair<string, object>(
+            //    RecordKey.FileName.ToString(), Context.ActiveDoc.Name
+            //));
+
+            //list.Add(new KeyValuePair<string, object>(
+            //    RecordKey.Line.ToString(), Context.LineBeforeFlush
+            //));
+
+            //list.Add(new KeyValuePair<string, object>(
+            //    RecordKey.LineOffset.ToString(), Context.LineOffsetBeforeFlush - 1
+            //));
+
             list.Add(new KeyValuePair<string, Object>(
                 RecordKey.Operation.ToString(),
                 Op.ToString()
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.From.ToString(), From
+                RecordKey.FileName.ToString(), Context.ActiveDoc.Name
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.To.ToString(), To
+                RecordKey.From.ToString(), "`" + From + "`"
+            ));
+
+            list.Add(new KeyValuePair<string, object>(
+                RecordKey.To.ToString(), "`" + To + "`"
             ));
 
             Context.Buffer.Clear();
-
-            list.Add(new KeyValuePair<string, object>(
-                RecordKey.FileName.ToString(), Context.ActiveDoc.Name
-            ));
 
             list.Add(new KeyValuePair<string, object>(
                 RecordKey.Line.ToString(), Context.LineBeforeFlush
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.LineOffset.ToString(), Context.LineOffsetBeforeFlush - 1
+                RecordKey.LineOffset.ToString(),
+                Context.LineOffsetBeforeFlush - 1
             ));
 
             Logger.LogInfo(list);
@@ -211,6 +239,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public void ReLog(TextPoint StartPoint,
             TextPoint EndPoint, String DocContent)
         {
+            if (Dte2.ActiveWindow.Document == null) return;
             if (!ContentUtil.isCppFile(Dte2.ActiveWindow.Document.Name)) return;
 
             EditState.LogInfo(StartPoint, EndPoint, DocContent);
