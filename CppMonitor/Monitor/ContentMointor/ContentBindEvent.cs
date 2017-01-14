@@ -71,6 +71,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DocEvents.DocumentSaved += OnDocSaved;
         }
 
+        /**
+         * 文本事件变化监听器
+         */
         public void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
             if (!ContentUtil.isCppFile(Dte2.ActiveDocument.Name))
@@ -78,10 +81,29 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 return;
             }
 
-            ReLog(StartPoint, EndPoint, GetDocContent());
+            Tuple<String, String> ReplaceText = ContentUtil.GetReplaceText(
+                StartPoint, Context.LastDocContent, GetDocContent()
+            );
+            String ReplacingText = ReplaceText.Item1;
+            String ReplacedText = ReplaceText.Item2;
+
+            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
 
             Context.LastDocContent = GetDocContent();
             Context.LastEndOffset = EndPoint.AbsoluteCharOffset;
+        }
+
+        /**
+         * 重新处理文本事件变化
+         */
+        public void ReLog(TextPoint StartPoint, TextPoint EndPoint,
+            ref String ReplacingText, ref String ReplacedText)
+        {
+            if (Dte2.ActiveWindow.Document == null) return;
+            if (!ContentUtil.isCppFile(Dte2.ActiveWindow.Document.Name)) return;
+
+            EditState.LogInfo(StartPoint, EndPoint,
+                ref ReplacingText, ref ReplacedText);
         }
 
         /*====================== Document Event Method Start ==================================*/
@@ -125,28 +147,31 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         /*====================== Edit State Method Start ==================================*/
 
-        public void TransferToDeleteState(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
+        public void TransferToDeleteState(TextPoint StartPoint, 
+            TextPoint EndPoint, ref String ReplacingText,
+            ref String ReplacedText)
         {
             EditState.FlushBuffer();
             SetState(new DeleteState(this));
-            ReLog(StartPoint, EndPoint, DocContent);
+            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
         }
 
         public void TransferToReplaceState(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
+            TextPoint EndPoint, ref String ReplacingText,
+            ref String ReplacedText)
         {
             EditState.FlushBuffer();
             SetState(new ReplaceState(this));
-            ReLog(StartPoint, EndPoint, DocContent);
+            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
         }
 
         public void TransferToInsertState(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
+            TextPoint EndPoint, ref String ReplacingText,
+            ref String ReplacedText)
         {
             EditState.FlushBuffer();
             SetState(new InsertState(this));
-            ReLog(StartPoint, EndPoint, DocContent);
+            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
         }
 
         private void TransferToStartState()
@@ -234,15 +259,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             Logger.LogInfo(list);
-        }
-
-        public void ReLog(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
-        {
-            if (Dte2.ActiveWindow.Document == null) return;
-            if (!ContentUtil.isCppFile(Dte2.ActiveWindow.Document.Name)) return;
-
-            EditState.LogInfo(StartPoint, EndPoint, DocContent);
         }
 
         public int GetContentDelta(String CurrentContent)

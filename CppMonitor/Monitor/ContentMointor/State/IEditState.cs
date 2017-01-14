@@ -9,7 +9,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
 {
     interface IEditState
     {
-        void LogInfo(TextPoint StartPoint, TextPoint EndPoint, String DocContent);
+        void LogInfo(TextPoint StartPoint, TextPoint EndPoint,
+            ref String ReplacingText, ref String ReplacedText);
 
         void FlushBuffer();
     }

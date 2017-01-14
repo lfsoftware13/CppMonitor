@@ -103,15 +103,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             );
         }
 
-        /**
-         * 获得插入的文本
-         */
-        public static String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
-        {
-            EditPoint StartEdit = StartPoint.CreateEditPoint();
-            String InsertedText = StartEdit.GetText(EndPoint);
-            return InsertedText;
-        }
+        ///**
+        // * 获得插入的文本
+        // */
+        //public static String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
+        //{
+        //    EditPoint StartEdit = StartPoint.CreateEditPoint();
+        //    String InsertedText = StartEdit.GetText(EndPoint);
+        //    return InsertedText;
+        //}
 
         /**
          * 根据TextPoint或者字符在文本快照字符串中的下标

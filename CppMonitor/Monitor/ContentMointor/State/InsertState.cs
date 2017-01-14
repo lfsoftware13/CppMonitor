@@ -17,25 +17,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             this.Context = Context;
         }
 
-        public void LogInfo(TextPoint StartPoint, TextPoint EndPoint, String DocContent)
+        public void LogInfo(TextPoint StartPoint, TextPoint EndPoint,
+            ref String ReplacingText, ref String ReplacedText)
         {
-            // 如果文本内容没有变化而被调用，清空缓冲区
-            if (StartPoint == null || EndPoint == null || DocContent == null)
-            {
-                FlushBuffer();
-                return;
-            }
-
-            Tuple<string, string> ReplaceText = ContentUtil.GetReplaceText(
-                StartPoint, Context.LastDocContent, DocContent
-            );
-            String ReplacingText = ReplaceText.Item1;
-            String ReplacedText = ReplaceText.Item2;
-
             // 如果发生了文本替换事件，切换到文本替换状态
             if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText))
             {
-                Context.TransferToReplaceState(StartPoint, EndPoint, DocContent);
+                Context.TransferToReplaceState(
+                    StartPoint, EndPoint,
+                    ref ReplacingText, ref ReplacedText
+                );
                 return;
             }
 
@@ -43,13 +34,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText))
             {
                 Context.TransferToDeleteState(
-                    StartPoint, EndPoint, DocContent
+                    StartPoint, EndPoint,
+                    ref ReplacingText, ref ReplacedText
                 );
                 return;
             }
 
             // 处理文本插入事件
-            HandleInsertText(StartPoint, EndPoint, DocContent);
+            HandleInsertText(StartPoint, EndPoint,
+                ref ReplacingText, ref ReplacedText);
         }
 
         public void FlushBuffer()
@@ -65,10 +58,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         }
 
         private void HandleInsertText(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
+            TextPoint EndPoint, ref String ReplacingText,
+            ref String ReplacedText)
         {
             StringBuilder Buffer = Context.Buffer;
-            String InsertedText = ContentUtil.GetInsertedText(StartPoint, EndPoint);
 
             bool FirstEdit = ContentUtil.IsFirstEdit(Context.LastEndOffset);
             bool TransferFromOthers = Buffer.Length == 0;
@@ -77,11 +70,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 Context.LineBeforeFlush = StartPoint.Line;
                 Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
 
-                Buffer.Append(InsertedText);
+                Buffer.Append(ReplacingText);
             }
             else
             {
-                int InsertLength = InsertedText.Length;
+                int InsertLength = ReplacingText.Length;
                 int NowOffset = EndPoint.AbsoluteCharOffset;
                 int OffsetDiff = NowOffset - Context.LastEndOffset;
 
@@ -98,14 +91,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 // 1、被插入字符长度 = 前后两次偏移之差
                 if (OffsetDiff == InsertLength)
                 {
-                    Buffer.Append(InsertedText);
+                    Buffer.Append(ReplacingText);
                 }
                 else
                 {
                     FlushBuffer();
                     Context.LineBeforeFlush = StartPoint.Line;
                     Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
-                    Buffer.Append(InsertedText);
+                    Buffer.Append(ReplacingText);
                 }
             }
         }

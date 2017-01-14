@@ -22,37 +22,31 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             this.Context = Context;
         }
 
-        public void LogInfo(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
+        public void LogInfo(TextPoint StartPoint, TextPoint EndPoint,
+            ref String ReplacingText, ref String ReplacedText)
         {
-            if (StartPoint == null || EndPoint == null || DocContent == null)
-            {
-                FlushBuffer();
-                return;
-            }
-
-            Tuple<string, string> ReplaceText = ContentUtil.GetReplaceText(
-                StartPoint, Context.LastDocContent, DocContent
-            );
-            String ReplacingText = ReplaceText.Item1;
-            String ReplacedText = ReplaceText.Item2;
 
             // 如果发生了文本删除事件，则切换到删除状态
             if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText)) {
                 Context.TransferToDeleteState(
-                    StartPoint, EndPoint, DocContent
+                    StartPoint, EndPoint,
+                    ref ReplacingText, ref ReplacedText
                 );
                 return;
             }
 
             // 如果发生了文本替换事件，则切换到文本替换状态
             if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText)) {
-                Context.TransferToReplaceState(StartPoint, EndPoint, DocContent);
+                Context.TransferToReplaceState(
+                    StartPoint, EndPoint,
+                    ref ReplacingText, ref ReplacedText
+                );
                 return;
             }
 
             // 处理文本插入事件
-            HandleInsertText(StartPoint, EndPoint, DocContent);
+            HandleInsertText(StartPoint, EndPoint,
+                ref ReplacingText, ref ReplacedText);
         }
 
         public void FlushBuffer()
@@ -68,12 +62,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
         }
 
         private void HandleInsertText(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
+            TextPoint EndPoint, ref String ReplacingText,
+            ref String ReplacedText)
         {
             int NowOffset = StartPoint.AbsoluteCharOffset;
             int OffsetDiff = NowOffset - Context.LastEndOffset;
-            int DeltaLength = Context.GetContentDelta(DocContent);
-            String InsertedText = ContentUtil.GetInsertedText(StartPoint, EndPoint);
+            int DeltaLength = ReplacingText.Length;
 
             // 如果满足以下条件中的任意一个，则聚合所要插入的内容
             // 1、被插入字符长度 = 前后两次偏移之差
@@ -88,38 +82,43 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             ++InsertNum;
             if (InsertNum == 1)
             {
-                FirstLength = InsertedText.Length;
-                if (IsFirstCharAfterEnter(InsertedText, OffsetDiff))
+                FirstLength = ReplacingText.Length;
+                if (IsFirstCharAfterEnter(ReplacingText, OffsetDiff))
                 {
-                    Context.Buffer.Append(InsertedText);
+                    Context.Buffer.Append(ReplacingText);
                 }
                 else
                 {
-                    TransferToInsertState(StartPoint, EndPoint, DocContent);
+                    TransferToInsertState(StartPoint, EndPoint,
+                        ref ReplacingText, ref ReplacedText);
                 }
             }
             else if (InsertNum == 2)
             {
                 if (IsSecondCharAfterEnter(OffsetDiff))
                 {
-                    Context.Buffer.Append(InsertedText);
+                    Context.Buffer.Append(ReplacingText);
                 }
                 else
                 {
-                    TransferToInsertState(StartPoint, EndPoint, DocContent);
+                    TransferToInsertState(StartPoint, EndPoint,
+                        ref ReplacingText, ref ReplacedText);
                 }
             }
             else
             {
-                TransferToInsertState(StartPoint, EndPoint, DocContent);
+                TransferToInsertState(StartPoint, EndPoint,
+                    ref ReplacingText, ref ReplacedText);
             }
         }
 
         private void TransferToInsertState(TextPoint StartPoint,
-            TextPoint EndPoint, String DocContent)
+            TextPoint EndPoint, ref String ReplacingText,
+            ref String ReplacedText)
         {
             Context.SetState(new InsertState(Context));
-            Context.ReLog(StartPoint, EndPoint, DocContent);
+            Context.ReLog(StartPoint, EndPoint,
+                ref ReplacingText, ref ReplacedText);
         }
 
         private bool isTextAfterEnter(String InsertedText, int OffsetDiff)

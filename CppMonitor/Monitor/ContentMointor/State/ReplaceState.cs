@@ -20,26 +20,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             this.Context = Context;
         }
 
-        public void LogInfo(TextPoint StartPoint, TextPoint EndPoint, String DocContent)
+        public void LogInfo(TextPoint StartPoint, TextPoint EndPoint,
+            ref String ReplacingText, ref String ReplacedText)
         {
-            // 如果文本内容没有变化而被调用，清空缓冲区
-            if (StartPoint == null || EndPoint == null || DocContent == null)
-            {
-                //FlushBuffer();
-                return;
-            }
-
-            Tuple<string, string> ReplaceText = ContentUtil.GetReplaceText(
-                StartPoint, Context.LastDocContent, DocContent
-            );
-            String ReplacingText = ReplaceText.Item1;
-            String ReplacedText = ReplaceText.Item2;
-
             // 如果发生了删除事件，切换到删除状态
             if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText))
             {
                 Context.TransferToDeleteState(
-                    StartPoint, EndPoint, DocContent
+                    StartPoint, EndPoint,
+                    ref ReplacingText, ref ReplacedText
                 );
                 return;
             }
@@ -48,7 +37,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (ContentUtil.IsInsertEvent(ReplacingText, ReplacedText))
             {
                 Context.TransferToInsertState(
-                    StartPoint, EndPoint, DocContent
+                    StartPoint, EndPoint,
+                    ref ReplacingText, ref ReplacedText
                 );
                 return;
             }
