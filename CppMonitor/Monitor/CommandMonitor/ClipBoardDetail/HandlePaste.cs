@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using NanjingUniversity.CppMonitor.DAO;
 using System;
 using System.Collections.Generic;
@@ -46,19 +47,31 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             MessageBox.Show("paste file");
             string ctype = "FileDrop";
             object obj = Clipboard.GetFileDropList();
-            IDataObject id = Clipboard.GetDataObject();
-            string[] li = id.GetFormats();
-            MessageBox.Show(li[0]+"!@!@!"+li[1]);
+            //IDataObject id = Clipboard.GetDataObject();
             StringCollection file_list = (StringCollection)obj;
             //string[] file_names = (string[])obj;
             string path_content = "";
             foreach (string file_name in file_list)
             {
-                path_content += file_name + "\n";
+                path_content += file_name + ";";
             }
             list.Add(new KeyValuePair<String, object>("Action", "Paste"));
             list.Add(new KeyValuePair<String, object>("PasteType", ctype));
             list.Add(new KeyValuePair<String, object>("fileFrom_Path", path_content));
+            //get the path of paste_to 
+            EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
+            object[] items = solutionExplorer.SelectedItems as object[];
+
+            //if (items != null)
+            //{
+            //    EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
+            //    EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
+            //    string path = projectItem.Properties.Item("FullPath").Value.ToString();
+            //    list.Add(new KeyValuePair<String, object>("Paste_to_Path", path));
+
+            //}
+
             Logger.LogInfo(list);
         }
 
@@ -70,6 +83,27 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         public void handleAudio(ILoggerDao Logger)
         {
             throw new NotImplementedException();
+        }
+
+        public void handleVSProjectItem(ILoggerDao Logger)
+        {
+            list.Add(new KeyValuePair<String, object>("Action", "Paste"));
+            list.Add(new KeyValuePair<String, object>("PasteType", "file_in_VisualStudio"));
+
+            //get the path of paste_to 
+            EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
+            object[] items = solutionExplorer.SelectedItems as object[];
+
+            if (items != null)
+            {
+                EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
+                EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
+                string path = projectItem.Properties.Item("FullPath").Value.ToString();
+                list.Add(new KeyValuePair<String, object>("Paste_to_Path", path));
+
+            }
+            Logger.LogInfo(list);
         }
     }
 }

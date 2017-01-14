@@ -66,5 +66,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         {
             throw new NotImplementedException();
         }
+
+        public void handleVSProjectItem(ILoggerDao Logger)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using NanjingUniversity.CppMonitor.DAO;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,27 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         {
             string ctype = "Audio";
             object obj = Clipboard.GetAudioStream();
+        }
+
+        public void handleVSProjectItem(ILoggerDao Logger)
+        {
+            list.Add(new KeyValuePair<String, object>("Action", "Copy_in_VisualStudio"));
+            list.Add(new KeyValuePair<String, object>("CopyType", "file"));
+            EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
+            object[] items = solutionExplorer.SelectedItems as object[];
+
+            if(items != null){
+                int i = 1;
+                foreach(object it in items){
+                    EnvDTE.UIHierarchyItem item = it as EnvDTE.UIHierarchyItem;
+                    EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
+                    string path = projectItem.Properties.Item("FullPath").Value.ToString();
+                    list.Add(new KeyValuePair<String, object>("CopyPath"+i, path));
+                    i++;
+                }
+            }
+            Logger.LogInfo(list);
         }
     }
 }

@@ -16,5 +16,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         void handleImage(ILoggerDao Logger);
 
         void handleAudio(ILoggerDao Logger);
+
+        void handleVSProjectItem(ILoggerDao Logger);
     }
 }

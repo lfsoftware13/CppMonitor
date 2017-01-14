@@ -50,6 +50,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             Dte = (DTE)Microsoft.VisualStudio.Shell.Package.
                 GetGlobalService(typeof(Microsoft.VisualStudio.Shell.Interop.SDTE));
             DteEvents = Dte.Events;
+            
 
             //Handle document saving
             DocEvents = DteEvents.DocumentEvents;
@@ -67,10 +68,20 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
             // Initialize key event handlers table
             BefEventTable = new Dictionary<int, Delegate>();
+            //BefEventTable.Add(
+            //    (int)VSConstants.VSStd97CmdID.Copy,
+            //    new KeyEventHandler(HandleCopyEvent)
+            //);
+
             BefEventTable.Add(
                 (int)VSConstants.VSStd97CmdID.Paste,
                 new KeyEventHandler(HandlePasteEvent)
             );
+
+            //BefEventTable.Add(
+            //    (int)VSConstants.VSStd97CmdID.Cut,
+            //    new KeyEventHandler(HandleCutEvent)
+            //);
 
             BefEventTable.Add(
                 (int)VSConstants.VSStd97CmdID.Undo,
