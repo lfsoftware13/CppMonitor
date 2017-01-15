@@ -57,7 +57,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             try
             {
                 String[] temp = name.Split(new char[] { '.' });
-                return temp[1].Equals("h") || temp[1].Equals("cpp") || temp[1].Equals("cs");
+                return temp[1].Equals("h") || temp[1].Equals("cpp");
             }
             catch (Exception)
             {
@@ -102,16 +102,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 OldDoc.Substring(0, OldIndex + 1)
             );
         }
-
-        ///**
-        // * 获得插入的文本
-        // */
-        //public static String GetInsertedText(TextPoint StartPoint, TextPoint EndPoint)
-        //{
-        //    EditPoint StartEdit = StartPoint.CreateEditPoint();
-        //    String InsertedText = StartEdit.GetText(EndPoint);
-        //    return InsertedText;
-        //}
 
         /**
          * 根据TextPoint或者字符在文本快照字符串中的下标

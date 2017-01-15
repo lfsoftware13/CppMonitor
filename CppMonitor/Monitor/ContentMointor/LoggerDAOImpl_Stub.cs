@@ -34,7 +34,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             StringBuilder Msg = new StringBuilder();
             foreach(KeyValuePair<String, Object> pair in list) {
-                //Msg.Append(pair.Key).Append(" : ").Append(pair.Value.ToString());
+                //Msg.Append(pair.Key).Append(" : ").Append(pair.Value.ToString()).Append('\n');
                 Msg.Append(' ').Append(pair.Value.ToString()).Append(' ');
             }
 

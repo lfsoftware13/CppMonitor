@@ -21,7 +21,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private enum RecordKey
         {
-            Operation, FileName, From, To, Line, LineOffset
+            Operation, FilePath, From, To, Line, LineOffset
         }
     
         private DTE2 Dte2;
@@ -76,6 +76,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
          */
         public void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
+            Context.ActiveDoc = StartPoint.Parent.Parent;
+
             if (!ContentUtil.isCppFile(Dte2.ActiveDocument.Name))
             {
                 return;
@@ -138,6 +140,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocSaved(Document Doc)
         {
+            if (!ContentUtil.isCppFile(Context.ActiveDoc.Name))
+            {
+                return;
+            }
+
             EditState.FlushBuffer();
 
             FlushBuffer(Operation.Save, String.Empty, String.Empty);
@@ -179,13 +186,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             SetState(new StartState(this));
         }
 
-        //public void TransferToInsertAfterEnterState(
-        //    String InsertedText)
-        //{
-        //    Context.Buffer.Append(InsertedText);
-        //    SetState(new InsertAfterEnterState(this));
-        //}
-
         /*====================== Edit State Method End ==================================*/
 
         public String GetDocContent()
@@ -203,40 +203,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
-            //list.Add(new KeyValuePair<string, Object>(
-            //    RecordKey.Operation.ToString(),
-            //    Op.ToString()
-            //));
-
-            //list.Add(new KeyValuePair<string, object>(
-            //    RecordKey.From.ToString(), From
-            //));
-
-            //list.Add(new KeyValuePair<string, object>(
-            //    RecordKey.To.ToString(), To
-            //));
-
-            //Context.Buffer.Clear();
-
-            //list.Add(new KeyValuePair<string, object>(
-            //    RecordKey.FileName.ToString(), Context.ActiveDoc.Name
-            //));
-
-            //list.Add(new KeyValuePair<string, object>(
-            //    RecordKey.Line.ToString(), Context.LineBeforeFlush
-            //));
-
-            //list.Add(new KeyValuePair<string, object>(
-            //    RecordKey.LineOffset.ToString(), Context.LineOffsetBeforeFlush - 1
-            //));
-
             list.Add(new KeyValuePair<string, Object>(
                 RecordKey.Operation.ToString(),
                 Op.ToString()
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.FileName.ToString(), Context.ActiveDoc.Name
+                RecordKey.FilePath.ToString(), Context.ActiveDoc.FullName
             ));
 
             list.Add(new KeyValuePair<string, object>(
