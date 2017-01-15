@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using NanjingUniversity.CppMonitor.DAO;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         private DocumentEvents DocEvents;
 
         private List<KeyValuePair<String, object>> list;
+
+        private CommandUtil util;
         public HandleCut()
         {
             Dte = (DTE)Microsoft.VisualStudio.Shell.Package.
@@ -26,6 +29,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             DteEvents = Dte.Events;
             DocEvents = DteEvents.DocumentEvents;
             list = new List<KeyValuePair<string, object>>();
+            util = new CommandUtil();
         }
 
         public void handleText(DAO.ILoggerDao Logger)
@@ -69,7 +73,31 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
         public void handleVSProjectItem(ILoggerDao Logger)
         {
-            throw new NotImplementedException();
+            list.Add(new KeyValuePair<String, object>("Action", "Cut_in_VisualStudio"));
+            list.Add(new KeyValuePair<String, object>("CutType", "file"));
+            EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+            EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
+            object[] items = solutionExplorer.SelectedItems as object[];
+
+            if (items != null)
+            {
+                int i = 1;
+                foreach (object it in items)
+                {
+                    EnvDTE.UIHierarchyItem item = it as EnvDTE.UIHierarchyItem;
+                    MessageBox.Show(item.Name);
+                    EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
+                    string path = projectItem.Properties.Item("FullPath").Value.ToString();
+                    list.Add(new KeyValuePair<String, object>("CutPath" + i, path));
+                    string content = util.getDocContent(projectItem);
+                    if (content != null)
+                    {
+                        list.Add(new KeyValuePair<String, object>("CutContent", content));
+                    }
+                    i++;
+                }
+            }
+            Logger.LogInfo(list);
         }
     }
 }

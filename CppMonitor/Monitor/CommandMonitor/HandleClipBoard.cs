@@ -135,24 +135,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
                 }
                 else
                 {
-                    MessageBox.Show("Command Wrong!");
+                    MessageBox.Show("Command_ClipBoard Wrong!");
                 }
             }
             catch (Exception e)
             {
                 //obj = null;
             }
-        }
-
-
-        private string ToString(byte[] bytes)
-        {
-            string response = string.Empty;
-
-            foreach (byte b in bytes)
-                response += (Char)b;
-
-            return response;
         }
 
 

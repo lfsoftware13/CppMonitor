@@ -62,15 +62,25 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
             object[] items = solutionExplorer.SelectedItems as object[];
-
-            //if (items != null)
+            //Array solutions = (Array)Dte.ActiveSolutionProjects;
+            //if (solutions != null && solutions.Length>0)
             //{
-            //    EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
-            //    EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
-            //    string path = projectItem.Properties.Item("FullPath").Value.ToString();
-            //    list.Add(new KeyValuePair<String, object>("Paste_to_Path", path));
+            //    Project activeProject = solutions.GetValue(0) as Project;
+            //    string paste_to = activeProject.Properties.Item("FullPath").Value.ToString();
+            //    list.Add(new KeyValuePair<String, object>("Paste_to_Path", paste_to));
+            //}  
 
-            //}
+            if (items != null)
+            {
+                EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
+
+                string a = item.Name;
+                MessageBox.Show(a);
+                //EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
+                //string path = projectItem.Properties.Item("FullPath").Value.ToString();
+                //list.Add(new KeyValuePair<String, object>("Paste_to_Path", path));
+
+            }
 
             Logger.LogInfo(list);
         }
