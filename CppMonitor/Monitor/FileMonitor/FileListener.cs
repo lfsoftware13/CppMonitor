@@ -45,7 +45,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
                 VCFile f = Item as VCFile;
                 MessageBox.Show("remove file: " + f.FullPath);
                 String desDir = getDesDir(f.FullPath);
-                CopyUtil.copyFile(f.FullPath, Path.Combine(desDir, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-(-)" + f.Name));
+                //CopyUtil.copyFile(f.FullPath, Path.Combine(desDir, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-(-)" + f.Name));
             }
             else if (pitem.Kind.Equals("VCFilter"))
             {
