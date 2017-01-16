@@ -61,8 +61,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         /// </summary>
         private static void refreshWindow()
         {
-            // 这段代码是错误的
-            // 正在思考怎么改
             List<string> keyList = windowCache.Keys.ToList();
             foreach (string key in keyList)
             {
