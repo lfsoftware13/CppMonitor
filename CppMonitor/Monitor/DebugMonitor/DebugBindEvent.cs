@@ -31,6 +31,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         public void RegisterEvent()
         {
+            Dictionary<string, StringBuilder> debugOutputs = new Dictionary<string, StringBuilder>();
             debuggerEvents.OnEnterBreakMode += (dbgEventReason Reason, ref dbgExecutionAction ExecutionAction) =>
             {
                 Debug.Print("[DebugEvent] Break");
@@ -49,11 +50,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             // 调试结束
             debuggerEvents.OnEnterDesignMode += (dbgEventReason Reason) => 
             {
-                string output;
+                Dictionary<string, string> output = new Dictionary<string, string>();
                 Debug.Print("[DebugEvent] 调试结束");
-                EnvDTE.Process process;
-
                 lastBreakpoint = null;
+                isStarted = false;
             };
 
             // 调试开始 or 继续
@@ -63,11 +63,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 List<string> debugProjects = new List<string>();
                 string debugType;
 
-                if (lastBreakpoint == null)
+                // 如果是刚开始
+                if (!isStarted)
                 {
                     Debug.Print("[DebugEvent] 调试开始");
+
                     foreach (EnvDTE.Process process in dte.Debugger.DebuggedProcesses)
                     {
+                        System.Diagnostics.Process sysProcess = System.Diagnostics.Process.GetProcessById(process.ProcessID);
+
+                        // 尝试获取这个进程是release版本还是debug版本
                         debugTarget.Add(process.Name);
                         Debug.Print("[DebugEvent] 当前调试的是 " + process.Name);
                         string processName = process.Name;
@@ -77,7 +82,23 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                             Debug.Print("[DebugEvent] 当前调试的是 " + frags[frags.Length - 2] + " 版本");
                             debugType = frags[frags.Length - 2];
                         }
+
+                        // 监听每个进程的输出
+                        var output = new StringBuilder("");
+                        debugOutputs[process.Name] = output;
+                        new System.Threading.Thread(() => 
+                        {
+                            
+                            var outputStream = sysProcess.StandardOutput;
+                            while (!outputStream.EndOfStream)
+                            {
+                                var outputline = sysProcess.StandardOutput.ReadLine();
+                                Debug.Print("[DebugOutput] " + outputline);
+                                output.Append(outputline + "\n");
+                            }
+                        }).Start();
                     }
+                    isStarted = true;
                 }
                 else
                 {
@@ -106,5 +127,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         private DebuggerEvents debuggerEvents;
         private BuildEvents buildEvents;
         private Breakpoint lastBreakpoint;
+        private bool isStarted = false;
     }
 }
