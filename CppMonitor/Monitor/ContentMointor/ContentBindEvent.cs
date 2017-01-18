@@ -10,7 +10,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     {
         void IBindEvent.RegisterEvent()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

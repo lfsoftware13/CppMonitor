@@ -28,7 +28,16 @@ namespace NanjingUniversity.CppMonitor.DAO
 
         public ILoggerDao getLogger(String key)
         {
-            return new BuildLoggerImpl();
+            ILoggerDao logger = null;
+            switch(key){
+                case "Build":
+                     logger = new BuildLoggerImpl();
+                     break;
+                default:
+                     logger = null;
+                     break;
+            }
+            return logger;
         }
 
     }

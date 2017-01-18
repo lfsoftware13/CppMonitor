@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using System.Collections.Generic;
 using NanjingUniversity.CppMonitor.Monitor;
+using NanjingUniversity.CppMonitor.DAO.imp;
 
 namespace NanjingUniversity.CppMonitor
 {
@@ -60,7 +61,6 @@ namespace NanjingUniversity.CppMonitor
         {
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
-
             String[] list={"Build", "Command", "Content", "Debug", "File"};
 
             foreach(String key in list){
@@ -72,6 +72,7 @@ namespace NanjingUniversity.CppMonitor
             }
 
         }
+       
         #endregion
 
     }
