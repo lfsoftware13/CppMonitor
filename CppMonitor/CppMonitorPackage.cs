@@ -10,8 +10,6 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using System.Collections.Generic;
 using NanjingUniversity.CppMonitor.Monitor;
-using System.Windows.Forms;
-using Microsoft.VisualStudio.Package;
 
 namespace NanjingUniversity.CppMonitor
 {
@@ -73,8 +71,6 @@ namespace NanjingUniversity.CppMonitor
                 }
             }
 
-            // Initialize debugger monitor
-            MessageBox.Show(GetService(typeof(SVsShellDebugger)) + "");
         }
         #endregion
 
