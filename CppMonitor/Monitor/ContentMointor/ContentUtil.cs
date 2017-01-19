@@ -52,7 +52,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         /**
          * 判断当前文档是否是cpp文件或头文件
          */
-        public static bool isCppFile(String name)
+        public static bool IsCppFile(String name)
         {
             try
             {

@@ -1,4 +1,4 @@
-Ôªøusing System;
+using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,10 +36,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private ILoggerDao Logger;
 
-        //ÂΩìÂâçÁºñËæëÁöÑ‰∏ä‰∏ãÊñá‰ø°ÊÅØ
+        //µ±«∞±‡º≠µƒ…œœ¬Œƒ–≈œ¢
         private ContextState Context;
 
-        //ÂΩìÂâçÁöÑÁºñËæëÁä∂ÊÄÅ
+        //µ±«∞µƒ±‡º≠◊¥Ã¨
         private IEditState EditState;
         
 
@@ -52,8 +52,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DocEvents = DteEvents.DocumentEvents;
             SelectEvents = DteEvents.SelectionEvents;
 
-            //Logger = LoggerFactory.loggerFactory.getLogger("Content");
-            Logger = new LoggerDAOImpl_Stub();
+            Logger = LoggerFactory.loggerFactory.getLogger("Content");
+            //Logger = new LoggerDAOImpl_Stub();
 
             Context = new ContextState(
                 -1, -1, -1, new StringBuilder(), null, null
@@ -72,37 +72,43 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         }
 
         /**
-         * ÊñáÊú¨‰∫ã‰ª∂ÂèòÂåñÁõëÂê¨Âô®
+         * Œƒ±æ ¬º˛±‰ªØº‡Ã˝∆˜
          */
-        public void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
+        private void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
             Context.ActiveDoc = StartPoint.Parent.Parent;
 
-            if (!ContentUtil.isCppFile(Dte2.ActiveDocument.Name))
+            if (Context.ActiveDoc == null)
             {
                 return;
             }
 
+            if (!ContentUtil.IsCppFile(Context.ActiveDoc.Name))
+            {
+                return;
+            }
+
+            String Content = GetDocContent();
             Tuple<String, String> ReplaceText = ContentUtil.GetReplaceText(
-                StartPoint, Context.LastDocContent, GetDocContent()
+                StartPoint, Context.LastDocContent, Content
             );
             String ReplacingText = ReplaceText.Item1;
             String ReplacedText = ReplaceText.Item2;
 
             ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
 
-            Context.LastDocContent = GetDocContent();
+            Context.LastDocContent = Content;
             Context.LastEndOffset = EndPoint.AbsoluteCharOffset;
         }
 
         /**
-         * ÈáçÊñ∞Â§ÑÁêÜÊñáÊú¨‰∫ã‰ª∂ÂèòÂåñ
+         * ÷ÿ–¬¥¶¿ÌŒƒ±æ ¬º˛±‰ªØ
          */
         public void ReLog(TextPoint StartPoint, TextPoint EndPoint,
             ref String ReplacingText, ref String ReplacedText)
         {
             if (Dte2.ActiveWindow.Document == null) return;
-            if (!ContentUtil.isCppFile(Dte2.ActiveWindow.Document.Name)) return;
+            if (!ContentUtil.IsCppFile(Dte2.ActiveWindow.Document.Name)) return;
 
             EditState.LogInfo(StartPoint, EndPoint,
                 ref ReplacingText, ref ReplacedText);
@@ -112,7 +118,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocOpened(Document Doc)
         {
-            if (!ContentUtil.isCppFile(Doc.Name))
+            if (!ContentUtil.IsCppFile(Doc.Name))
             {
                 return;
             }
@@ -130,6 +136,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocClosing(Document Doc)
         {
+            if (!ContentUtil.IsCppFile(Doc.Name))
+            {
+                return;
+            }
+
             EditState.FlushBuffer();
 
             Context.ActiveDoc = null;
@@ -140,7 +151,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocSaved(Document Doc)
         {
-            if (!ContentUtil.isCppFile(Context.ActiveDoc.Name))
+            if (!ContentUtil.IsCppFile(Context.ActiveDoc.Name))
             {
                 return;
             }
@@ -192,6 +203,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             if (Context.ActiveDoc == null)
             {
+                if (Dte2.ActiveWindow.Document == null)
+                {
+                    return String.Empty;
+                }
                 Context.ActiveDoc = Dte2.ActiveWindow.Document;
             }
             TextDocument Doc = (TextDocument)Context.ActiveDoc.Object("TextDocument");
@@ -213,11 +228,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.From.ToString(), "`" + From + "`"
+                RecordKey.From.ToString(), From
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.To.ToString(), "`" + To + "`"
+                RecordKey.To.ToString(), To
             ));
 
             Context.Buffer.Clear();
