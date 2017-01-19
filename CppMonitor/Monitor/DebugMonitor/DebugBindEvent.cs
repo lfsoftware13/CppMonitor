@@ -31,21 +31,28 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         public void RegisterEvent()
         {
+
             Dictionary<string, StringBuilder> debugOutputs = new Dictionary<string, StringBuilder>();
             debuggerEvents.OnEnterBreakMode += (dbgEventReason Reason, ref dbgExecutionAction ExecutionAction) =>
             {
-                Debug.Print("[DebugEvent] Break");
+                string breakReason = Reason + "";
+                Breakpoint breakpoint;
+                 
+                Debug.Print("[DebugEvent] 调试暂停");
                 Debug.Print("[DebugEvent] EventReason: " + Reason + " ExecutionAction: " + ExecutionAction);
-                var breakpoint = dte.Debugger.BreakpointLastHit;
+                breakpoint = dte.Debugger.BreakpointLastHit;
                 if (breakpoint != null)
                 {
                     lastBreakpoint = breakpoint;
                     Debug.Print("[DebugEvent] Breakpoint: " + breakpoint.File + " (" + breakpoint.FileLine + ", " + breakpoint.FileColumn + ")");
-                }
+                }                           
             };
 
             debuggerEvents.OnContextChanged += (EnvDTE.Process NewProcess, Program 
-                NewProgram, EnvDTE.Thread NewThread, EnvDTE.StackFrame NewStackFrame) => { };
+                NewProgram, EnvDTE.Thread NewThread, EnvDTE.StackFrame NewStackFrame) => 
+            {
+                Debug.Print("[DebugEvent] Process: " + NewProcess.Name);
+            };
 
             // 调试结束
             debuggerEvents.OnEnterDesignMode += (dbgEventReason Reason) => 
@@ -59,15 +66,26 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             // 调试开始 or 继续
             debuggerEvents.OnEnterRunMode += (dbgEventReason Reason) =>
             {
-                List<string> debugTarget = new List<string>();
-                List<string> debugProjects = new List<string>();
-                string debugType;
+                string projectLocation;
+                string debugType = "Unknown";
 
                 // 如果是刚开始
                 if (!isStarted)
                 {
                     Debug.Print("[DebugEvent] 调试开始");
 
+                    foreach (EnvDTE.Process process in dte.Debugger.DebuggedProcesses)
+                    {
+                        projectLocation = process.Name;
+                        string processName = process.Name;
+                        string[] frags = processName.Split(new char[] { '\\' });
+                        if (frags[frags.Length - 2].Equals("Debug") || frags[frags.Length - 2].Equals("Release"))
+                        {
+                            debugType = frags[frags.Length - 2];
+                        }
+                    }
+
+                    /*
                     foreach (EnvDTE.Process process in dte.Debugger.DebuggedProcesses)
                     {
                         System.Diagnostics.Process sysProcess = System.Diagnostics.Process.GetProcessById(process.ProcessID);
@@ -98,6 +116,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                             }
                         }).Start();
                     }
+                    */
                     isStarted = true;
                 }
                 else
@@ -108,12 +127,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
             debuggerEvents.OnExceptionNotHandled += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) => 
             {
+                string exceptionType = ExceptionType;
+                string description = Description;
+
                 Debug.Print("[DebugEvent] 有未处理的异常");
                 Debug.Print("[DebugEvent] ExceptionType: " + ExceptionType + "ExceptionDescription: " + Description + " Name: " + Name + " ExceptionAction: " + ExceptionAction);
             };
 
             debuggerEvents.OnExceptionThrown += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) =>
             {
+                string exceptionType = ExceptionType;
+                string description = Description;
+
                 Debug.Print("[DebugEvent] 抛出异常");
                 Debug.Print("[DebugEvent] ExceptionType: " + ExceptionType + "ExceptionDescription: " + Description + " Name: " + Name + " ExceptionAction: " + ExceptionAction);
             };
