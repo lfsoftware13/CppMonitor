@@ -52,8 +52,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DocEvents = DteEvents.DocumentEvents;
             SelectEvents = DteEvents.SelectionEvents;
 
-            Logger = LoggerFactory.loggerFactory.getLogger("Content");
-            //Logger = new LoggerDAOImpl_Stub();
+            //Logger = LoggerFactory.loggerFactory.getLogger("Content");
+            Logger = new LoggerDAOImpl_Stub();
 
             Context = new ContextState(
                 -1, -1, -1, new StringBuilder(), null, null
