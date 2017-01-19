@@ -22,7 +22,7 @@ namespace NanjingUniversity.CppMonitor.Common
         static AddressCommon()
         {
             String appDataPath = getAppDataPath();
-            dbFilePath = Path.Combine(appDataPath,"Dao/log.db");
+            dbFilePath = Path.Combine(appDataPath,"Dao\\log.db");
             
         }
 

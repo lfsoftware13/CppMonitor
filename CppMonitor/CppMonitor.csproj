@@ -157,6 +157,7 @@
     <Compile Include="Common\AddressCommon.cs" />
     <Compile Include="DAO\DBHelper.cs" />
     <Compile Include="DAO\ILoggerDao.cs" />
+    <Compile Include="DAO\imp\ContentLoggerImpl.cs" />
     <Compile Include="DAO\imp\BuildLoggerImpl.cs" />
     <Compile Include="DAO\LoggerFactory.cs" />
     <Compile Include="Guids.cs" />
@@ -170,6 +171,14 @@
     <Compile Include="Monitor\BuildMonitor\Util\BuildMonitorUtil.cs" />
     <Compile Include="Monitor\CommandMonitor\CommandBindEvent.cs" />
     <Compile Include="Monitor\ContentMointor\ContentBindEvent.cs" />
+    <Compile Include="Monitor\ContentMointor\ContentUtil.cs" />
+    <Compile Include="Monitor\ContentMointor\ContextState.cs" />
+    <Compile Include="Monitor\ContentMointor\State\DeleteState.cs" />
+    <Compile Include="Monitor\ContentMointor\State\IEditState.cs" />
+    <Compile Include="Monitor\ContentMointor\State\InsertAfterEnterState.cs" />
+    <Compile Include="Monitor\ContentMointor\State\InsertState.cs" />
+    <Compile Include="Monitor\ContentMointor\State\ReplaceState.cs" />
+    <Compile Include="Monitor\ContentMointor\State\StartState.cs" />
     <Compile Include="Monitor\DebugMonitor\DebugBindEvent.cs" />
     <Compile Include="Monitor\FileMonitor\FileBindEvent.cs" />
     <Compile Include="Monitor\MonitorFactory.cs" />

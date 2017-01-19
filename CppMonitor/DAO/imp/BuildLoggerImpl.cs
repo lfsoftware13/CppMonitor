@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NanjingUniversity.CppMonitor.Common;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
@@ -36,9 +37,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         private bool logBuildInfo(List<KeyValuePair<String, Object>> list)
         {
+            DBHelper dbHelper = DBHelper.getInstance();
             try
             {
-                DBHelper dbHelper = DBHelper.getInstance();
                 SQLiteConnection conn = dbHelper.getConnection();
                 string sql = "insert into build_info (time,buildstarttime,buildendtime,content) values (@time,@buildstarttime,@buildendtime,@content)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
@@ -62,20 +63,24 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             break;
                     }
                 }
-                dbHelper.returnConnection();
+                cmd.ExecuteNonQuery();
                 return true;
             }
             catch (Exception)
             {
                 return false;
             }
+            finally
+            {
+                dbHelper.returnConnection();
+            }
         }
 
         private bool logBuildProjectInfo(List<KeyValuePair<String, Object>> list)
         {
+            DBHelper dbHelper = DBHelper.getInstance();
             try
             {
-                DBHelper dbHelper = DBHelper.getInstance();
                 SQLiteConnection conn = dbHelper.getConnection();
                 string sql = "insert into build_project_info (time,buildid,buildstarttime,buildendtime,projectname,configurationname,configurationtype,runcommand,commandarguments,buildlogfile,buildlogcontent,compilercommand,linkcommand) values (@time,@buildid,@buildstarttime,@buildendtime,@projectname,@configurationname,@configurationtype,@runcommand,@commandarguments,@buildlogfile,@buildlogcontent,@compilercommand,@linkcommand)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
@@ -128,28 +133,32 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             break;
                     }
                 }
-                dbHelper.returnConnection();
+                cmd.ExecuteNonQuery();
                 return true;
             }
             catch (Exception)
             {
                 return false;
             }
+            finally
+            {
+                dbHelper.returnConnection();
+            }
         }
 
         public void ensureTableExist()
         {
-            DBHelper dbHelper = DBHelper.getInstance();
-            SQLiteConnection conn = dbHelper.getConnection();
+            SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
+            conn.Open();
             //建立build_info
             string sql = "create table if not exists build_info (time char[22],buildstarttime TEXT,buildendtime TEXT,content TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             //建立build_project_info
-            sql = "create table if not exists build_project_info (time char[22],buildid TEXT,buildstarttime TEXT,buildendtime TEXT,projectname TEXT，configurationname TEXT,configurationtype TEXT,runcommand TEXT,commandarguments TEXT,buildlogfile TEXT,buildlogcontent TEXT,compilercommand TEXT,linkcommand TEXT)";
+            sql = "create table if not exists build_project_info (time char[22],buildid TEXT,buildstarttime TEXT,buildendtime TEXT,projectname TEXT,configurationname TEXT,configurationtype TEXT,runcommand TEXT,commandarguments TEXT,buildlogfile TEXT,buildlogcontent TEXT,compilercommand TEXT,linkcommand TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
-            dbHelper.returnConnection();
+            conn.Close();
         }
 
 
