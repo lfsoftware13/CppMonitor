@@ -81,6 +81,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                         if (frags[frags.Length - 2].Equals("Debug") || frags[frags.Length - 2].Equals("Release"))
                         {
                             debugType = frags[frags.Length - 2];
+                            Debug.Print("[DebugEvent] 当前调试的是 " + frags[frags.Length - 2] + " 版本");
                         }
                     }
 
