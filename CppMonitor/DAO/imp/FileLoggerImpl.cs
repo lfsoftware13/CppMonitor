@@ -13,10 +13,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         public FileLoggerImpl()
         {
-            tableNameList = new string[3];
+            tableNameList = new string[2];
             tableNameList[0] = "solution_open_event";
-            tableNameList[1] = "snap";
-            tableNameList[2] = "file_event";
+            tableNameList[1] = "file_event";
         }
 
         public Boolean LogInfo(string target,List<KeyValuePair<String, Object>> list)
@@ -26,9 +25,6 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             {
                 case "solution_open_event":
                     result = logSolutionOpenEvent(list);
-                    break;
-                case "snap":
-                    result = logSnap(list);
                     break;
                 case "file_event":
                     result = logFileEvent(list);
@@ -45,7 +41,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into solution_open_event (time,solutionname,info) values(@time,@solutionname,@info)";
+                string sql = "insert into solution_open_event (time,solutionname,type,info,targetfolder) values(@time,@solutionname,@type,@info,@targetfolder)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -60,46 +56,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                         case "info":
                             cmd.Parameters.Add(new SQLiteParameter("@info", paramPair.Value.ToString()));
                             break;
-                        default:
-                            break;
-                    }
-                }
-                cmd.ExecuteNonQuery();
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            finally
-            {
-                dbHelper.returnConnection();
-            }
-        }
-
-        private bool logSnap(List<KeyValuePair<String, Object>> list)
-        {
-            DBHelper dbHelper = DBHelper.getInstance();
-            try
-            {
-                SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into snap (time,eventid,type,location) values(@time,@eventid,@type,@location)";
-                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
-                //加时间戳
-                string current = DateTime.Now.ToString();
-                cmd.Parameters.Add(new SQLiteParameter("@time", current));
-                foreach (KeyValuePair<string, object> paramPair in list)
-                {
-                    switch (paramPair.Key)
-                    {
-                        case "eventId":
-                            cmd.Parameters.Add(new SQLiteParameter("@eventid", (long)paramPair.Value));
-                            break;
                         case "type":
                             cmd.Parameters.Add(new SQLiteParameter("@type", (int)paramPair.Value));
                             break;
-                        case "location":
-                            cmd.Parameters.Add(new SQLiteParameter("@location", paramPair.Value.ToString()));
+                        case "targetFolder":
+                            cmd.Parameters.Add(new SQLiteParameter("@targetfolder", paramPair.Value.ToString()));
                             break;
                         default:
                             break;
@@ -124,7 +85,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into file_event (time,filename,type) values(@time,@filename,@type)";
+                string sql = "insert into file_event (time,filename,projectname,type,targetFile) values(@time,@filename,@projectname,@type,@targetFile)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -133,11 +94,17 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
-                        case "filename":
+                        case "fileName":
                             cmd.Parameters.Add(new SQLiteParameter("@filename", paramPair.Value.ToString()));
+                            break;
+                        case "projectName":
+                            cmd.Parameters.Add(new SQLiteParameter("@projectname", paramPair.Value.ToString()));
                             break;
                         case "type":
                             cmd.Parameters.Add(new SQLiteParameter("@type", (int)paramPair.Value));
+                            break;
+                        case "targetFile":
+                            cmd.Parameters.Add(new SQLiteParameter("@targetFile", paramPair.Value.ToString()));
                             break;
                         default:
                             break;
@@ -161,15 +128,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立solution_open_event
-            string sql = "create table if not exists solution_open_event (time char[22],solutionname TEXT,info TEXT)";
+            string sql = "create table if not exists solution_open_event (time char[22],solutionname TEXT,type tinyint,info TEXT,targetfolder TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
-            //建立snap
-            sql = "create table if not exists snap (time char[22],eventid INT8,type tinyint,location TEXT)";
-            cmd = new SQLiteCommand(sql, conn);
-            cmd.ExecuteNonQuery();
             //建立file_event
-            sql = "create table if not exists file_event (time char[22],filename TEXT,type tinyint)";
+            sql = "create table if not exists file_event (time char[22],filename TEXT,projectname TEXT,type tinyint,targetFile TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
 

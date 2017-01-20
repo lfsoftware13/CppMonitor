@@ -61,6 +61,7 @@ namespace NanjingUniversity.CppMonitor
         {
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
+            
             String[] list={"Build", "Command", "Content", "Debug", "File"};
 
             foreach(String key in list){

@@ -159,6 +159,7 @@
     <Compile Include="DAO\ILoggerDao.cs" />
     <Compile Include="DAO\imp\ContentLoggerImpl.cs" />
     <Compile Include="DAO\imp\BuildLoggerImpl.cs" />
+    <Compile Include="DAO\imp\FileLoggerImpl.cs" />
     <Compile Include="DAO\LoggerFactory.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="Monitor\BuildMonitor\BO\BuildInfo.cs" />
@@ -180,7 +181,11 @@
     <Compile Include="Monitor\ContentMointor\State\ReplaceState.cs" />
     <Compile Include="Monitor\ContentMointor\State\StartState.cs" />
     <Compile Include="Monitor\DebugMonitor\DebugBindEvent.cs" />
+    <Compile Include="Monitor\FileMonitor\CopyUtil.cs" />
     <Compile Include="Monitor\FileMonitor\FileBindEvent.cs" />
+    <Compile Include="Monitor\FileMonitor\FileListener.cs" />
+    <Compile Include="Monitor\FileMonitor\FileLogUtil.cs" />
+    <Compile Include="Monitor\FileMonitor\SolutionListener.cs" />
     <Compile Include="Monitor\MonitorFactory.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
