@@ -178,6 +178,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         private void AftCmdExecute(string Guid, int ID, object CustomIn,
             object CustomOut)
         {
+            try
+            {
+                if(CustomIn != null){
+                    MessageBox.Show("rww!!"+CustomIn.ToString());
+                }
+
+            }catch(Exception e){
+
+            }
             //MessageBox.Show("Command end");
             if (AftEventTable.ContainsKey(ID))
             {
@@ -191,6 +200,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
          */
         private void HandleCopyEventAft()
         {
+            MessageBox.Show("Now is copying!");
             HandleClip.handleCopy(Logger);
 
         }

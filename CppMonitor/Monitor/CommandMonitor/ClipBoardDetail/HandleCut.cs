@@ -4,6 +4,7 @@ using NanjingUniversity.CppMonitor.DAO;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,27 +77,32 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             list.Add(new KeyValuePair<String, object>("Action", "Cut_in_VisualStudio"));
             list.Add(new KeyValuePair<String, object>("CutType", "file"));
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
-            EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
-            object[] items = solutionExplorer.SelectedItems as object[];
-
-            if (items != null)
+            List<string> Ie = util.GetSelectedFilePaths(_applicationObject);
+            if (Ie != null)
             {
                 int i = 1;
-                foreach (object it in items)
+                foreach (string path in Ie)
                 {
-                    EnvDTE.UIHierarchyItem item = it as EnvDTE.UIHierarchyItem;
-                    MessageBox.Show(item.Name);
-                    EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
-                    string path = projectItem.Properties.Item("FullPath").Value.ToString();
+                    string text = System.IO.File.ReadAllText(@path);
                     list.Add(new KeyValuePair<String, object>("CutPath" + i, path));
-                    string content = util.getDocContent(projectItem);
-                    if (content != null)
-                    {
-                        list.Add(new KeyValuePair<String, object>("CutContent", content));
-                    }
+                    list.Add(new KeyValuePair<String, object>("Cut_Content" + i, text));
                     i++;
                 }
             }
+            //if (Ie != null)
+            //{
+            //    IEnumerator<string> Enum = Ie.GetEnumerator();
+            //    MessageBox.Show("???");
+            //    int i = 1;
+            //    while (Enum.MoveNext())
+            //    {
+            //        string path = Enum.Current;
+            //        string text = System.IO.File.ReadAllText(@path);
+            //        list.Add(new KeyValuePair<String, object>("CutPath" + i, path));
+            //        list.Add(new KeyValuePair<String, object>("Cut_Content" + i, text));
+            //        i++;
+            //    }
+            //}
             Logger.LogInfo(list);
         }
     }

@@ -21,6 +21,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
         private List<KeyValuePair<String, object>> list;
 
+        private CommandUtil util;
+
         public HandleCopy()
         {
             // TODO: Complete member initialization
@@ -29,22 +31,35 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             DteEvents = Dte.Events;
             DocEvents = DteEvents.DocumentEvents;
             list = new List<KeyValuePair<string, object>>();
+            util = new CommandUtil();
         }
         public void handleText(ILoggerDao Logger)
         {
+            MessageBox.Show("Copy Text!");
             string ctype = "Text";
             object obj = Clipboard.GetText();
-            list.Add(new KeyValuePair<String, object>("Action", "Copy"));
-            list.Add(new KeyValuePair<String, object>("CopyType", ctype));
-            list.Add(new KeyValuePair<String, object>("CopyFrom_Name", Dte.ActiveDocument.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Dte.ActiveDocument.Path));
-            list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+            Document doc = Dte.ActiveDocument;
+            if(doc!=null){
+                list.Add(new KeyValuePair<String, object>("Action", "Copy"));
+                list.Add(new KeyValuePair<String, object>("CopyType", ctype));
+                list.Add(new KeyValuePair<String, object>("CopyFrom_Name", Dte.ActiveDocument.Name));
+                list.Add(new KeyValuePair<String, object>("Path", Dte.ActiveDocument.Path));
+                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+            }
+            else
+            {
+                list.Add(new KeyValuePair<String, object>("Action", "Copy"));
+                list.Add(new KeyValuePair<String, object>("CopyType", ctype));
+                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+            }
+            
             Logger.LogInfo(list);
 
         }
 
         public void handleFileDrop(ILoggerDao Logger)
         {
+            MessageBox.Show("Copy FileDrop!");
             string ctype = "FileDrop";
             object obj = Clipboard.GetFileDropList();
             StringCollection file_list = (StringCollection)obj;
@@ -73,23 +88,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
         public void handleVSProjectItem(ILoggerDao Logger)
         {
+            MessageBox.Show("copy Item");
             list.Add(new KeyValuePair<String, object>("Action", "Copy_in_VisualStudio"));
             list.Add(new KeyValuePair<String, object>("CopyType", "file"));
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
-            EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
-            object[] items = solutionExplorer.SelectedItems as object[];
-
-            if(items != null){
+            List<string> Ie = util.GetSelectedFilePaths(_applicationObject);
+            if(Ie!=null){
+                //IEnumerator<string> Enum = Ie.GetEnumerator();
                 int i = 1;
-                foreach(object it in items){
-                    EnvDTE.UIHierarchyItem item = it as EnvDTE.UIHierarchyItem;
-                    EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem;
-                    string path = projectItem.Properties.Item("FullPath").Value.ToString();
-                    list.Add(new KeyValuePair<String, object>("CopyPath"+i, path));
+                foreach(string path in Ie){
+                    list.Add(new KeyValuePair<String, object>("CopyPath" + i, path));
                     i++;
                 }
             }
+
             Logger.LogInfo(list);
+
         }
     }
 }
