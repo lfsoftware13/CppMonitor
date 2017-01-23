@@ -39,6 +39,9 @@ namespace NanjingUniversity.CppMonitor.DAO
                 case "File":
                      logger = new FileLoggerImpl();
                      break;
+                case "Command":
+                     logger = new CommandLoggerImpl();
+                     break;
                 default:
                      logger = null;
                      break;
