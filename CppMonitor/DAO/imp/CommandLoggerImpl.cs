@@ -85,7 +85,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into command_file (time,action,filepath,pastefilepath,pasteto) values(@time,@action,@filepath,@pastefilepath,@pasteto))";
+                string sql = "insert into command_file (time,action,filepath,pastefilepath,pasteto) values(@time,@action,@filepath,@pastefilepath,@pasteto)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
