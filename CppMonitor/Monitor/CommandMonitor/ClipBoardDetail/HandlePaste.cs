@@ -39,56 +39,55 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         {
             string ctype = "Text";
             object obj = Clipboard.GetText();
-            list.Add(new KeyValuePair<String, object>("Action", "Paste"));
-            list.Add(new KeyValuePair<String, object>("PasteType", ctype));
-            list.Add(new KeyValuePair<String, object>("PasteTo_Name", Dte.ActiveDocument.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Dte.ActiveDocument.Path));
-            list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+            Document doc = Dte.ActiveDocument;
+            if (doc != null)
+            {
+                list.Add(new KeyValuePair<String, object>("Action", "Paste"));
+                list.Add(new KeyValuePair<String, object>("Type", ctype));
+                list.Add(new KeyValuePair<String, object>("Name", Dte.ActiveDocument.Name));
+                list.Add(new KeyValuePair<String, object>("Path", Dte.ActiveDocument.Path));
+                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+            }
+            else
+            {
+                list.Add(new KeyValuePair<String, object>("Action", "Paste"));
+                list.Add(new KeyValuePair<String, object>("Type", ctype));
+                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+            }
+            
             Logger.LogInfo(list);
         }
 
         public void handleFileDrop(ILoggerDao Logger)
         {
-            MessageBox.Show("paste file");
-            string ctype = "FileDrop";
+            //MessageBox.Show("paste file");
+            string ctype = "File";
             object obj = Clipboard.GetFileDropList();
-            //IDataObject id = Clipboard.GetDataObject();
             StringCollection file_list = (StringCollection)obj;
-            //string[] file_names = (string[])obj;
-            string path_content = "";
-            foreach (string file_name in file_list)
-            {
-                path_content += file_name + ";";
-            }
             list.Add(new KeyValuePair<String, object>("Action", "Paste"));
-            list.Add(new KeyValuePair<String, object>("PasteType", ctype));
-            list.Add(new KeyValuePair<String, object>("fileFrom_Path", path_content));
+            list.Add(new KeyValuePair<String, object>("Type", ctype));
+            list.Add(new KeyValuePair<String, object>("PasteFileType", "out_visualstudio"));            
+            
+            int i = 1;
+            foreach (string file_path in file_list)
+            {
+                list.Add(new KeyValuePair<String, object>("FilePath"+i, file_path));
+                i++;
+            }
+            list.Add(new KeyValuePair<String, object>("Path_number", i - 1));
             //get the path of paste_to 
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
-            EnvDTE.Solution solution = _applicationObject.Solution;
+            string thepath = util.GetSelectedProjectPath(_applicationObject);
+            list.Add(new KeyValuePair<String, object>("PasteTo", thepath));
 
-            if (solution == null)
-            {
-            }
-            else if (string.IsNullOrEmpty(solution.FullName))
-            {
-            }
-            else
-            {
-                string path = Path.GetDirectoryName(solution.FullName);
-                list.Add(new KeyValuePair<String, object>("Paste_to_Path", path));
-            }
-            EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
-            object[] items = solutionExplorer.SelectedItems as object[];
-            if (items != null)
-            {
-                EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
-                string a = item.Name;
-                MessageBox.Show(a);
-                //EnvDTE.ProjectItem projectItem = item.Object as EnvDTE.ProjectItem; 
-                //string path = projectItem.Properties.Item("FullPath").Value.ToString();
-                //list.Add(new KeyValuePair<String, object>("Paste_to_Path", path));
-            }
+            //EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
+            //object[] items = solutionExplorer.SelectedItems as object[];
+            //if (items != null)
+            //{
+            //    EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
+            //    string a = item.Name;
+            //    MessageBox.Show(a);     //filter name
+            //}
 
             Logger.LogInfo(list);
         }
@@ -109,16 +108,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
         public void handleVSProjectItem(ILoggerDao Logger)
         {
-            MessageBox.Show("VSProjectItem Paste");
+            //MessageBox.Show("VSProjectItem Paste");
             list.Add(new KeyValuePair<String, object>("Action", "Paste"));
-            list.Add(new KeyValuePair<String, object>("PasteType", "file_in_VisualStudio"));
+            list.Add(new KeyValuePair<String, object>("Type", "File"));
+            list.Add(new KeyValuePair<String, object>("PasteFileType", "in_visualstudio"));   
 
             //get the path of paste_to 
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             string thepath = util.GetSelectedProjectPath(_applicationObject);
             MessageBox.Show(thepath);
-            EnvDTE.Solution solution = _applicationObject.Solution;
-
             list.Add(new KeyValuePair<String, object>("Paste_to_Path", thepath));
 
             Logger.LogInfo(list);

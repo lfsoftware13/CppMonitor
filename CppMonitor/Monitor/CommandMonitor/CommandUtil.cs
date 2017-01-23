@@ -113,20 +113,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
                     }
                     else
                     {   //Not a ProjectItem ;maybe is a physicalFolder (but in C++ project,physicalFolder not in IDE)
-                        //IDataObject id = Clipboard.GetDataObject();
-                        //object ob = id.GetData("CF_VSREFPROJECTITEMS");
+                        IDataObject id = Clipboard.GetDataObject();
+                        object ob = id.GetData("CF_VSREFPROJECTITEMS");
                         //MemoryStream memory = (MemoryStream)ob;
                         //byte[] buffer = memory.ToArray();
                         //ASCIIEncoding encoding = new ASCIIEncoding();
                         //string constructedString = encoding.GetString(buffer);
                         //Testlist.Add(new KeyValuePair<String, object>("Action_Detail", constructedString));
                         //Logger.LogInfo(Testlist);
-                        string name = selItem.Name;
-                        Type a = selItem.GetType();
-                        if (selItem.Object.Equals("UIHierarchyMarshaler"))
-                        {
-                        }
-                        //MessageBox.Show(selItem.ToString()+"!@!"+a.FullName);
                     }
                 }
             }
@@ -139,7 +133,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             List<string> IE = GetSelectedItemPaths(dte);
             List<string> list = new List<string>();
             foreach(string path in IE){
-                MessageBox.Show(path);
+                //MessageBox.Show(path);
                 if(Directory.Exists(path)){
                     string sourceDirectory = @path;
                     var txtFiles = Directory.EnumerateFiles(sourceDirectory, "*", SearchOption.AllDirectories);
@@ -169,19 +163,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             //从被选中对象中获取工程对象
             List<string> list = new List<string>();
             Object[] items = dte.ToolWindows.SolutionExplorer.SelectedItems as object[];
-            MessageBox.Show("0");
             EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
 
             if (item.Object is EnvDTE.Project)
             {
                 //被选中的就是项目本生
-                System.Windows.Forms.MessageBox.Show("Project node is selected: " + item.Name);
+                //System.Windows.Forms.MessageBox.Show("Project node is selected: " + item.Name);
                 project = item.Object as Project;
             }
             else if (item.Object is EnvDTE.ProjectItem)
             {
                 //被选中的是项目下的子项
-                System.Windows.Forms.MessageBox.Show("Project item node is selected: " + item.Name);
+                //System.Windows.Forms.MessageBox.Show("Project item node is selected: " + item.Name);
                 ProjectItem pro = item.Object as ProjectItem;
                 project = pro.ContainingProject;
             }

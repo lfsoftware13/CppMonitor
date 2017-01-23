@@ -115,15 +115,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
         void IBindEvent.RegisterEvent()
         {
-            // throw new NotImplementedException();
-            //InitFile();
             //Handle document saving
             DocEvents.DocumentSaved += OnDocumentSave;
             //Handle command events
             CmdEvents.BeforeExecute += BefCmdExecute;
             CmdEvents.AfterExecute += AftCmdExecute;
-            //init active doc content
-            //InitDocContent();
         }
 
         /**
@@ -152,7 +148,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             string content = GetCurrentDocContent();
             List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
             list.Add(new KeyValuePair<String, object>("Avtion", "Save"));
-            list.Add(new KeyValuePair<String, object>("FileName", doc.Name));
+            list.Add(new KeyValuePair<String, object>("Name", doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", content));
             Logger.LogInfo(list);
@@ -178,15 +174,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         private void AftCmdExecute(string Guid, int ID, object CustomIn,
             object CustomOut)
         {
-            try
-            {
-                if(CustomIn != null){
-                    MessageBox.Show("rww!!"+CustomIn.ToString());
-                }
-
-            }catch(Exception e){
-
-            }
             //MessageBox.Show("Command end");
             if (AftEventTable.ContainsKey(ID))
             {
@@ -200,7 +187,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
          */
         private void HandleCopyEventAft()
         {
-            MessageBox.Show("Now is copying!");
+            //MessageBox.Show("Now is copying!");
             HandleClip.handleCopy(Logger);
 
         }
@@ -235,7 +222,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", Doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", content));
-            Logger.LogInfo(list);
+            //Logger.LogInfo(list);
 
         }
 
@@ -251,7 +238,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", Doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", content));
-            Logger.LogInfo(list);
+            //Logger.LogInfo(list);
         }
 
         private void HandleUndoEventAft()
@@ -262,7 +249,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Avtion", "UndoEnd"));
             list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
             list.Add(new KeyValuePair<String, object>("Content", content));
-            Logger.LogInfo(list);
+            //Logger.LogInfo(list);
         }
 
         private void HandleRedoEventAft()
@@ -273,7 +260,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Avtion", "RedoEnd"));
             list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
             list.Add(new KeyValuePair<String, object>("Content", content));
-            Logger.LogInfo(list);
+            //Logger.LogInfo(list);
         }
 
     }
