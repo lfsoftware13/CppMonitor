@@ -68,13 +68,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             list.Add(new KeyValuePair<String, object>("Type", ctype));
             list.Add(new KeyValuePair<String, object>("PasteFileType", "out_visualstudio"));            
             
-            int i = 1;
+            //int i = 1;
+            string allpath = "";
             foreach (string file_path in file_list)
             {
-                list.Add(new KeyValuePair<String, object>("FilePath"+i, file_path));
-                i++;
+                allpath += file_path + ";";
+                //i++;
             }
-            list.Add(new KeyValuePair<String, object>("Path_number", i - 1));
+            list.Add(new KeyValuePair<String, object>("FilePath", allpath));
+            //list.Add(new KeyValuePair<String, object>("Path_number", i - 1));
             //get the path of paste_to 
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             string thepath = util.GetSelectedProjectPath(_applicationObject);
