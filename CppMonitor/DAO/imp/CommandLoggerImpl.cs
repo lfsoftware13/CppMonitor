@@ -50,16 +50,16 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
-                        case "action":
+                        case "Action":
                             cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
-                        case "name":
+                        case "Name":
                             cmd.Parameters.Add(new SQLiteParameter("@name", paramPair.Value.ToString()));
                             break;
-                        case "path":
-                            cmd.Parameters.Add(new SQLiteParameter("@path", (int)paramPair.Value));
+                        case "Path":
+                            cmd.Parameters.Add(new SQLiteParameter("@path", paramPair.Value));
                             break;
-                        case "content":
+                        case "Content":
                             cmd.Parameters.Add(new SQLiteParameter("@content", paramPair.Value.ToString()));
                             break;
                         default:
@@ -85,7 +85,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into file_table (time,action,filepath,content,pastefilepath,pasteto) values(@time,@action,@filepath,@content,@pastefilepath,@pasteto))";
+                string sql = "insert into command_file (time,action,filepath,pastefilepath,pasteto) values(@time,@action,@filepath,@pastefilepath,@pasteto))";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -94,19 +94,16 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
-                        case "action":
+                        case "Action":
                             cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
-                        case "filepath":
+                        case "FilePath":
                             cmd.Parameters.Add(new SQLiteParameter("@filepath", paramPair.Value.ToString()));
                             break;
-                        case "content":
-                            cmd.Parameters.Add(new SQLiteParameter("@content", (int)paramPair.Value));
-                            break;
-                        case "pastefilepath":
+                        case "PasteFileType":
                             cmd.Parameters.Add(new SQLiteParameter("@pastefilepath", paramPair.Value.ToString()));
                             break;
-                        case "pasteto":
+                        case "PasteTo":
                             cmd.Parameters.Add(new SQLiteParameter("@pasteto", paramPair.Value.ToString()));
                             break;
                         default:
@@ -134,8 +131,8 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             string sql = "create table if not exists command_text (time char[22],action char[5],name TEXT,path TEXT,content TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
-            //建立file_table
-            sql = "create table if not exists file_table (time char[22],action char[5],filepath TEXT,content TEXT,pastefilepath TEXT,pasteto TEXT)";
+            //建立command_file
+            sql = "create table if not exists command_file (time char[22],action char[5],filepath TEXT,pastefilepath TEXT,pasteto TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
 

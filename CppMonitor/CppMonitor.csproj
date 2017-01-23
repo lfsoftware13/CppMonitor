@@ -160,9 +160,17 @@
     <Compile Include="Common\AddressCommon.cs" />
     <Compile Include="DAO\DBHelper.cs" />
     <Compile Include="DAO\ILoggerDao.cs" />
+    <Compile Include="DAO\imp\CommandLoggerImpl.cs" />
     <Compile Include="DAO\imp\ContentLoggerImpl.cs" />
     <Compile Include="DAO\imp\BuildLoggerImpl.cs" />
     <Compile Include="DAO\imp\FileLoggerImpl.cs" />
+    <Compile Include="Monitor\CommandMonitor\ClipBoardDetail\HandleCopy.cs" />
+    <Compile Include="Monitor\CommandMonitor\ClipBoardDetail\HandleCut.cs" />
+    <Compile Include="Monitor\CommandMonitor\ClipBoardDetail\HandlePaste.cs" />
+    <Compile Include="Monitor\CommandMonitor\CommandUtil.cs" />
+    <Compile Include="Monitor\CommandMonitor\HandleClipBoard.cs" />
+    <Compile Include="Monitor\CommandMonitor\IHandleClipBoard.cs" />
+    <Compile Include="Monitor\CommandMonitor\ILoggerDaoImpl_stub.cs" />
     <Compile Include="DAO\LoggerFactory.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="Monitor\BuildMonitor\BO\BuildInfo.cs" />
