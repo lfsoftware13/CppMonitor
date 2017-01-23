@@ -66,7 +66,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             list.Add(new KeyValuePair<String, object>("Action", "Paste"));
             list.Add(new KeyValuePair<String, object>("Type", ctype));
             list.Add(new KeyValuePair<String, object>("PasteFileType", "out_visualstudio"));            
-            
+
             string[] filePaths = new string[file_list.Count];
             file_list.CopyTo(filePaths,0);
             list.Add(new KeyValuePair<String, object>("FilePath", String.Join(",",filePaths)));
