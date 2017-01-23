@@ -176,5 +176,10 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             }
             dbHelper.returnConnection();
         }
+
+        int ILoggerDao.returnKeyAfterLogInfo(string target, List<KeyValuePair<string, object>> list)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

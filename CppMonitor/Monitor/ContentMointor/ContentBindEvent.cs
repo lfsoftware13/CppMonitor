@@ -118,7 +118,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocOpened(Document Doc)
         {
-            if (!ContentUtil.IsCppFile(Doc.Name))
+            if (Doc== null || !ContentUtil.IsCppFile(Doc.Name))
             {
                 return;
             }
@@ -136,7 +136,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocClosing(Document Doc)
         {
-            if (!ContentUtil.IsCppFile(Doc.Name))
+            if (Doc == null || !ContentUtil.IsCppFile(Doc.Name))
             {
                 return;
             }
@@ -151,7 +151,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocSaved(Document Doc)
         {
-            if (!ContentUtil.IsCppFile(Context.ActiveDoc.Name))
+            if (Doc == null || !ContentUtil.IsCppFile(Context.ActiveDoc.Name))
             {
                 return;
             }
