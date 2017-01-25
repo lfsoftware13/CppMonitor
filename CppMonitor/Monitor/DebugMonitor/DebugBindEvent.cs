@@ -35,7 +35,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             {
                 string breakReason = Reason + "";
                 Breakpoint breakpoint = dte.Debugger.BreakpointLastHit;
-                DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(0).Name, Reason + "", breakpoint);
+                DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", breakpoint);
             };
 
             debuggerEvents.OnContextChanged += (EnvDTE.Process NewProcess, Program
@@ -47,7 +47,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             // 调试结束
             debuggerEvents.OnEnterDesignMode += (dbgEventReason Reason) =>
             {
-                DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(0).Name, Reason + "", null);
+                if (dte.Debugger.DebuggedProcesses.Count < 1) return;
+                DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", null);
             };
 
             // 调试开始 or 继续
@@ -57,12 +58,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 {
                     Debug.Print("[DebugEvent] 调试开始");
                     isStarted = true;
-                    DebugLogUtil.LogDebugStart(dte.Debugger.DebuggedProcesses.Item(0).Name);
+                    DebugLogUtil.LogDebugStart(dte.Debugger.DebuggedProcesses.Item(1).Name);
                 }
                 else
                 {
                     Debug.Print("[DebugEvent] 调试继续");
-                    DebugLogUtil.LogDebugContinue(dte.Debugger.DebuggedProcesses.Item(0).Name, dte.Debugger.BreakpointLastHit);
+                    DebugLogUtil.LogDebugContinue(dte.Debugger.DebuggedProcesses.Item(1).Name, dte.Debugger.BreakpointLastHit);
                 }
             };
 
@@ -71,7 +72,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 string exceptionType = ExceptionType;
                 string description = Description;
 
-                DebugLogUtil.LogDebugExceptionNotHandled(dte.Debugger.DebuggedProcesses.Item(0).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
+                DebugLogUtil.LogDebugExceptionNotHandled(dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
 
             debuggerEvents.OnExceptionThrown += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) =>
@@ -79,7 +80,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 string exceptionType = ExceptionType;
                 string description = Description;
 
-                DebugLogUtil.LogDebugExceptionThrown(dte.Debugger.DebuggedProcesses.Item(0).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
+                DebugLogUtil.LogDebugExceptionThrown(dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
         }
 

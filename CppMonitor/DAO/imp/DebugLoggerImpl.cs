@@ -38,13 +38,13 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             var db = DBHelper.getInstance();
             var conn = db.getConnection();
 
-            var sql = "select last_insert_rowid() from target";
+            var sql = "select last_insert_rowid()";
             var cmd = new SQLiteCommand(sql, conn);
             var result = cmd.ExecuteReader();
             result.Read();
             int id = int.Parse(result[0].ToString());
 
-            conn.Close();
+            db.returnConnection();
 
             return id;
         }
@@ -78,7 +78,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             int id = int.Parse(result["id"].ToString());
 
             result.Close();
-            conn.Close();
+            db.returnConnection();
 
             return id;
         }
@@ -103,16 +103,17 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         {
             
             List<string> ddls = new List<string>();
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info ( id INTEGER PRIMARY KEY, timestamp DATETIME DEFAULT current_time NOT NULL, debug_target TEXT NOT NULL )");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_break ( id INTEGER PRIMARY KEY, break_reason TEXT NOT NULL, breakpoint_id INTEGER );");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info ( id INTEGER PRIMARY KEY,time char[22], timestamp DATETIME DEFAULT current_time NOT NULL, debug_target TEXT NOT NULL )");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_break ( id INTEGER PRIMARY KEY,time char[22], break_reason TEXT NOT NULL, breakpoint_id INTEGER,breakpoint_last_hit INTEGER ,debug_target TEXT NOT NULL);");
             ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint ( id INTEGER PRIMARY KEY, tag TEXT, condition TEXT, condition_type TEXT, " + 
                 "current_hits INT DEFAULT 0, file TEXT NOT NULL, file_column INT NOT NULL, file_line INT NOT NULL, function_name TEXT, location_type TEXT NOT NULL );");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_run ( id INTEGER PRIMARY KEY, run_type TEXT NOT NULL, breakpoint_last_hit INTEGER );");
-            ddls.Add("CREATE TABLE IF NOT EXISTS exception ( id INTEGER PRIMARY KEY, type TEXT, name TEXT, descrption TEXT, code INT, action TEXT );");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_thrown ( id INTEGER PRIMARY KEY, exception_id INTEGER NOT NULL );");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_not_handled ( id INTEGER PRIMARY KEY, exception_id INTEGER NOT NULL );");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_run ( id INTEGER PRIMARY KEY,time char[22], run_type TEXT NOT NULL, breakpoint_last_hit INTEGER ,debug_target TEXT);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS exception ( id INTEGER PRIMARY KEY, type TEXT, name TEXT, descrption TEXT, code INT, action TEXT NOT NULL);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_thrown ( id INTEGER PRIMARY KEY,time char[22], exception_id INTEGER NOT NULL,debug_target TEXT NOT NULL );");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_not_handled ( id INTEGER PRIMARY KEY,time char[22], exception_id INTEGER NOT NULL,debug_target TEXT NOT NULL );");
 
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
+            conn.Open();
             foreach (string sql in ddls)
             {
                 var cmd = new SQLiteCommand(sql, conn);
@@ -138,11 +139,18 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                     keys += pair.Key;
                     vals += "@" + pair.Key;
                 }
-
+                if(tableName.StartsWith("debug")){
+                    keys += ",time";
+                    vals += ", @time";
+                }
+               
                 SQLiteConnection conn = dbHelper.getConnection();
                 string sql = String.Format("insert into {0} ({1}) values ({2})", tableName, keys, vals);
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
-                cmd.Parameters.Add(new SQLiteParameter("@timestamp", DateTime.Now.ToString()));
+                if (tableName.StartsWith("debug"))
+                {
+                    cmd.Parameters.Add(new SQLiteParameter("@time", DateTime.Now.ToString()));
+                }
                 foreach (var pair in list)
                 {
                     cmd.Parameters.Add(new SQLiteParameter("@" + pair.Key, pair.Value.ToString()));

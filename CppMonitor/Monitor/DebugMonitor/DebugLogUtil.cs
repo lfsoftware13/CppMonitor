@@ -14,7 +14,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
     {
         static DebugLogUtil()
         {
-            logger = LoggerFactory.loggerFactory.getLogger("Debug") as DebugLoggerImpl;
+            logger = LoggerFactory.loggerFactory.getLogger("Debug");
         }
 
         public static bool LogDebugStart(string debugTarget)
@@ -81,7 +81,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             bpParam.Add(new KeyValuePair<string, object>("tag", bp.Tag));
             bpParam.Add(new KeyValuePair<string, object>("condition", bp.Condition));
             bpParam.Add(new KeyValuePair<string, object>("condition_type", bp.ConditionType));
-            bpParam.Add(new KeyValuePair<string, object>("currtent_hits", bp.CurrentHits));
+            bpParam.Add(new KeyValuePair<string, object>("current_hits", bp.CurrentHits));
             bpParam.Add(new KeyValuePair<string, object>("file", bp.File));
             bpParam.Add(new KeyValuePair<string, object>("file_column", bp.FileColumn));
             bpParam.Add(new KeyValuePair<string, object>("file_line", bp.FileLine));
@@ -101,6 +101,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             return logger.returnKeyAfterLogInfo("breakpoint", bpParam);
         }
 
-        private static DebugLoggerImpl logger;
+        private static ILoggerDao logger;
     }
 }
