@@ -34,16 +34,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             debuggerEvents.OnEnterBreakMode += (dbgEventReason Reason, ref dbgExecutionAction ExecutionAction) =>
             {
                 string breakReason = Reason + "";
-                Breakpoint breakpoint;
-
-                Debug.Print("[DebugEvent] 调试暂停");
-                Debug.Print("[DebugEvent] EventReason: " + Reason + " ExecutionAction: " + ExecutionAction);
-                breakpoint = dte.Debugger.BreakpointLastHit;
-                if (breakpoint != null)
-                {
-                    lastBreakpoint = breakpoint;
-                    Debug.Print("[DebugEvent] Breakpoint: " + breakpoint.File + " (" + breakpoint.FileLine + ", " + breakpoint.FileColumn + ")");
-                }
+                Breakpoint breakpoint = dte.Debugger.BreakpointLastHit;
+                DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(0).Name, Reason + "", breakpoint);
             };
 
             debuggerEvents.OnContextChanged += (EnvDTE.Process NewProcess, Program
@@ -55,72 +47,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             // 调试结束
             debuggerEvents.OnEnterDesignMode += (dbgEventReason Reason) =>
             {
-                Dictionary<string, string> output = new Dictionary<string, string>();
-                Debug.Print("[DebugEvent] 调试结束");
-                lastBreakpoint = null;
-                isStarted = false;
+                DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(0).Name, Reason + "", null);
             };
 
             // 调试开始 or 继续
             debuggerEvents.OnEnterRunMode += (dbgEventReason Reason) =>
             {
-                string projectLocation;
-                string debugType = "Unknown";
-
-                // 如果是刚开始
                 if (!isStarted)
                 {
                     Debug.Print("[DebugEvent] 调试开始");
-
-                    foreach (EnvDTE.Process process in dte.Debugger.DebuggedProcesses)
-                    {
-                        projectLocation = process.Name;
-                        string processName = process.Name;
-                        string[] frags = processName.Split(new char[] { '\\' });
-                        if (frags[frags.Length - 2].Equals("Debug") || frags[frags.Length - 2].Equals("Release"))
-                        {
-                            debugType = frags[frags.Length - 2];
-                            Debug.Print("[DebugEvent] 当前调试的是 " + frags[frags.Length - 2] + " 版本");
-                        }
-                    }
-
-                    /*
-                    foreach (EnvDTE.Process process in dte.Debugger.DebuggedProcesses)
-                    {
-                        System.Diagnostics.Process sysProcess = System.Diagnostics.Process.GetProcessById(process.ProcessID);
-
-                        // 尝试获取这个进程是release版本还是debug版本
-                        debugTarget.Add(process.Name);
-                        Debug.Print("[DebugEvent] 当前调试的是 " + process.Name);
-                        string processName = process.Name;
-                        string[] frags = processName.Split(new char[] { '\\' });
-                        if (frags[frags.Length - 2].Equals("Debug") || frags[frags.Length - 2].Equals("Release"))
-                        {
-                            Debug.Print("[DebugEvent] 当前调试的是 " + frags[frags.Length - 2] + " 版本");
-                            debugType = frags[frags.Length - 2];
-                        }
-
-                        // 监听每个进程的输出
-                        var output = new StringBuilder("");
-                        debugOutputs[process.Name] = output;
-                        new System.Threading.Thread(() => 
-                        {
-                            
-                            var outputStream = sysProcess.StandardOutput;
-                            while (!outputStream.EndOfStream)
-                            {
-                                var outputline = sysProcess.StandardOutput.ReadLine();
-                                Debug.Print("[DebugOutput] " + outputline);
-                                output.Append(outputline + "\n");
-                            }
-                        }).Start();
-                    }
-                    */
                     isStarted = true;
+                    DebugLogUtil.LogDebugStart(dte.Debugger.DebuggedProcesses.Item(0).Name);
                 }
                 else
                 {
                     Debug.Print("[DebugEvent] 调试继续");
+                    DebugLogUtil.LogDebugContinue(dte.Debugger.DebuggedProcesses.Item(0).Name, dte.Debugger.BreakpointLastHit);
                 }
             };
 
@@ -129,8 +71,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 string exceptionType = ExceptionType;
                 string description = Description;
 
-                Debug.Print("[DebugEvent] 有未处理的异常");
-                Debug.Print("[DebugEvent] ExceptionType: " + ExceptionType + "ExceptionDescription: " + Description + " Name: " + Name + " ExceptionAction: " + ExceptionAction);
+                DebugLogUtil.LogDebugExceptionNotHandled(dte.Debugger.DebuggedProcesses.Item(0).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
 
             debuggerEvents.OnExceptionThrown += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) =>
@@ -138,8 +79,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 string exceptionType = ExceptionType;
                 string description = Description;
 
-                Debug.Print("[DebugEvent] 抛出异常");
-                Debug.Print("[DebugEvent] ExceptionType: " + ExceptionType + "ExceptionDescription: " + Description + " Name: " + Name + " ExceptionAction: " + ExceptionAction);
+                DebugLogUtil.LogDebugExceptionThrown(dte.Debugger.DebuggedProcesses.Item(0).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
         }
 

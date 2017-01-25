@@ -83,7 +83,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //obj = null;
             }
