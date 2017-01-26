@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NanjingUniversity.CppMonitor.DAO.imp;
 
 namespace NanjingUniversity.CppMonitor.DAO
 {
@@ -27,7 +28,25 @@ namespace NanjingUniversity.CppMonitor.DAO
 
         public ILoggerDao getLogger(String key)
         {
-            return null;
+            ILoggerDao logger = null;
+            switch(key){
+                case "Build":
+                     logger = new BuildLoggerImpl();
+                     break;
+                case "Content":
+                     logger = new ContentLoggerImpl();
+                     break;
+                case "File":
+                     logger = new FileLoggerImpl();
+                     break;
+                case "Command":
+                     logger = new CommandLoggerImpl();
+                     break;
+                default:
+                     logger = null;
+                     break;
+            }
+            return logger;
         }
 
     }

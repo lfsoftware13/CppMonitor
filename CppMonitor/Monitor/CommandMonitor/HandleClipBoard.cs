@@ -23,53 +23,65 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
         }
 
-        public void handleCopy(ILoggerDao Logger)
+        public void handleCopy()
         {
             handle = new HandleCopy();
-            handleCPC(Logger);
+            handleCPC();
         }
 
-        public void handlePaste(ILoggerDao Logger)
+        public void handlePaste()
         {
             handle = new HandlePaste();
-            handleCPC(Logger);
+            handleCPC();
         }
 
-        public void handleCut(ILoggerDao Logger)
+        public void handleCut()
         {
             handle = new HandleCut();
-            handleCPC(Logger);
+            handleCPC();
 
         }
-
-        private void handleCPC(ILoggerDao Logger)
+        
+        private void handleCPC()
         {
-            IDataObject iData = Clipboard.GetDataObject();
+            IDataObject iData = null;
             try
-            {
+            {   
+                while(iData == null){
+                    try
+                    {
+                        iData = Clipboard.GetDataObject();
+                        //if(iData == null){
+                        //    System.Threading.Thread.Sleep(100);
+                        //}
+                    }catch(Exception e){
+                        Application.DoEvents();
+                        iData = Clipboard.GetDataObject();
+                    }
+                }
                 if (Clipboard.ContainsText())
                 {
-                    handle.handleText(Logger);
+                    handle.handleText();
                 }
                 else if (Clipboard.ContainsFileDropList())
                 {
-                    handle.handleFileDrop(Logger);
+                    handle.handleFileDrop();
                 }
                 else if (Clipboard.ContainsImage())
                 {
-                    handle.handleImage(Logger);
+                    handle.handleImage();
                 }
                 else if (Clipboard.ContainsAudio())
                 {
-                    handle.handleAudio(Logger);
-                }
-                else if (iData.GetDataPresent("CF_VSREFPROJECTITEMS"))
-                {
-                    handle.handleVSProjectItem(Logger);
+                    handle.handleAudio();
                 }
                 else
                 {
-                    MessageBox.Show("Command_ClipBoard Wrong!");
+              
+                    if (iData.GetDataPresent("CF_VSREFPROJECTITEMS"))
+                    {
+                        handle.handleVSProjectItem();
+                    }
                 }
             }
             catch (Exception e)

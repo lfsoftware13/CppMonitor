@@ -4,56 +4,78 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using NanjingUniversity.CppMonitor.DAO;
 
-namespace NanjingUniversity.CppMonitor.DAO.imp
+namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 {
-    class ILoggerDaoImpl_stub :ILoggerDao
+    class ILoggerDaoImpl_stub
     {
-        private StreamWriter Writer;
-
-        public ILoggerDaoImpl_stub()
+        ILoggerDao logger;
+        private ILoggerDaoImpl_stub()
         {
-            try
-            {
-                Writer = new StreamWriter(new FileStream(
-                               "C:/Users/Shura/Desktop/database.txt", FileMode.OpenOrCreate | FileMode.Append
-                           ));
-                Writer.WriteLine("#" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"));
-                Writer.Flush();
-            }
-            catch (IOException)
-            {
+           if(logger == null){
+               logger = LoggerFactory.loggerFactory.getLogger("Command");
+           }
+        }
 
+        private static ILoggerDaoImpl_stub commandLogger;
+        public static ILoggerDaoImpl_stub CommandLogger
+        {
+            get
+            {
+                if(commandLogger == null){
+                    commandLogger = new ILoggerDaoImpl_stub();
+                }
+                return commandLogger;
             }
         }
 
-        //~ILoggerDaoImpl_stub()
-        //{
-        //    try
-        //    {
-        //        if (Writer != null)
-        //        {
-        //            Writer.Close();
-        //        }
-        //    }
-        //    catch (IOException)
-        //    {
-
-        //    }
-        //}
-
-        public Boolean LogInfo(List<KeyValuePair<String, Object>> list)
+        public Boolean LogText(List<KeyValuePair<String, Object>> list)
         {
-            
-            foreach(KeyValuePair<String, Object> one in list) {
-                Writer.WriteLine(one.Key + " : " + one.Value.ToString());
-            }
+            if(logger != null){
+                List<KeyValuePair<String, Object>> logParams = new List<KeyValuePair<string, object>>();
 
-            Writer.Flush();
-            
-            return true;
+                HashSet<string> keyNames = new HashSet<string>() { "Action", "Name", "Path", "Content" };
+
+                foreach (KeyValuePair<string, object> item in list)
+                {
+                    if (keyNames.Contains(item.Key))
+                    {
+                        logParams.Add(item);
+                        keyNames.Remove(item.Key);
+                    }
+                }
+                foreach (string key in keyNames)
+                {
+                    logParams.Add(new KeyValuePair<string, object>(key, ""));
+                }
+                return logger.LogInfo("text", logParams);
+            }
+            return false;
         }
-            
-        
+        public Boolean LogFile(List<KeyValuePair<String, Object>> list)
+        {
+            if (logger != null)
+            {
+                List<KeyValuePair<String, Object>> logParams = new List<KeyValuePair<string, object>>();
+
+                HashSet<string> keyNames = new HashSet<string>() { "Action", "FilePath", "PasteFileType", "PasteTo" };
+
+                foreach (KeyValuePair<string, object> item in list)
+                {
+                    if (keyNames.Contains(item.Key))
+                    {
+                        logParams.Add(item);
+                        keyNames.Remove(item.Key);
+                    }
+                }
+                foreach (string key in keyNames)
+                {
+                    logParams.Add(new KeyValuePair<string, object>(key, ""));
+                }
+                return logger.LogInfo("file", logParams);
+            }
+            return false;
+        }
     }
 }

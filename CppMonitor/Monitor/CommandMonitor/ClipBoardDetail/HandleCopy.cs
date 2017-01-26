@@ -33,7 +33,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             list = new List<KeyValuePair<string, object>>();
             util = new CommandUtil();
         }
-        public void handleText(ILoggerDao Logger)
+        public void handleText()
         {
             //MessageBox.Show("Copy Text!");
             string ctype = "Text";
@@ -52,12 +52,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
                 list.Add(new KeyValuePair<String, object>("Type", ctype));
                 list.Add(new KeyValuePair<String, object>("Content", (string)obj));
             }
-            
-            Logger.LogInfo(list);
-
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
-        public void handleFileDrop(ILoggerDao Logger)
+        public void handleFileDrop()
         {
             //MessageBox.Show("Copy FileDrop!");
             string ctype = "File";
@@ -70,23 +68,23 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             }
             list.Add(new KeyValuePair<String, object>("Action", "Copy"));
             list.Add(new KeyValuePair<String, object>("Type", ctype));
-            list.Add(new KeyValuePair<String, object>("file_Path", path_content));
-            Logger.LogInfo(list);
+            list.Add(new KeyValuePair<String, object>("FilePath", path_content));
+            ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
         }
 
-        public void handleImage(ILoggerDao Logger)
+        public void handleImage()
         {
-            string ctype = "Image";
-            object obj = Clipboard.GetImage();
+            //string ctype = "Image";
+            //object obj = Clipboard.GetImage();
         }
 
-        public void handleAudio(ILoggerDao Logger)
+        public void handleAudio()
         {
-            string ctype = "Audio";
-            object obj = Clipboard.GetAudioStream();
+            //string ctype = "Audio";
+            //object obj = Clipboard.GetAudioStream();
         }
 
-        public void handleVSProjectItem(ILoggerDao Logger)
+        public void handleVSProjectItem()
         {
             //MessageBox.Show("copy Item");
             list.Add(new KeyValuePair<String, object>("Action", "Copy"));
@@ -94,14 +92,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             List<string> Ie = util.GetSelectedFilePaths(_applicationObject);
             if(Ie!=null){
-                string allpath = "";
-                foreach(string path in Ie){
-                    allpath += path + ";";
-                }
-                list.Add(new KeyValuePair<String, object>("FilePath", allpath));
+                list.Add(new KeyValuePair<String, object>("FilePath", string.Join(",", Ie)));
 
             }
-            Logger.LogInfo(list);
+            ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
 
         }
     }

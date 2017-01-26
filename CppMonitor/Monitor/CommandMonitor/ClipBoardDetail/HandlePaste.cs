@@ -35,7 +35,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             list = new List<KeyValuePair<string, object>>();
             util = new CommandUtil();
         }
-        public void handleText(ILoggerDao Logger)
+        public void handleText()
         {
             string ctype = "Text";
             object obj = Clipboard.GetText();
@@ -54,11 +54,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
                 list.Add(new KeyValuePair<String, object>("Type", ctype));
                 list.Add(new KeyValuePair<String, object>("Content", (string)obj));
             }
-            
-            Logger.LogInfo(list);
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
-        public void handleFileDrop(ILoggerDao Logger)
+        public void handleFileDrop()
         {
             //MessageBox.Show("paste file");
             string ctype = "File";
@@ -67,48 +66,34 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             list.Add(new KeyValuePair<String, object>("Action", "Paste"));
             list.Add(new KeyValuePair<String, object>("Type", ctype));
             list.Add(new KeyValuePair<String, object>("PasteFileType", "out_visualstudio"));            
-            
-            //int i = 1;
-            string allpath = "";
-            foreach (string file_path in file_list)
-            {
-                allpath += file_path + ";";
-                //i++;
-            }
-            list.Add(new KeyValuePair<String, object>("FilePath", allpath));
-            //list.Add(new KeyValuePair<String, object>("Path_number", i - 1));
+
+            string[] filePaths = new string[file_list.Count];
+            file_list.CopyTo(filePaths,0);
+            list.Add(new KeyValuePair<String, object>("FilePath", String.Join(",",filePaths)));
+
             //get the path of paste_to 
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             string thepath = util.GetSelectedProjectPath(_applicationObject);
             list.Add(new KeyValuePair<String, object>("PasteTo", thepath));
 
-            //EnvDTE.UIHierarchy solutionExplorer = _applicationObject.ToolWindows.SolutionExplorer;
-            //object[] items = solutionExplorer.SelectedItems as object[];
-            //if (items != null)
-            //{
-            //    EnvDTE.UIHierarchyItem item = items[0] as EnvDTE.UIHierarchyItem;
-            //    string a = item.Name;
-            //    MessageBox.Show(a);     //filter name
-            //}
-
-            Logger.LogInfo(list);
+            ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
         }
 
-        public void handleImage(ILoggerDao Logger)
+        public void handleImage()
         {
-            Bitmap clipboardImage = Clipboard.GetImage() as Bitmap;
-            clipboardImage.MakeTransparent();
-            string imagePath = Path.GetTempFileName();
-            clipboardImage.Save(imagePath);
+            //Bitmap clipboardImage = Clipboard.GetImage() as Bitmap;
+            //clipboardImage.MakeTransparent();
+            //string imagePath = Path.GetTempFileName();
+            //clipboardImage.Save(imagePath);
             //MessageBox.Show("paste image!");
         }
 
-        public void handleAudio(ILoggerDao Logger)
+        public void handleAudio()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
-        public void handleVSProjectItem(ILoggerDao Logger)
+        public void handleVSProjectItem()
         {
             //MessageBox.Show("VSProjectItem Paste");
             list.Add(new KeyValuePair<String, object>("Action", "Paste"));
@@ -119,10 +104,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             string thepath = util.GetSelectedProjectPath(_applicationObject);
             //MessageBox.Show(thepath);
-            list.Add(new KeyValuePair<String, object>("Paste_to_Path", thepath));
+            list.Add(new KeyValuePair<String, object>("PasteTo", thepath));
 
-            Logger.LogInfo(list);
-
+            ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
         }
     }
 }

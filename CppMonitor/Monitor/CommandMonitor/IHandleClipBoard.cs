@@ -9,14 +9,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 {
     interface IHandleClipBoard
     {
-        void handleText(ILoggerDao Logger);
+        void handleText();
 
-        void handleFileDrop(ILoggerDao Logger);
+        void handleFileDrop();
 
-        void handleImage(ILoggerDao Logger);
+        void handleImage();
 
-        void handleAudio(ILoggerDao Logger);
+        void handleAudio();
 
-        void handleVSProjectItem(ILoggerDao Logger);
+        void handleVSProjectItem();
     }
 }

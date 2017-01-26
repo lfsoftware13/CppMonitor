@@ -35,8 +35,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
         private String DocContent;
 
-        private ILoggerDao Logger;
-
         private HandleClipBoard HandleClip;
 
 
@@ -62,10 +60,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             //init handleClipBoard
             HandleClip = new HandleClipBoard();
 
-            //database handle
-            Logger = new ILoggerDaoImpl_stub();
-
-
             // Initialize key event handlers table
             BefEventTable = new Dictionary<int, Delegate>();
             //BefEventTable.Add(
@@ -83,15 +77,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             //    new KeyEventHandler(HandleCutEvent)
             //);
 
-            BefEventTable.Add(
-                (int)VSConstants.VSStd97CmdID.Undo,
-                new KeyEventHandler(HandleUndoEvent)
-            );
+            //BefEventTable.Add(
+            //    (int)VSConstants.VSStd97CmdID.Undo,
+            //    new KeyEventHandler(HandleUndoEvent)
+            //);
 
-            BefEventTable.Add(
-                (int)VSConstants.VSStd97CmdID.Redo,
-                new KeyEventHandler(HandleRedoEvent)
-            );
+            //BefEventTable.Add(
+            //    (int)VSConstants.VSStd97CmdID.Redo,
+            //    new KeyEventHandler(HandleRedoEvent)
+            //);
 
             AftEventTable = new Dictionary<int, Delegate>();
             AftEventTable.Add(
@@ -102,15 +96,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
                 (int)VSConstants.VSStd97CmdID.Cut,
                 new KeyEventHandler(HandleCutEventAft)
             );
-            AftEventTable.Add(
-                (int)VSConstants.VSStd97CmdID.Undo,
-                new KeyEventHandler(HandleUndoEventAft)
-            );
+            //AftEventTable.Add(
+            //    (int)VSConstants.VSStd97CmdID.Undo,
+            //    new KeyEventHandler(HandleUndoEventAft)
+            //);
 
-            AftEventTable.Add(
-                (int)VSConstants.VSStd97CmdID.Redo,
-                new KeyEventHandler(HandleRedoEventAft)
-            );
+            //AftEventTable.Add(
+            //    (int)VSConstants.VSStd97CmdID.Redo,
+            //    new KeyEventHandler(HandleRedoEventAft)
+            //);
         }
 
         void IBindEvent.RegisterEvent()
@@ -147,11 +141,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         {
             string content = GetCurrentDocContent();
             List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Avtion", "Save"));
+            list.Add(new KeyValuePair<String, object>("Action", "Save"));
             list.Add(new KeyValuePair<String, object>("Name", doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", content));
-            Logger.LogInfo(list);
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
 
         }
 
@@ -188,7 +182,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         private void HandleCopyEventAft()
         {
             //MessageBox.Show("Now is copying!");
-            HandleClip.handleCopy(Logger);
+            HandleClip.handleCopy();
 
         }
 
@@ -197,7 +191,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
          */
         private void HandlePasteEvent()
         {
-            HandleClip.handlePaste(Logger);
+            HandleClip.handlePaste();
 
         }
 
@@ -206,7 +200,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
          */
         private void HandleCutEventAft()
         {
-            HandleClip.handleCut(Logger);
+            HandleClip.handleCut();
 
         }
 

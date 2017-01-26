@@ -33,7 +33,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             util = new CommandUtil();
         }
 
-        public void handleText(DAO.ILoggerDao Logger)
+        public void handleText()
         {
             string ctype = "Text";
             object obj = Clipboard.GetText();
@@ -52,12 +52,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
                 list.Add(new KeyValuePair<String, object>("Type", ctype));
                 list.Add(new KeyValuePair<String, object>("Content", (string)obj));
             }
-           
-            Logger.LogInfo(list);
-
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
-        public void handleFileDrop(DAO.ILoggerDao Logger)
+        public void handleFileDrop()
         {
             string ctype = "File";
             object obj = Clipboard.GetFileDropList();
@@ -69,21 +67,21 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             }
             list.Add(new KeyValuePair<String, object>("Action", "Cut"));
             list.Add(new KeyValuePair<String, object>("Type", ctype));
-            list.Add(new KeyValuePair<String, object>("file_Path", path_content));
-            Logger.LogInfo(list);
+            list.Add(new KeyValuePair<String, object>("FilePath", path_content));
+            ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
         }
 
-        public void handleImage(DAO.ILoggerDao Logger)
+        public void handleImage()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
-        public void handleAudio(DAO.ILoggerDao Logger)
+        public void handleAudio()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
-        public void handleVSProjectItem(ILoggerDao Logger)
+        public void handleVSProjectItem()
         {
             list.Add(new KeyValuePair<String, object>("Action", "Cut"));
             list.Add(new KeyValuePair<String, object>("Type", "File"));
@@ -91,20 +89,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             List<string> Ie = util.GetSelectedFilePaths(_applicationObject);
             if (Ie != null)
             {
-                //int i = 1;
-                string allpath = "";
-                foreach (string path in Ie)
-                {
-                    //string text = System.IO.File.ReadAllText(@path);
-                    allpath += path + ";";
-                    //list.Add(new KeyValuePair<String, object>("Content" + i, text));
-                    //i++;
-                }
-                list.Add(new KeyValuePair<String, object>("FilePath", allpath));
-                //list.Add(new KeyValuePair<String, object>("Path_number", i - 1));
+                list.Add(new KeyValuePair<String, object>("FilePath", string.Join(",",Ie)));
+
             }
 
-            Logger.LogInfo(list);
+            ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
         }
     }
 }
