@@ -91,15 +91,17 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             List<string> Ie = util.GetSelectedFilePaths(_applicationObject);
             if (Ie != null)
             {
-                int i = 1;
+                //int i = 1;
+                string allpath = "";
                 foreach (string path in Ie)
                 {
-                    string text = System.IO.File.ReadAllText(@path);
-                    list.Add(new KeyValuePair<String, object>("FilePath" + i, path));
-                    list.Add(new KeyValuePair<String, object>("Content" + i, text));
-                    i++;
+                    //string text = System.IO.File.ReadAllText(@path);
+                    allpath += path + ";";
+                    //list.Add(new KeyValuePair<String, object>("Content" + i, text));
+                    //i++;
                 }
-                list.Add(new KeyValuePair<String, object>("Path_number", i - 1));
+                list.Add(new KeyValuePair<String, object>("FilePath", allpath));
+                //list.Add(new KeyValuePair<String, object>("Path_number", i - 1));
             }
 
             Logger.LogInfo(list);

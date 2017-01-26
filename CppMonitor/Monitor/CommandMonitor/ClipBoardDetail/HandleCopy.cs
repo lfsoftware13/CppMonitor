@@ -66,7 +66,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             string path_content = "";
             foreach (string file_name in file_list)
             {
-                path_content += file_name + "\n";
+                path_content += file_name + ";";
             }
             list.Add(new KeyValuePair<String, object>("Action", "Copy"));
             list.Add(new KeyValuePair<String, object>("Type", ctype));
@@ -94,13 +94,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             List<string> Ie = util.GetSelectedFilePaths(_applicationObject);
             if(Ie!=null){
-                //IEnumerator<string> Enum = Ie.GetEnumerator();
-                int i = 1;
+                string allpath = "";
                 foreach(string path in Ie){
-                    list.Add(new KeyValuePair<String, object>("FilePath" + i, path));
-                    i++;
+                    allpath += path + ";";
                 }
-                list.Add(new KeyValuePair<String, object>("Path_number" , i-1));
+                list.Add(new KeyValuePair<String, object>("FilePath", allpath));
+
             }
             Logger.LogInfo(list);
 

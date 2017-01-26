@@ -100,7 +100,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             clipboardImage.MakeTransparent();
             string imagePath = Path.GetTempFileName();
             clipboardImage.Save(imagePath);
-            MessageBox.Show("paste image!");
+            //MessageBox.Show("paste image!");
         }
 
         public void handleAudio(ILoggerDao Logger)
@@ -118,7 +118,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             //get the path of paste_to 
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             string thepath = util.GetSelectedProjectPath(_applicationObject);
-            MessageBox.Show(thepath);
+            //MessageBox.Show(thepath);
             list.Add(new KeyValuePair<String, object>("Paste_to_Path", thepath));
 
             Logger.LogInfo(list);
