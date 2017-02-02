@@ -11,6 +11,8 @@ using Microsoft.VisualStudio.Shell;
 using System.Collections.Generic;
 using NanjingUniversity.CppMonitor.Monitor;
 using NanjingUniversity.CppMonitor.DAO.imp;
+using MonitorInterop.ServiceInterop;
+using NanjingUniversity.CppMonitor.ServiceInterop;
 
 namespace NanjingUniversity.CppMonitor
 {
@@ -32,6 +34,7 @@ namespace NanjingUniversity.CppMonitor
     [ProvideAutoLoad(UIContextGuids.NoSolution)]
     [ProvideAutoLoad(UIContextGuids.SolutionExists)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
+    [ProvideService(typeof(SMonitorService))]
     [Guid(GuidList.guidCppMonitorPkgString)]
     public sealed class CppMonitorPackage : Package
     {
@@ -45,6 +48,23 @@ namespace NanjingUniversity.CppMonitor
         public CppMonitorPackage()
         {
             Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
+
+            IServiceContainer serviceContainer = this as IServiceContainer;
+            ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
+            serviceContainer.AddService(typeof(SMonitorService), callback, true);
+        }
+
+        private object CreateService(IServiceContainer container, Type serviceType)
+        {
+            if (typeof(SMonitorService) == serviceType)
+            {
+                return new MonitorService(this);
+            }
+
+            else
+            {
+                return null;
+            }
         }
 
 
