@@ -17,6 +17,14 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         public DebugLoggerImpl()
         {
             handlers = new Dictionary<string, LogHandler>();
+            handlers["debug_break"] = logDebugBreak;
+            handlers["debug_run"] = logDebugRun;
+            handlers["debug_exception_thrown"] = logDebugExceptionThrown;
+            handlers["debug_exception_not_handled"] = logDebugExceptionNotHandled;
+            handlers["breakpoint"] = logBreakpoint;
+            handlers["exception"] = logException;
+            handlers["local_varialble"] = logLocalVarialbles;
+            handlers["breakpoint_event"] = logBreakpointEvent;
         }
 
         public bool LogInfo(string target, List<KeyValuePair<String, Object>> list)
@@ -28,7 +36,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             else
             {
                 var log = handlers[target];
-                return log(target, list);
+                return log(list);
             }
         }
 
@@ -53,6 +61,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         {
             DBHelper dbHelper = DBHelper.getInstance();
             SQLiteConnection conn = dbHelper.getConnection();
+
             foreach (string tableName in tableNames)
             {
                 string sql = "delete from " + tableName + ";";
@@ -83,35 +92,41 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             return id;
         }
 
-        public int CreateNewDebugEvent(List<KeyValuePair<string, object>> vals)
+        /// <summary>
+        /// 在基表中新建一个 debug event 项目，并且返回这个项目的 id.
+        /// </summary>
+        /// <param name="vals">属性列表</param>
+        /// <returns>新建项的 id</returns>
+        public int CreateNewDebugEvent(string type, List<KeyValuePair<string, object>> vals)
         {
             string debug_target = "";
             foreach (var pair in vals)
             {
-                if (pair.Key.Equals("debug_type"))
+                if (pair.Key.Equals("debug_target"))
                 {
-                    debug_target = pair.Value.ToString();
-                }
+                    debug_target = pair.Value + "";
+                } 
             }
             List<KeyValuePair<string, object>> list = new List<KeyValuePair<string, object>>();
             list.Add(new KeyValuePair<string, object>("timestamp", DateTime.Now));
             list.Add(new KeyValuePair<string, object>("debug_target", debug_target));
-            return returnKeyAfterLogInfo(debug_target, list);
+            list.Add(new KeyValuePair<string, object>("type", type));
+            return returnKeyAfterLogInfo("debug_info", list);
         }
 
         public void ensureTableExist()
         {
             
             List<string> ddls = new List<string>();
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info ( id INTEGER PRIMARY KEY,time char[22], timestamp DATETIME DEFAULT current_time NOT NULL, debug_target TEXT NOT NULL )");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_break ( id INTEGER PRIMARY KEY,time char[22], break_reason TEXT NOT NULL, breakpoint_id INTEGER,breakpoint_last_hit INTEGER ,debug_target TEXT NOT NULL);");
-            ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint ( id INTEGER PRIMARY KEY, tag TEXT, condition TEXT, condition_type TEXT, " + 
-                "current_hits INT DEFAULT 0, file TEXT NOT NULL, file_column INT NOT NULL, file_line INT NOT NULL, function_name TEXT, location_type TEXT NOT NULL );");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_run ( id INTEGER PRIMARY KEY,time char[22], run_type TEXT NOT NULL, breakpoint_last_hit INTEGER ,debug_target TEXT);");
-            ddls.Add("CREATE TABLE IF NOT EXISTS exception ( id INTEGER PRIMARY KEY, type TEXT, name TEXT, descrption TEXT, code INT, action TEXT NOT NULL);");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_thrown ( id INTEGER PRIMARY KEY,time char[22], exception_id INTEGER NOT NULL,debug_target TEXT NOT NULL );");
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_not_handled ( id INTEGER PRIMARY KEY,time char[22], exception_id INTEGER NOT NULL,debug_target TEXT NOT NULL );");
-
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info ( id INTEGER PRIMARY KEY, type TEXT NOT NULL, timestamp DATETIME DEFAULT current_time NOT NULL, debug_target TEXT NOT NULL )");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_break ( id INTEGER PRIMARY KEY, break_reason TEXT NOT NULL, breakpoint_id INTEGER,breakpoint_last_hit INTEGER);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint ( id INTEGER PRIMARY KEY, tag TEXT, condition TEXT, condition_type TEXT, current_hits INT DEFAULT 0, file TEXT NOT NULL, file_column INT NOT NULL, file_line INT NOT NULL, function_name TEXT, location_type TEXT NOT NULL , enabled TEXT DEFAULT true NOT NULL)");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_run ( id INTEGER PRIMARY KEY, run_type TEXT NOT NULL, breakpoint_last_hit INTEGER);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS exception ( id INTEGER PRIMARY KEY, type TEXT, name TEXT, description TEXT, code INT, action TEXT NOT NULL);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_thrown ( id INTEGER PRIMARY KEY, exception_id INTEGER NOT NULL);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_exception_not_handled ( id INTEGER PRIMARY KEY, exception_id INTEGER NOT NULL);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS local_variable ( id INTEGER PRIMARY KEY, debug_id INTEGER NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL );");
+            ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint_event ( id INTEGER PRIMARY KEY AUTOINCREMENT, modification TEXT NOT NULL, breakpoint_id INTEGER );");
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             foreach (string sql in ddls)
@@ -139,28 +154,20 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                     keys += pair.Key;
                     vals += "@" + pair.Key;
                 }
-                if(tableName.StartsWith("debug")){
-                    keys += ",time";
-                    vals += ", @time";
-                }
                
                 SQLiteConnection conn = dbHelper.getConnection();
                 string sql = String.Format("insert into {0} ({1}) values ({2})", tableName, keys, vals);
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
-                if (tableName.StartsWith("debug"))
-                {
-                    cmd.Parameters.Add(new SQLiteParameter("@time", DateTime.Now.ToString()));
-                }
+
                 foreach (var pair in list)
                 {
-                    cmd.Parameters.Add(new SQLiteParameter("@" + pair.Key, pair.Value.ToString()));
+                    cmd.Parameters.Add(new SQLiteParameter("@" + pair.Key, pair.Value + ""));
                 }
                 cmd.ExecuteNonQuery();
             }
             catch (Exception e)
             {
-                Debug.Print(e.StackTrace);
-                return false;
+                throw e;
             }
             finally
             {
@@ -171,28 +178,28 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         private bool logDebugRun(List<KeyValuePair<string, object>> vals)
         {
-            int id = CreateNewDebugEvent(vals);
+            int id = CreateNewDebugEvent("run", vals);
             vals.Add(new KeyValuePair<string, object>("id", id));
             return defaultLogHandler("debug_run", vals);
         }
 
         private bool logDebugBreak(List<KeyValuePair<string, object>> vals)
         {
-            int id = CreateNewDebugEvent(vals);
+            int id = CreateNewDebugEvent("break", vals);
             vals.Add(new KeyValuePair<string, object>("id", id));
             return defaultLogHandler("debug_break", vals);
         }
 
         private bool logDebugExceptionThrown(List<KeyValuePair<string, object>> vals)
         {
-            int id = CreateNewDebugEvent(vals);
+            int id = CreateNewDebugEvent("exception_thrown", vals);
             vals.Add(new KeyValuePair<string, object>("id", id));
             return defaultLogHandler("debug_exception_thrown", vals);
         }
 
         private bool logDebugExceptionNotHandled(List<KeyValuePair<string, object>> vals)
         {
-            int id = CreateNewDebugEvent(vals);
+            int id = CreateNewDebugEvent("exception_not_handled", vals);
             vals.Add(new KeyValuePair<string, object>("id", id));
             return defaultLogHandler("debug_exception_not_handled", vals);
         }
@@ -207,13 +214,23 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             return defaultLogHandler("breakpoint", vals);
         }
 
+        private bool logLocalVarialbles(List<KeyValuePair<string, object>> vals)
+        {
+            return defaultLogHandler("local_variables", vals);
+        }
+
+        private bool logBreakpointEvent(List<KeyValuePair<string, object>> vals)
+        {
+            return defaultLogHandler("breakpoint_event", vals);
+        }
+
         private string[] tableNames = new string[] {
             "debug_info", "debug_break", "breakpoint", "debug_run", "exception", "debug_exception_thrown", "debug_exception_not_handled",
         };
 
         private Dictionary<string, LogHandler> handlers;
 
-        public delegate bool LogHandler(string tableName, List<KeyValuePair<string, object>> vals); 
+        public delegate bool LogHandler(List<KeyValuePair<string, object>> vals); 
     }
 
     public class NoSuchBreakpointException : Exception 
