@@ -79,7 +79,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立content_info
-            string sql = "create table if not exists content_info (time char[22],operation char[7],fullpath TEXT,textfrom blob,textto blob,line int,lineoffset int)";
+            string sql = "create table if not exists content_info (id INTEGER PRIMARY KEY autoincrement, time char[22],operation char[7],fullpath TEXT,textfrom blob,textto blob,line int,lineoffset int)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();
