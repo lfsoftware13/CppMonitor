@@ -22,7 +22,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public LoggerDAOImpl_Stub()
         {
-            //Writer = new StreamWriter(new FileStream(PATH, FILE_MODE));
+            Writer = new StreamWriter(new FileStream(PATH, FILE_MODE));
         }
 
         ~LoggerDAOImpl_Stub()
@@ -34,13 +34,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             StringBuilder Msg = new StringBuilder();
             foreach(KeyValuePair<String, Object> pair in list) {
-                Msg.Append(pair.Key).Append(" : ").Append(pair.Value.ToString()).Append('\n');
-                //Msg.Append(' ').Append(pair.Value.ToString()).Append(' ');
+                //Msg.Append(pair.Key).Append(" : ").Append(pair.Value.ToString()).Append('\n');
+                Msg.Append(ContentUtil.ToUTF8(" "))
+                    .Append(pair.Value.ToString())
+                    .Append(ContentUtil.ToUTF8(" "));
             }
 
-            System.Windows.Forms.MessageBox.Show(Msg.ToString());
-            //Writer.Write(Msg);
-            //Writer.Flush();
+            //System.Windows.Forms.MessageBox.Show(Msg.ToString());
+            Writer.Write(Msg.ToString());
+            Writer.Flush();
             
             return true;
         }

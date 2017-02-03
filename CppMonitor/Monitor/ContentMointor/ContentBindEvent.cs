@@ -219,31 +219,35 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
             list.Add(new KeyValuePair<string, Object>(
-                RecordKey.Operation.ToString(),
-                Op.ToString()
+                ContentUtil.ToUTF8(RecordKey.Operation.ToString()),
+                ContentUtil.ToUTF8(Op.ToString())
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.FilePath.ToString(), Context.ActiveDoc.FullName
+                ContentUtil.ToUTF8(RecordKey.FilePath.ToString()), 
+                ContentUtil.ToUTF8(Context.ActiveDoc.FullName)
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.From.ToString(), From
+                ContentUtil.ToUTF8(RecordKey.From.ToString()),
+                ContentUtil.ToUTF8("`" + From + "`")
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.To.ToString(), To
+                ContentUtil.ToUTF8(RecordKey.To.ToString()),
+                ContentUtil.ToUTF8("`" + To + "`")
             ));
 
             Context.Buffer.Clear();
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.Line.ToString(), Context.LineBeforeFlush
+                ContentUtil.ToUTF8(RecordKey.Line.ToString()),
+                ContentUtil.ToUTF8(Context.LineBeforeFlush.ToString())
             ));
 
             list.Add(new KeyValuePair<string, object>(
-                RecordKey.LineOffset.ToString(),
-                Context.LineOffsetBeforeFlush - 1
+                ContentUtil.ToUTF8(RecordKey.LineOffset.ToString()),
+                ContentUtil.ToUTF8((Context.LineOffsetBeforeFlush - 1).ToString())
             ));
 
             Logger.LogInfo(list);
