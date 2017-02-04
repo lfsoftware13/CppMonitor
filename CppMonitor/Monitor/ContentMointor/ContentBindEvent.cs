@@ -40,8 +40,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private ContextState Context;
 
         //µ±Ç°µÄ±à¼­×´Ì¬
-        private IEditState EditState;
-        
+        private IEditState EditState;       
 
         public ContentBindEvent()
         {
@@ -52,8 +51,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DocEvents = DteEvents.DocumentEvents;
             SelectEvents = DteEvents.SelectionEvents;
 
-            //Logger = LoggerFactory.loggerFactory.getLogger("Content");
-            Logger = new LoggerDAOImpl_Stub();
+            Logger = LoggerFactory.loggerFactory.getLogger("Content");
 
             Context = new ContextState(
                 -1, -1, -1, new StringBuilder(), null, null
@@ -77,13 +75,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
             Context.ActiveDoc = StartPoint.Parent.Parent;
-
-            if (Context.ActiveDoc == null)
-            {
-                return;
-            }
-
-            if (!ContentUtil.IsCppFile(Context.ActiveDoc.Name))
+            if (!IsDocValid(Context.ActiveDoc))
             {
                 return;
             }
@@ -107,18 +99,20 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public void ReLog(TextPoint StartPoint, TextPoint EndPoint,
             ref String ReplacingText, ref String ReplacedText)
         {
-            if (Dte2.ActiveWindow.Document == null) return;
-            if (!ContentUtil.IsCppFile(Dte2.ActiveWindow.Document.Name)) return;
-
             EditState.LogInfo(StartPoint, EndPoint,
                 ref ReplacingText, ref ReplacedText);
+        }
+
+        private static bool IsDocValid(Document Doc)
+        {
+            return Doc != null && ContentUtil.IsCppFile(Doc.Name);
         }
 
         /*====================== Document Event Method Start ==================================*/
 
         private void OnDocOpened(Document Doc)
         {
-            if (!ContentUtil.IsCppFile(Doc.Name))
+            if (!IsDocValid(Doc))
             {
                 return;
             }
@@ -136,12 +130,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocClosing(Document Doc)
         {
-            if (!ContentUtil.IsCppFile(Doc.Name))
+            if (!IsDocValid(Doc))
             {
                 return;
             }
 
-            EditState.FlushBuffer();
+            if (Context.ActiveDoc != null)
+            {
+                EditState.FlushBuffer();
+            }
 
             Context.ActiveDoc = null;
             Context.LastEndOffset = -1;
@@ -151,13 +148,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private void OnDocSaved(Document Doc)
         {
-            if (!ContentUtil.IsCppFile(Context.ActiveDoc.Name))
+            if (!IsDocValid(Doc))
             {
                 return;
             }
 
+            Context.ActiveDoc = Doc;
             EditState.FlushBuffer();
-
             FlushBuffer(Operation.Save, String.Empty, String.Empty);
         }
 
@@ -209,6 +206,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 }
                 Context.ActiveDoc = Dte2.ActiveWindow.Document;
             }
+
             TextDocument Doc = (TextDocument)Context.ActiveDoc.Object("TextDocument");
             EditPoint DocStart = Doc.StartPoint.CreateEditPoint();
             return DocStart.GetText(Doc.EndPoint);
@@ -250,7 +248,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 ContentUtil.ToUTF8((Context.LineOffsetBeforeFlush - 1).ToString())
             ));
 
-            Logger.LogInfo(list);
+            Logger.LogInfo("",list);
         }
 
         public int GetContentDelta(String CurrentContent)
