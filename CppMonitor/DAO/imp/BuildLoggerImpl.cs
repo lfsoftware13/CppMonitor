@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 namespace NanjingUniversity.CppMonitor.DAO.imp
 {
-    class BuildLoggerImpl:ILoggerDao
+    class BuildLoggerImpl : ILoggerDao
     {
         private string[] tableNameList;
 
@@ -18,9 +18,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             tableNameList[1] = "build_project_info";
         }
 
-        public Boolean LogInfo(string target,List<KeyValuePair<String, Object>> list)
+        public Boolean LogInfo(string target, List<KeyValuePair<String, Object>> list)
         {
-            bool result= false;
+            bool result = false;
             switch (target)
             {
                 case "build_info":
@@ -43,9 +43,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 SQLiteConnection conn = dbHelper.getConnection();
                 string sql = "insert into build_info (time,buildstarttime,buildendtime,content) values (@time,@buildstarttime,@buildendtime,@content)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+
                 //加时间戳
                 string current = DateTime.Now.ToString();
                 cmd.Parameters.Add(new SQLiteParameter("@time", current));
+
                 foreach (KeyValuePair<string, object> paramPair in list)
                 {
                     switch (paramPair.Key)
@@ -151,11 +153,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立build_info
-            string sql = "create table if not exists build_info (time char[22],buildstarttime TEXT,buildendtime TEXT,content TEXT)";
+            string sql = "create table if not exists build_info (id INTEGER PRIMARY KEY autoincrement, time char[22],buildstarttime TEXT,buildendtime TEXT,content TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             //建立build_project_info
-            sql = "create table if not exists build_project_info (time char[22],buildid TEXT,buildstarttime TEXT,buildendtime TEXT,projectname TEXT,configurationname TEXT,configurationtype TEXT,runcommand TEXT,commandarguments TEXT,buildlogfile TEXT,buildlogcontent TEXT,compilercommand TEXT,linkcommand TEXT)";
+            sql = "create table if not exists build_project_info (id INTEGER PRIMARY KEY autoincrement, time char[22],buildid TEXT,buildstarttime TEXT,buildendtime TEXT,projectname TEXT,configurationname TEXT,configurationtype TEXT,runcommand TEXT,commandarguments TEXT,buildlogfile TEXT,buildlogcontent TEXT,compilercommand TEXT,linkcommand TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();
@@ -166,7 +168,8 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         {
             DBHelper dbHelper = DBHelper.getInstance();
             SQLiteConnection conn = dbHelper.getConnection();
-            foreach(string tableName in tableNameList){
+            foreach (string tableName in tableNameList)
+            {
                 string sql = "delete from " + tableName + ";";
                 string sql2 = "update sqlite_sequence SET seq = 0 where name ='" + tableName + "';";
                 SQLiteCommand command = new SQLiteCommand(sql, conn);
@@ -175,6 +178,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 command2.ExecuteNonQuery();
             }
             dbHelper.returnConnection();
+        }
+
+        int ILoggerDao.returnKeyAfterLogInfo(string target, List<KeyValuePair<string, object>> list)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -7,15 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 namespace NanjingUniversity.CppMonitor.DAO.imp
 {
-    class FileLoggerImpl:ILoggerDao
+    class CommandLoggerImpl:ILoggerDao
     {
         private string[] tableNameList;
 
-        public FileLoggerImpl()
+        public CommandLoggerImpl()
         {
             tableNameList = new string[2];
-            tableNameList[0] = "solution_open_event";
-            tableNameList[1] = "file_event";
+            tableNameList[0] = "command_text";
+            tableNameList[1] = "command_file";
         }
 
         public Boolean LogInfo(string target,List<KeyValuePair<String, Object>> list)
@@ -23,11 +23,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             bool result= false;
             switch (target)
             {
-                case "solution_open_event":
-                    result = logSolutionOpenEvent(list);
+                case "text":
+                    result = logText(list);
                     break;
-                case "file_event":
-                    result = logFileEvent(list);
+                case "file":
+                    result = logFile(list);
                     break;
                 default :
                     break;
@@ -35,13 +35,13 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             return result;
         }
 
-        private bool logSolutionOpenEvent(List<KeyValuePair<String, Object>> list)
+        private bool logText(List<KeyValuePair<String, Object>> list)
         {
             DBHelper dbHelper = DBHelper.getInstance();
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into solution_open_event (time,solutionname,type,info,targetfolder) values(@time,@solutionname,@type,@info,@targetfolder)";
+                string sql = "insert into command_text (time,action,name,path,content) values(@time,@action,@name,@path,@content)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -50,17 +50,17 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
-                        case "solutionName":
-                            cmd.Parameters.Add(new SQLiteParameter("@solutionname", paramPair.Value.ToString()));
+                        case "Action":
+                            cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
-                        case "info":
-                            cmd.Parameters.Add(new SQLiteParameter("@info", paramPair.Value.ToString()));
+                        case "Name":
+                            cmd.Parameters.Add(new SQLiteParameter("@name", paramPair.Value.ToString()));
                             break;
-                        case "type":
-                            cmd.Parameters.Add(new SQLiteParameter("@type", (int)paramPair.Value));
+                        case "Path":
+                            cmd.Parameters.Add(new SQLiteParameter("@path", paramPair.Value));
                             break;
-                        case "targetFolder":
-                            cmd.Parameters.Add(new SQLiteParameter("@targetfolder", paramPair.Value.ToString()));
+                        case "Content":
+                            cmd.Parameters.Add(new SQLiteParameter("@content", paramPair.Value.ToString()));
                             break;
                         default:
                             break;
@@ -79,13 +79,13 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             }
         }
 
-        private bool logFileEvent(List<KeyValuePair<String, Object>> list)
+        private bool logFile(List<KeyValuePair<String, Object>> list)
         {
             DBHelper dbHelper = DBHelper.getInstance();
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into file_event (time,filename,projectname,type,targetFile) values(@time,@filename,@projectname,@type,@targetFile)";
+                string sql = "insert into command_file (time,action,filepath,pastefilepath,pasteto) values(@time,@action,@filepath,@pastefilepath,@pasteto)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -94,17 +94,17 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
-                        case "fileName":
-                            cmd.Parameters.Add(new SQLiteParameter("@filename", paramPair.Value.ToString()));
+                        case "Action":
+                            cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
-                        case "projectName":
-                            cmd.Parameters.Add(new SQLiteParameter("@projectname", paramPair.Value.ToString()));
+                        case "FilePath":
+                            cmd.Parameters.Add(new SQLiteParameter("@filepath", paramPair.Value.ToString()));
                             break;
-                        case "type":
-                            cmd.Parameters.Add(new SQLiteParameter("@type", (int)paramPair.Value));
+                        case "PasteFileType":
+                            cmd.Parameters.Add(new SQLiteParameter("@pastefilepath", paramPair.Value.ToString()));
                             break;
-                        case "targetFile":
-                            cmd.Parameters.Add(new SQLiteParameter("@targetFile", paramPair.Value.ToString()));
+                        case "PasteTo":
+                            cmd.Parameters.Add(new SQLiteParameter("@pasteto", paramPair.Value.ToString()));
                             break;
                         default:
                             break;
@@ -127,12 +127,12 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         {
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
-            //建立solution_open_event
-            string sql = "create table if not exists solution_open_event (id INTEGER PRIMARY KEY autoincrement, time char[22],solutionname TEXT,type tinyint,info TEXT,targetfolder TEXT)";
+            //建立command_text
+            string sql = "create table if not exists command_text (time char[22],action char[5],name TEXT,path TEXT,content TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
-            //建立file_event
-            sql = "create table if not exists file_event (id INTEGER PRIMARY KEY autoincrement, time char[22],filename TEXT,projectname TEXT,type tinyint,targetFile TEXT)";
+            //建立command_file
+            sql = "create table if not exists command_file (time char[22],action char[5],filepath TEXT,pastefilepath TEXT,pasteto TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
 
