@@ -111,5 +111,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             // 观察VS得到的结论
             return StartPoint.AbsoluteCharOffset + StartPoint.Line - 2;
         }
+
+        public static String ToUTF8(String Str)
+        {
+            Encoding U16 = Encoding.Unicode;
+            Encoding UTF8 = Encoding.UTF8;
+            byte[] U16Bytes = U16.GetBytes(Str);
+            byte[] UTF8Bytes = Encoding.Convert(U16, UTF8, U16Bytes);
+            return UTF8.GetString(UTF8Bytes);
+        }
     }
 }
