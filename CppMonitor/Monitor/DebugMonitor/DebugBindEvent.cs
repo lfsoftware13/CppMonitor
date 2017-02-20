@@ -35,13 +35,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             debuggerEvents.OnEnterBreakMode += (dbgEventReason Reason, ref dbgExecutionAction ExecutionAction) =>
             {
                 string breakReason = Reason + "";
-                Breakpoint breakpoint = dte.Debugger.BreakpointLastHit;
-                DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", breakpoint, dte.Debugger.CurrentStackFrame.Locals);
-                var arguments = dte.Debugger.CurrentStackFrame.Arguments;
-                var locals = dte.Debugger.CurrentStackFrame.Locals;
-                var args = new Dictionary<string, object>();
-                var locs = new Dictionary<string, object>();
-                
+                this.lastBreakpoint = dte.Debugger.BreakpointLastHit;
+                if (!(Reason == dbgEventReason.dbgEventReasonEndProgram || Reason == dbgEventReason.dbgEventReasonStopDebugging)) lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name;
+                DebugLogUtil.LogDebugBreak(lastDebugTarget, Reason + "", lastBreakpoint, dte.Debugger.CurrentStackFrame.Locals);
             };
 
             // 调试结束
@@ -49,11 +45,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             {
                 if (dte.Debugger.DebuggedProcesses.Count < 1)
                 {
-                    DebugLogUtil.LogDebugBreak(null, Reason + "", null, null);
+                    DebugLogUtil.LogDebugBreak(lastDebugTarget, Reason + "", null, null);
                 }
                 else
                 {
-                    DebugLogUtil.LogDebugBreak(dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", null, dte.Debugger.CurrentStackFrame.Locals);
+                    DebugLogUtil.LogDebugBreak(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", null, dte.Debugger.CurrentStackFrame.Locals);
                 }
                 isStarted = false;
             };
@@ -65,12 +61,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 {
                     //MessageBox.Show("[DebugEvent] 调试开始");
                     isStarted = true;
-                    DebugLogUtil.LogDebugStart(dte.Debugger.DebuggedProcesses.Item(1).Name);
+                    String s = dte.Debugger.DebuggedProcesses.Item(1).Name;
+                    DebugLogUtil.LogDebugStart(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name);
                 }
                 else
                 {
                     //MessageBox.Show("[DebugEvent] 调试继续");
-                    DebugLogUtil.LogDebugContinue(dte.Debugger.DebuggedProcesses.Item(1).Name, dte.Debugger.BreakpointLastHit);
+                    DebugLogUtil.LogDebugContinue(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, lastBreakpoint);
                 }
             };
 
@@ -79,7 +76,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 string exceptionType = ExceptionType;
                 string description = Description;
 
-                DebugLogUtil.LogDebugExceptionNotHandled(dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
+                DebugLogUtil.LogDebugExceptionNotHandled(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
 
             debuggerEvents.OnExceptionThrown += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) =>

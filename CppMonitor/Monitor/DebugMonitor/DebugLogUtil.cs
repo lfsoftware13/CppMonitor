@@ -21,6 +21,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             var param = new List<KeyValuePair<string, object>>();
             param.Add(new KeyValuePair<string, object>("run_type", "start"));
+            param.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
             return logger.returnKeyAfterLogInfo("debug_run", param);
         }
 
