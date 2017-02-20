@@ -9,9 +9,9 @@ namespace NanjingUniversity.CppMonitor.DAO
 {
     interface ILoggerDao
     {
-        Boolean LogInfo(string target,List<KeyValuePair<String, Object>> list);
+        Boolean LogInfo(string Target,List<KeyValuePair<String, Object>> List);
 
-        int returnKeyAfterLogInfo(string target,List<KeyValuePair<String,Object>> list);
+        int returnKeyAfterLogInfo(string Target,List<KeyValuePair<String,Object>> List);
 
         void clearLog();
         //确保日志文件是否存在

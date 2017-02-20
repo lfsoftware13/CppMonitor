@@ -114,7 +114,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
             {
                 fs = new FileStream(path, FileMode.Open);
             }
-            catch(FileNotFoundException e)
+            catch(FileNotFoundException)
             {
                 return "Can't Find the Log File in Path : "+path;
             }
