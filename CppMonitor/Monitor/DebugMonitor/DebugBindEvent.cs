@@ -63,13 +63,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             {
                 if (!isStarted)
                 {
-                    MessageBox.Show("[DebugEvent] 调试开始");
+                    //MessageBox.Show("[DebugEvent] 调试开始");
                     isStarted = true;
                     DebugLogUtil.LogDebugStart(dte.Debugger.DebuggedProcesses.Item(1).Name);
                 }
                 else
                 {
-                    MessageBox.Show("[DebugEvent] 调试继续");
+                    //MessageBox.Show("[DebugEvent] 调试继续");
                     DebugLogUtil.LogDebugContinue(dte.Debugger.DebuggedProcesses.Item(1).Name, dte.Debugger.BreakpointLastHit);
                 }
             };
