@@ -128,11 +128,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立command_text
-            string sql = "create table if not exists command_text (time char[22],action char[5],name TEXT,path TEXT,content TEXT)";
+            string sql = "create table if not exists command_text (id INTEGER PRIMARY KEY AUTOINCREMENT, time char[22],action char[5],name TEXT,path TEXT,content TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             //建立command_file
-            sql = "create table if not exists command_file (time char[22],action char[5],filepath TEXT,pastefilepath TEXT,pasteto TEXT)";
+            sql = "create table if not exists command_file (id INTEGER PRIMARY KEY AUTOINCREMENT, time char[22],action char[5],filepath TEXT,pastefilepath TEXT,pasteto TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
 

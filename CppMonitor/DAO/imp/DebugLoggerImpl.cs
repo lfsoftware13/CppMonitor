@@ -219,7 +219,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         private bool logLocalVarialbles(List<KeyValuePair<string, object>> vals)
         {
-            return defaultLogHandler("local_variables", vals);
+            return defaultLogHandler("local_variable", vals);
         }
 
         private bool logBreakpointEvent(List<KeyValuePair<string, object>> vals)
@@ -228,7 +228,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         }
 
         private string[] tableNames = new string[] {
-            "debug_info", "debug_break", "breakpoint", "debug_run", "exception", "debug_exception_thrown", "debug_exception_not_handled",
+            "debug_info", "debug_break", "breakpoint", "debug_run", "exception", "debug_exception_thrown", "debug_exception_not_handled", "breakpoint_event", "local_variable"
         };
 
         private Dictionary<string, LogHandler> handlers;
