@@ -30,7 +30,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into content_info (time,operation,fullpath,textfrom,textto,line,lineoffset) values(@time,@operation,@fullpath,@textfrom,@textto,@line,@lineoffset)";
+                string sql = "insert into content_info (time,operation,fullpath,textfrom,textto,line,lineoffset) values(@time,@operation,@fullpath,@textfrom,@textto, @lie, @lineoffset)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -52,10 +52,10 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             cmd.Parameters.Add(new SQLiteParameter("@textto", paramPair.Value.ToString()));
                             break;
                         case "Line":
-                            cmd.Parameters.Add(new SQLiteParameter("@line", (int)paramPair.Value));
+                            cmd.Parameters.Add(new SQLiteParameter("@lie", paramPair.Value));
                             break;
                         case "LineOffset":
-                            cmd.Parameters.Add(new SQLiteParameter("@lineoffset", (int)paramPair.Value));
+                            cmd.Parameters.Add(new SQLiteParameter("@lineoffset", paramPair.Value));
                             break;
                         default:
                             break;

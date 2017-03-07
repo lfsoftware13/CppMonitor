@@ -57,7 +57,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             cmd.Parameters.Add(new SQLiteParameter("@info", paramPair.Value.ToString()));
                             break;
                         case "type":
-                            cmd.Parameters.Add(new SQLiteParameter("@type", (int)paramPair.Value));
+                            cmd.Parameters.Add(new SQLiteParameter("@type", paramPair.Value));
                             break;
                         case "targetFolder":
                             cmd.Parameters.Add(new SQLiteParameter("@targetfolder", paramPair.Value.ToString()));
@@ -101,7 +101,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             cmd.Parameters.Add(new SQLiteParameter("@projectname", paramPair.Value.ToString()));
                             break;
                         case "type":
-                            cmd.Parameters.Add(new SQLiteParameter("@type", (int)paramPair.Value));
+                            cmd.Parameters.Add(new SQLiteParameter("@type", paramPair.Value));
                             break;
                         case "targetFile":
                             cmd.Parameters.Add(new SQLiteParameter("@targetFile", paramPair.Value.ToString()));
