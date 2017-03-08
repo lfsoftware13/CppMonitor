@@ -26,6 +26,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
                 List<KeyValuePair<String, Object>> buildInfoParams = new List<KeyValuePair<string, object>>();
                 buildInfoParams.Add(new KeyValuePair<string,object>("buildstarttime",info.BuildStartTime));
                 buildInfoParams.Add(new KeyValuePair<string, object>("buildendtime", info.BuildEndTime));
+                buildInfoParams.Add(new KeyValuePair<string, object>("solutionname", info.SolutionName));
                 buildInfoParams.Add(new KeyValuePair<string, object>("content", info.Content));
                 logger.LogInfo("build_info", buildInfoParams);
 
@@ -34,6 +35,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
                     buildProjectInfoParams.Add(new KeyValuePair<string, object>("buildid", info.BuildStartTime));
                     buildProjectInfoParams.Add(new KeyValuePair<string, object>("buildstarttime", bpi.BuildProjectStartTime));
                     buildProjectInfoParams.Add(new KeyValuePair<string, object>("buildendtime", bpi.BuildProjectEndTime));
+                    buildProjectInfoParams.Add(new KeyValuePair<string, object>("solutionname", bpi.SolutionName));
                     buildProjectInfoParams.Add(new KeyValuePair<string, object>("projectname", bpi.ProjectName));
                     buildProjectInfoParams.Add(new KeyValuePair<string, object>("configurationname", bpi.ConfigurationName));
                     buildProjectInfoParams.Add(new KeyValuePair<string, object>("configurationtype", bpi.ConfigurationType));

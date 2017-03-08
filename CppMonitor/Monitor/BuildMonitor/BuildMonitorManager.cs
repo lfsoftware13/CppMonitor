@@ -33,6 +33,15 @@ namespace NanjingUniversity.CppMonitor.Monitor
             CleanBuildInfo();
             if (_CurrentBuild != null)
             {
+                EnvDTE.DTE dte = (EnvDTE.DTE)Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+                if (dte != null && dte.Solution != null)
+                {
+                    EnvDTE.Property pro = dte.Solution.Properties.Item("Name");
+                    if (pro != null)
+                    {
+                        _CurrentBuild.SolutionName = pro.Value as string;
+                    }
+                }
                 _CurrentBuild.BuildStartTime = DateTime.Now.ToString();
             }
         }
@@ -85,6 +94,17 @@ namespace NanjingUniversity.CppMonitor.Monitor
                     info.ProjectName = pro.Name;
                 }
             }
+
+            EnvDTE.DTE dte = (EnvDTE.DTE)Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+            if (dte != null && dte.Solution != null)
+            {
+                EnvDTE.Property pro = dte.Solution.Properties.Item("Name");
+                if (pro != null)
+                {
+                    info.SolutionName = pro.Value as string;
+                }
+            }
+
         }
 
         public void EndBuildVCProject(VCConfiguration con)
