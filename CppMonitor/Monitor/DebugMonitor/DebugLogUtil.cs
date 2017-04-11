@@ -7,6 +7,8 @@ using NanjingUniversity.CppMonitor.DAO;
 using NanjingUniversity.CppMonitor.DAO.imp;
 using EnvDTE;
 using EnvDTE100;
+using Microsoft.VisualStudio.VCProjectEngine;
+using Microsoft.VisualStudio.Shell;
 
 namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 {
@@ -17,11 +19,33 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             logger = LoggerFactory.loggerFactory.getLogger("Debug");
         }
 
+        public static SolutionConfiguration GetCurrentProjectConfiguration()
+        {
+            DTE dte = (DTE)ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+            Solution sol = dte.Solution;
+            if (sol != null)
+            {
+                if (sol.SolutionBuild != null)
+                {
+                    return sol.SolutionBuild.ActiveConfiguration;
+                }
+                
+            }
+            return null;
+        }
+
         public static int LogDebugStart(string debugTarget)
         {
             var param = new List<KeyValuePair<string, object>>();
             param.Add(new KeyValuePair<string, object>("run_type", "start"));
             param.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
+            SolutionConfiguration con = GetCurrentProjectConfiguration();
+            string configName = "";
+            if (con != null)
+            {
+                configName = con.Name;
+            }
+            param.Add(new KeyValuePair<string, object>("config_name", configName));
             return logger.returnKeyAfterLogInfo("debug_run", param);
         }
 
@@ -35,6 +59,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 int bid = LogBreakpoint(new BreakpointVO(bp));
                 debugParam.Add(new KeyValuePair<string, object>("breakpoint_last_hit", bid));
             }
+
+            SolutionConfiguration con = GetCurrentProjectConfiguration();
+            string configName = "";
+            if (con != null)
+            {
+                configName = con.Name;
+            }
+            debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
 
             return logger.returnKeyAfterLogInfo("debug_run", debugParam);
         }
@@ -51,6 +83,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 debugParam.Add(new KeyValuePair<string, object>("breakpoint_last_hit", bid));
             }
 
+            SolutionConfiguration con = GetCurrentProjectConfiguration();
+            string configName = "";
+            if (con != null)
+            {
+                configName = con.Name;
+            }
+            debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
+
             int debugId = logger.returnKeyAfterLogInfo("debug_break", debugParam);
 
             // 记录本地变量值
@@ -66,6 +106,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 }
             }
 
+
             return debugId;
         }
 
@@ -77,6 +118,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             int eid = LogException(type, name, description, code, action);
             debugParam.Add(new KeyValuePair<string, object>("exception_id", eid));
 
+            SolutionConfiguration con = GetCurrentProjectConfiguration();
+            string configName = "";
+            if (con != null)
+            {
+                configName = con.Name;
+            }
+            debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
+
             return logger.returnKeyAfterLogInfo("debug_exception_thrown", debugParam);
         }
 
@@ -87,6 +136,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
             int eid = LogException(type, name, description, code, action);
             debugParam.Add(new KeyValuePair<string, object>("exception_id", eid));
+
+            SolutionConfiguration con = GetCurrentProjectConfiguration();
+            string configName = "";
+            if (con != null)
+            {
+                configName = con.Name;
+            }
+            debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
 
             return logger.returnKeyAfterLogInfo("debug_exception_not_handled", debugParam);
         }
