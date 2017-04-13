@@ -9,6 +9,7 @@ using EnvDTE80;
 using EnvDTE;
 using NanjingUniversity.CppMonitor.DAO;
 using NanjingUniversity.CppMonitor.Monitor.ContentMointor.State;
+using System.Threading;
 
 namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 {
@@ -40,7 +41,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private ContextState Context;
 
         //当前的编辑状态
-        private IEditState EditState;       
+        private IEditState EditState;
+
+        #region 定时刷入
+        //用于管理异步请求是否取消的上下文
+        private CancellationTokenSource cts = null;
+        //保证setState 和 flushbuffer操作同时只有一个线程使用,减少冲突
+        private Semaphore sem = null;
+        #endregion
 
         public ContentBindEvent()
         {
@@ -58,6 +66,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             );
 
             EditState = new StartState(this);
+
+            sem = new Semaphore(1,1);
         }
          
         void IBindEvent.RegisterEvent()
@@ -99,6 +109,21 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public void ReLog(TextPoint StartPoint, TextPoint EndPoint,
             ref String ReplacingText, ref String ReplacedText)
         {
+            //处理定时刷入
+            {
+                if(cts != null){
+                    cts.Cancel();
+                }
+                cts = new CancellationTokenSource();
+                Task.Delay(5000, cts.Token).ContinueWith(token =>
+                {
+                    if(!token.IsCanceled){
+                        EditState.FlushBuffer();
+                    }
+                });
+            }
+            //end 
+
             EditState.LogInfo(StartPoint, EndPoint,
                 ref ReplacingText, ref ReplacedText);
         }
@@ -214,6 +239,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public void FlushBuffer(Operation Op, String From, String To)
         {
+            sem.WaitOne();
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
             list.Add(new KeyValuePair<string, Object>(
@@ -249,6 +275,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             Logger.LogInfo("",list);
+            sem.Release();
         }
 
         public int GetContentDelta(String CurrentContent)
@@ -258,7 +285,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public void SetState(IEditState State)
         {
+            sem.WaitOne();
+
             EditState = State;
+
+            Context.Buffer.Clear();
+            sem.Release();
         }
 
         /*====================== Get Property Method Start ==================================*/
