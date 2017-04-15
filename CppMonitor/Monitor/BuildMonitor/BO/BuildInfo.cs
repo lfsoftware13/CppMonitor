@@ -10,6 +10,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
     {
         private string _BuildStartTime;
         private string _BuildEndTime;
+        private string _SolutionName;
         private string _Content;
         private List<BuildProjectInfo> _Projects;
 
@@ -34,6 +35,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
             set
             {
                 _BuildEndTime = value;
+            }
+        }
+
+        public string SolutionName
+        {
+            get
+            {
+                return _SolutionName;
+            }
+            set
+            {
+                _SolutionName = value;
             }
         }
 

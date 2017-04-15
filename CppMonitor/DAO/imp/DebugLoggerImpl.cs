@@ -100,6 +100,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         public int CreateNewDebugEvent(string type, List<KeyValuePair<string, object>> vals)
         {
             string debug_target = "";
+            string configName = "";
             for (int i = 0; i < vals.Count; ++i)
             {
                 var pair = vals[i];
@@ -108,12 +109,21 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                     debug_target = pair.Value + "";
                     vals.Remove(pair);
                     --i;
+                    continue;
+                }
+                if (pair.Key.Equals("config_name"))
+                {
+                    configName = pair.Value + "";
+                    vals.Remove(pair);
+                    --i;
+                    continue;
                 } 
             }
             List<KeyValuePair<string, object>> list = new List<KeyValuePair<string, object>>();
             list.Add(new KeyValuePair<string, object>("timestamp", DateTime.Now));
             list.Add(new KeyValuePair<string, object>("debug_target", debug_target));
             list.Add(new KeyValuePair<string, object>("type", type));
+            list.Add(new KeyValuePair<string, object>("config_name", configName));
             return returnKeyAfterLogInfo("debug_info", list);
         }
 
@@ -121,7 +131,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         {
             
             List<string> ddls = new List<string>();
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info ( id INTEGER PRIMARY KEY, type TEXT NOT NULL, timestamp DATETIME DEFAULT current_time NOT NULL, debug_target TEXT)");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info ( id INTEGER PRIMARY KEY, type TEXT NOT NULL, timestamp DATETIME DEFAULT current_time NOT NULL, debug_target TEXT, config_name TEXT)");
             ddls.Add("CREATE TABLE IF NOT EXISTS debug_break ( id INTEGER PRIMARY KEY, break_reason TEXT NOT NULL, breakpoint_last_hit INTEGER);");
             ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint ( id INTEGER PRIMARY KEY, tag TEXT, condition TEXT, condition_type TEXT, current_hits INT DEFAULT 0, file TEXT NOT NULL, file_column INT NOT NULL, file_line INT NOT NULL, function_name TEXT, location_type TEXT NOT NULL , enabled TEXT DEFAULT true NOT NULL)");
             ddls.Add("CREATE TABLE IF NOT EXISTS debug_run ( id INTEGER PRIMARY KEY, run_type TEXT NOT NULL, breakpoint_last_hit INTEGER);");

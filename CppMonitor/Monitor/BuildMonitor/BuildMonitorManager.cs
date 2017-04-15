@@ -30,9 +30,18 @@ namespace NanjingUniversity.CppMonitor.Monitor
 
         public void StartBuild()
         {
-            CleanBuildInfo();
+            CreateBuildInfo();
             if (_CurrentBuild != null)
             {
+                EnvDTE.DTE dte = (EnvDTE.DTE)Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+                if (dte != null && dte.Solution != null)
+                {
+                    EnvDTE.Property pro = dte.Solution.Properties.Item("Name");
+                    if (pro != null)
+                    {
+                        _CurrentBuild.SolutionName = pro.Value as string;
+                    }
+                }
                 _CurrentBuild.BuildStartTime = DateTime.Now.ToString();
             }
         }
@@ -45,12 +54,18 @@ namespace NanjingUniversity.CppMonitor.Monitor
                 string content = BuildMonitorUtil.GetOrderBuildOutput();
                 _CurrentBuild.Content = content;
                 BuildLogUtil.LogBuildInfo(_CurrentBuild);
+                CleanBuildInfo();
             }
+        }
+
+        public void CreateBuildInfo()
+        {
+            _CurrentBuild = new BuildInfo();
         }
 
         public void CleanBuildInfo()
         {
-            _CurrentBuild = new BuildInfo();
+            _CurrentBuild = null ;
         }
 
         public void StartBuildVCProject(VCConfiguration con)
@@ -85,6 +100,17 @@ namespace NanjingUniversity.CppMonitor.Monitor
                     info.ProjectName = pro.Name;
                 }
             }
+
+            EnvDTE.DTE dte = (EnvDTE.DTE)Microsoft.VisualStudio.Shell.ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+            if (dte != null && dte.Solution != null)
+            {
+                EnvDTE.Property pro = dte.Solution.Properties.Item("Name");
+                if (pro != null)
+                {
+                    info.SolutionName = pro.Value as string;
+                }
+            }
+
         }
 
         public void EndBuildVCProject(VCConfiguration con)
