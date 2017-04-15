@@ -86,7 +86,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 //    Context.TransferToInsertAfterEnterState(InsertedText);
                 //    return;
                 //}
-
                 // 如果满足以下条件中的任意一个，则聚合所要插入的内容
                 // 1、被插入字符长度 = 前后两次偏移之差 
                 if (OffsetDiff == InsertLength)
@@ -99,16 +98,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                     if(ReplacingText.EndsWith("\n")){
                         Buffer.Append(ReplacingText);
                         FlushBuffer();
-                        Context.LineBeforeFlush = EndPoint.Line;
-                        Context.LineOffsetBeforeFlush = EndPoint.LineCharOffset;
                     }
                     else
                     {
                         FlushBuffer();
-                        Context.LineBeforeFlush = StartPoint.Line;
-                        Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
                         Buffer.Append(ReplacingText);
                     }
+                    Context.LineBeforeFlush = EndPoint.Line;
+                    Context.LineOffsetBeforeFlush = EndPoint.LineCharOffset;
                 }
             }
         }

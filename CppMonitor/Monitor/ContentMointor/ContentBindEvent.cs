@@ -22,7 +22,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private enum RecordKey
         {
-            Operation, FilePath, From, To, Line, LineOffset
+            Operation, FilePath, From, To, Line, LineOffset,HappenTime
         }
     
         private DTE2 Dte2;
@@ -119,6 +119,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 {
                     if(!token.IsCanceled){
                         EditState.FlushBuffer();
+                        SetState(new StartState(this));
                     }
                 });
             }
@@ -193,6 +194,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             EditState.FlushBuffer();
             SetState(new DeleteState(this));
+            Context.HappenTime = DateTime.Now.Ticks;
             ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
         }
 
@@ -202,6 +204,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             EditState.FlushBuffer();
             SetState(new ReplaceState(this));
+            Context.HappenTime = DateTime.Now.Ticks;
             ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
         }
 
@@ -211,6 +214,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             EditState.FlushBuffer();
             SetState(new InsertState(this));
+            Context.HappenTime = DateTime.Now.Ticks;
             ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
         }
 
@@ -263,6 +267,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             Context.Buffer.Clear();
+            Context.HappenTime = DateTime.Now.Ticks;//重置操作时间
 
             list.Add(new KeyValuePair<string, object>(
                 ContentUtil.ToUTF8(RecordKey.Line.ToString()),
@@ -272,6 +277,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             list.Add(new KeyValuePair<string, object>(
                 ContentUtil.ToUTF8(RecordKey.LineOffset.ToString()),
                 ContentUtil.ToUTF8((Context.LineOffsetBeforeFlush - 1).ToString())
+            ));
+
+            list.Add(new KeyValuePair<string, object>(
+                ContentUtil.ToUTF8(RecordKey.HappenTime.ToString()),
+                Context.HappenTime
             ));
 
             Logger.LogInfo("",list);
@@ -328,6 +338,17 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             set { Context.LastDocContent = value; }
         }
 
+        public long HappenTime
+        {
+            get
+            {
+                return Context.HappenTime;
+            }
+            set
+            {
+                Context.HappenTime = value;
+            }
+        }
         /*====================== Get Property Method End ==================================*/
     }
 }
