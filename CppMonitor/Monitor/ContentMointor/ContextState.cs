@@ -75,5 +75,21 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             get { return _LastDocContent; }
             set { _LastDocContent = value; }
         }
+
+        #region 记录变化发生的时间
+        private long happentime;
+
+        public long HappenTime
+        {
+            get
+            {
+                return happentime;
+            }
+            set
+            {
+                happentime = value;
+            }
+        }
+        #endregion
     }
 }

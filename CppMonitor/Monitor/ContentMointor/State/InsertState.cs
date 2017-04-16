@@ -86,19 +86,26 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 //    Context.TransferToInsertAfterEnterState(InsertedText);
                 //    return;
                 //}
-
                 // 如果满足以下条件中的任意一个，则聚合所要插入的内容
-                // 1、被插入字符长度 = 前后两次偏移之差
+                // 1、被插入字符长度 = 前后两次偏移之差 
                 if (OffsetDiff == InsertLength)
                 {
                     Buffer.Append(ReplacingText);
                 }
                 else
                 {
-                    FlushBuffer();
-                    Context.LineBeforeFlush = StartPoint.Line;
-                    Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
-                    Buffer.Append(ReplacingText);
+                    //将回车换行汇聚到前一次插入事件 实现按照换行切分插入事件的功能
+                    if(ReplacingText.EndsWith("\n")){
+                        Buffer.Append(ReplacingText);
+                        FlushBuffer();
+                    }
+                    else
+                    {
+                        FlushBuffer();
+                        Buffer.Append(ReplacingText);
+                    }
+                    Context.LineBeforeFlush = EndPoint.Line;
+                    Context.LineOffsetBeforeFlush = EndPoint.LineCharOffset;
                 }
             }
         }

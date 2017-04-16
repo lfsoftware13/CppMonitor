@@ -30,7 +30,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into content_info (time,operation,fullpath,textfrom,textto,line,lineoffset) values(@time,@operation,@fullpath,@textfrom,@textto, @lie, @lineoffset)";
+                string sql = "insert into content_info (time,operation,fullpath,textfrom,textto,line,lineoffset,happentime) values(@time,@operation,@fullpath,@textfrom,@textto, @lie, @lineoffset,@happentime)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -57,6 +57,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                         case "LineOffset":
                             cmd.Parameters.Add(new SQLiteParameter("@lineoffset", paramPair.Value));
                             break;
+                        case "HappenTime":
+                            cmd.Parameters.Add(new SQLiteParameter("@happentime", paramPair.Value));
+                            break;
                         default:
                             break;
                     }
@@ -79,7 +82,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立content_info
-            string sql = "create table if not exists content_info (id INTEGER PRIMARY KEY autoincrement, time char[22],operation char[7],fullpath TEXT,textfrom blob,textto blob,line int,lineoffset int)";
+            string sql = "create table if not exists content_info (id INTEGER PRIMARY KEY autoincrement, time char[22],operation char[7],fullpath TEXT,textfrom blob,textto blob,line int,lineoffset int,happentime int8)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();
