@@ -49,6 +49,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
                 {
                     logParams.Add(new KeyValuePair<string, object>(key, ""));
                 }
+                logParams.Add(new KeyValuePair<string,object>("Happentime",DateTime.Now.Ticks));
                 return logger.LogInfo("text", logParams);
             }
             return false;
