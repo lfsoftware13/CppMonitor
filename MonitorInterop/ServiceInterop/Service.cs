@@ -19,6 +19,10 @@ namespace MonitorInterop.ServiceInterop
 
         string GetFileModulePath();
 
+        string GetMonitorPath();
+
+        string GetBrowserFilePath();
+
     }
 
     //[Guid(GUIDs.guidMyServiceString)]
