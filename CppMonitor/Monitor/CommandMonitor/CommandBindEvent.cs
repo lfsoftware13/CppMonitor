@@ -76,16 +76,27 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             //    (int)VSConstants.VSStd97CmdID.Cut,
             //    new KeyEventHandler(HandleCutEvent)
             //);
+            #region register redo/undo in cmd bar before
+            BefEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.MultiLevelUndo,
+                new KeyEventHandler(HandleUndoEvent)
+            );
 
-            //BefEventTable.Add(
-            //    (int)VSConstants.VSStd97CmdID.Undo,
-            //    new KeyEventHandler(HandleUndoEvent)
-            //);
+            BefEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.MultiLevelRedo,
+                new KeyEventHandler(HandleRedoEvent)
+            );
+            #endregion
 
-            //BefEventTable.Add(
-            //    (int)VSConstants.VSStd97CmdID.Redo,
-            //    new KeyEventHandler(HandleRedoEvent)
-            //);
+            BefEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.Undo,
+                new KeyEventHandler(HandleUndoEvent)
+            );
+
+            BefEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.Redo,
+                new KeyEventHandler(HandleRedoEvent)
+            );
 
             AftEventTable = new Dictionary<int, Delegate>();
             AftEventTable.Add(
@@ -96,15 +107,26 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
                 (int)VSConstants.VSStd97CmdID.Cut,
                 new KeyEventHandler(HandleCutEventAft)
             );
-            //AftEventTable.Add(
-            //    (int)VSConstants.VSStd97CmdID.Undo,
-            //    new KeyEventHandler(HandleUndoEventAft)
-            //);
+            #region register redo/undo in cmd bar after
+            AftEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.MultiLevelUndo,
+                new KeyEventHandler(HandleUndoEventAft)
+            );
 
-            //AftEventTable.Add(
-            //    (int)VSConstants.VSStd97CmdID.Redo,
-            //    new KeyEventHandler(HandleRedoEventAft)
-            //);
+            AftEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.MultiLevelRedo,
+                new KeyEventHandler(HandleRedoEventAft)
+            );
+            #endregion
+            AftEventTable.Add(
+               (int)VSConstants.VSStd97CmdID.Undo,
+               new KeyEventHandler(HandleUndoEventAft)
+           );
+
+            AftEventTable.Add(
+                (int)VSConstants.VSStd97CmdID.Redo,
+                new KeyEventHandler(HandleRedoEventAft)
+            );
         }
 
         void IBindEvent.RegisterEvent()
@@ -210,13 +232,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         private void HandleUndoEvent()
         {
             Document Doc = Dte.ActiveDocument;
-            String content = GetCurrentDocContent();
             List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Avtion", "StartUndo"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Doc.Path));
-            list.Add(new KeyValuePair<String, object>("Content", content));
-            //Logger.LogInfo(list);
+            list.Add(new KeyValuePair<String, object>("Action", "StartUndo"));
+            list.Add(new KeyValuePair<String, object>("Name", Doc==null?"":Doc.Name));
+            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+            list.Add(new KeyValuePair<String, object>("Content", ""));
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
 
         }
 
@@ -226,36 +247,37 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         private void HandleRedoEvent()
         {
             Document Doc = Dte.ActiveDocument;
-            String content = GetCurrentDocContent();
             List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Avtion", "StartRedo"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Doc.Path));
-            list.Add(new KeyValuePair<String, object>("Content", content));
-            //Logger.LogInfo(list);
+            list.Add(new KeyValuePair<String, object>("Action", "StartRedo"));
+            list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
+            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+            list.Add(new KeyValuePair<String, object>("Content", ""));
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
         private void HandleUndoEventAft()
         {
             Document Doc = Dte.ActiveDocument;
-            String content = GetCurrentDocContent();
             List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Avtion", "UndoEnd"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Content", content));
-            //Logger.LogInfo(list);
+            list.Add(new KeyValuePair<String, object>("Action", "UndoEnd"));
+            list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
+            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+            list.Add(new KeyValuePair<String, object>("Content", ""));
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
         private void HandleRedoEventAft()
         {
             Document Doc = Dte.ActiveDocument;
-            String content = GetCurrentDocContent();
             List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Avtion", "RedoEnd"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Content", content));
-            //Logger.LogInfo(list);
+            list.Add(new KeyValuePair<String, object>("Action", "RedoEnd"));
+            list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
+            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+            list.Add(new KeyValuePair<String, object>("Content", ""));
+            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
+
+        public object content { get; set; }
     }
 }
