@@ -22,7 +22,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private enum RecordKey
         {
-            Operation, FilePath, From, To, Line, LineOffset,HappenTime
+            Operation, FilePath, From, To, Line, LineOffset,HappenTime,Project
         }
     
         private DTE2 Dte2;
@@ -254,6 +254,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             list.Add(new KeyValuePair<string, object>(
                 ContentUtil.ToUTF8(RecordKey.FilePath.ToString()), 
                 ContentUtil.ToUTF8(Context.ActiveDoc.FullName)
+            ));
+
+            list.Add(new KeyValuePair<string, object>(
+                ContentUtil.ToUTF8(RecordKey.Project.ToString()),
+                ContentUtil.ToUTF8(Context.ActiveDoc.ProjectItem.ContainingProject.Name)
             ));
 
             list.Add(new KeyValuePair<string, object>(
