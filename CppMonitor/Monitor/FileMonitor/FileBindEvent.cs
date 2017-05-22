@@ -21,6 +21,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
 
             SolutionListener sl = new SolutionListener(dte, dte2);
             sl.addListener();
+
+            #region vssolutionEvent3
+            IVsSolution solution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution)) as IVsSolution;
+            uint cookie = 0;
+            solution.AdviseSolutionEvents(new VsSolutionEvents(), out cookie);
+
+            #endregion
         }
     }
 }
