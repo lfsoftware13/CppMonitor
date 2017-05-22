@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.VCProjectEngine;
 using NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util;
+using NanjingUniversity.CppMonitor.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -71,6 +72,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
 
         public void OnBuildBegin(vsBuildScope Scope, vsBuildAction Action)
         {
+            String projectFilePath = Path.Combine(CopyUtil.backupBuildDirPath, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
+            CopyUtil.backupSolutionFile(projectFilePath);
+
             BuildMonitorManager manager = BuildBindEvent.Manager;
 
             DTE dte = (DTE)ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
