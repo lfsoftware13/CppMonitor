@@ -185,6 +185,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
                 BefEventTable[ID].DynamicInvoke();
             }
+
         }
 
         private void AftCmdExecute(string Guid, int ID, object CustomIn,
@@ -196,6 +197,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
                 AftEventTable[ID].DynamicInvoke();
             }
+
         }
 
         /**

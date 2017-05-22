@@ -28,6 +28,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             this.middlePath = middlePath;
             vcp.ItemAdded += vcp_ItemAdded;
             vcp.ItemRemoved += vcp_ItemRemoved;
+            vcp.ItemRenamed += vcp_ItemRenamed;
         }
 
         public void removeListener()
@@ -35,7 +36,29 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             //MessageBox.Show("remove listener for file events");
             vcp.ItemAdded -= vcp_ItemAdded;
             vcp.ItemRemoved -= vcp_ItemRemoved;
+            vcp.ItemRenamed -= vcp_ItemRenamed;
         }
+
+        #region rename function
+        void vcp_ItemRenamed(object Item, object ItemParent, string OldName)
+        {
+          VCProjectItem pitem = Item as VCProjectItem;
+          //avoid to get null object
+           if(pitem != null){
+               if (pitem.Kind.Equals("VCFile"))
+               {
+                   VCFile f = Item as VCFile;
+                   FileLogUtil.logFileEvent(5, f.FullPath, (f.project).Name,OldName);//记录日志
+                   String desDir = getDesDir(f.FullPath);
+               }
+               else if (pitem.Kind.Equals("VCFilter"))
+               {
+                   VCFilter f = Item as VCFilter;
+                   FileLogUtil.logFileEvent(6, f.CanonicalName, f.project.Name,OldName);//记录日志
+               }
+          }
+        }
+        #endregion
 
         void vcp_ItemRemoved(object Item, object ItemParent)
         {
