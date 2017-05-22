@@ -174,7 +174,7 @@
     <Compile Include="Monitor\CommandMonitor\ILoggerDaoImpl_stub.cs" />
     <Compile Include="DAO\LoggerFactory.cs" />
     <Compile Include="Guids.cs" />
-    <Compile Include="Monitor\FileMonitor\VsHierarchyEvents.cs" />
+    <Compile Include="Monitor\FileMonitor\ProjectVsHierarchyEvents.cs" />
     <Compile Include="Monitor\FileMonitor\VsSolutionEvent.cs" />
     <Compile Include="ServiceInterop\MonitorService.cs" />
     <Compile Include="Monitor\BuildMonitor\BO\BuildInfo.cs" />

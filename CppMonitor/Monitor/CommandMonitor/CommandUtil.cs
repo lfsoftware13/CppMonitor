@@ -19,7 +19,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         {
 
         }
-        public string getDocContent(ProjectItem projectItem)
+        public static string getDocContent(ProjectItem projectItem)
         {
             Document temp = projectItem.Document;
             if (temp != null)
@@ -34,7 +34,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             }
         }
 
-        private List<string> LoopFilter(IVCCollection vcFilters)
+        private static List<string> LoopFilter(IVCCollection vcFilters)
         {
             List<string> allPath = new List<string>();
             for (int i = 1; i <= vcFilters.Count; i++)
@@ -58,7 +58,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             return allPath;
         }
 
-        private List<string> GetSelectedItemPaths(DTE2 dte)
+        private static List<string> GetSelectedItemPaths(DTE2 dte)
         {
             List<string> list = new List<string>();
             Array items = (Array)dte.ToolWindows.SolutionExplorer.SelectedItems;
@@ -128,7 +128,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             return list;
         }
 
-        public List<string> GetSelectedFilePaths(DTE2 dte)
+        public static List<string> GetSelectedFilePaths(DTE2 dte)
         {
             List<string> IE = GetSelectedItemPaths(dte);
             List<string> list = new List<string>();
@@ -155,7 +155,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         }
 
 
-        private Project GetSelectedProject(DTE2 dte)
+        public static Project GetSelectedProject(DTE2 dte)
         {
 
             Project project = null;
@@ -183,7 +183,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
         }
 
-        public string GetSelectedProjectPath(DTE2 dte)
+        public static string GetSelectedProjectPath(DTE2 dte)
         {
             string path = "";
             //获取被选中的工程
@@ -198,6 +198,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             //去掉工程的文件名
             path = Path.GetDirectoryName(path);
 
+            return path;
+
+        }
+
+        //获取当前活跃的项目名
+        public static string GetActiveProjects(DTE2 dte)
+        {
+            string path = "";
+            List<String> projectNames = new List<string>();
+            //获取被选中的工程
+            Array projects = (Array)dte.ActiveSolutionProjects;
+            foreach (Project pro in projects)
+            {
+                projectNames.Add(pro.Name);
+            }
+            path = String.Join(",", projectNames);
             return path;
 
         }
