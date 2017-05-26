@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using Microsoft.VisualStudio.Shell;
 using NanjingUniversity.CppMonitor.Common;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
+namespace NanjingUniversity.CppMonitor.Util
 {
     class CopyUtil
     {
         public static String backupStartDirPath = Path.Combine(AddressCommon.FileModuleRootPath,"start_files");
         public static String backupMiddleDirPath = Path.Combine(AddressCommon.FileModuleRootPath, "middle_files");
+        public static String backupBuildDirPath = Path.Combine(AddressCommon.FileModuleRootPath, "build_files");
 
         public static void copyDir(string sourceDir, string targetDir)
         {
@@ -100,6 +102,21 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             }
 
             return containsFile;
+        }
+
+        //将解决方案下文件完整备份
+        public static void backupSolutionFile(String targetPath){
+            DTE dte = (DTE)ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+            Projects projects = dte.Solution.Projects;
+
+            if (!Directory.Exists(targetPath))
+            {
+                Directory.CreateDirectory(targetPath);
+            }
+            foreach (Project project in projects)
+            {
+                CopyUtil.copyProjectFilesToTmp(project.ProjectItems, Path.Combine(targetPath, project.Name));
+            }
         }
     }
 }

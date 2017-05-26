@@ -30,7 +30,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into content_info (time,operation,fullpath,textfrom,textto,line,lineoffset,happentime) values(@time,@operation,@fullpath,@textfrom,@textto, @lie, @lineoffset,@happentime)";
+                string sql = "insert into content_info (time,operation,fullpath,textfrom,textto,line,lineoffset,happentime,project) values(@time,@operation,@fullpath,@textfrom,@textto, @lie, @lineoffset,@happentime,@project)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -60,6 +60,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                         case "HappenTime":
                             cmd.Parameters.Add(new SQLiteParameter("@happentime", paramPair.Value));
                             break;
+                        case "Project":
+                            cmd.Parameters.Add(new SQLiteParameter("@project", paramPair.Value.ToString()));
+                            break;
                         default:
                             break;
                     }
@@ -82,7 +85,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立content_info
-            string sql = "create table if not exists content_info (id INTEGER PRIMARY KEY autoincrement, time char[22],operation char[7],fullpath TEXT,textfrom blob,textto blob,line int,lineoffset int,happentime int8)";
+            string sql = "create table if not exists content_info (id INTEGER PRIMARY KEY autoincrement, time char[22],operation char[7],fullpath TEXT,textfrom blob,textto blob,line int,lineoffset int,happentime int8,project Text)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();

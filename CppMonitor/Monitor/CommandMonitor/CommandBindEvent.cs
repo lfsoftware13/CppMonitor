@@ -167,6 +167,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Name", doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", content));
+            list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : doc.ProjectItem.ContainingProject.Name));
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
 
         }
@@ -185,6 +186,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
                 BefEventTable[ID].DynamicInvoke();
             }
+
         }
 
         private void AftCmdExecute(string Guid, int ID, object CustomIn,
@@ -196,6 +198,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 
                 AftEventTable[ID].DynamicInvoke();
             }
+
         }
 
         /**
@@ -237,6 +240,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Name", Doc==null?"":Doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", ""));
+            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
 
         }
@@ -252,6 +256,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", ""));
+            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
@@ -263,6 +268,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", ""));
+            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
@@ -274,6 +280,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", ""));
+            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 

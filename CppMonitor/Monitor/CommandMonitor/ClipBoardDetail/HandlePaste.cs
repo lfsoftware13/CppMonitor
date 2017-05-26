@@ -24,8 +24,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
         private List<KeyValuePair<String, object>> list;
 
-        private CommandUtil util;
-
         public HandlePaste()
         {
             Dte = (DTE)Microsoft.VisualStudio.Shell.Package.
@@ -33,7 +31,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             DteEvents = Dte.Events;
             DocEvents = DteEvents.DocumentEvents;
             list = new List<KeyValuePair<string, object>>();
-            util = new CommandUtil();
         }
         public void handleText()
         {
@@ -47,6 +44,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
                 list.Add(new KeyValuePair<String, object>("Name", Dte.ActiveDocument.Name));
                 list.Add(new KeyValuePair<String, object>("Path", Dte.ActiveDocument.Path));
                 list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+                list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : doc.ProjectItem.ContainingProject.Name));
             }
             else
             {
@@ -73,9 +71,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
             //get the path of paste_to 
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
-            string thepath = util.GetSelectedProjectPath(_applicationObject);
+            string thepath = CommandUtil.GetSelectedProjectPath(_applicationObject);
             list.Add(new KeyValuePair<String, object>("PasteTo", thepath));
-
+            list.Add(new KeyValuePair<String, object>("Project", CommandUtil.GetActiveProjects(Dte as DTE2)));
             ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
         }
 
@@ -102,10 +100,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
             //get the path of paste_to 
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
-            string thepath = util.GetSelectedProjectPath(_applicationObject);
+            string thepath = CommandUtil.GetSelectedProjectPath(_applicationObject);
             //MessageBox.Show(thepath);
             list.Add(new KeyValuePair<String, object>("PasteTo", thepath));
-
+            list.Add(new KeyValuePair<String, object>("Project", CommandUtil.GetActiveProjects(Dte as DTE2)));
             ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
         }
     }

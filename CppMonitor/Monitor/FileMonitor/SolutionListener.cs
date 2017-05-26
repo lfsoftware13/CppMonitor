@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using EnvDTE80;
+using NanjingUniversity.CppMonitor.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,19 +45,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             //String name =  solutionFullname.Substring(lindex+1, diff-1);
             //String solutionDir = solutionFullname.Substring(0, lindex);
             //CopyUtil.copyDir(solutionDir, CopyUtil.backupDirPath+"\\"+DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-"+name);
-            Projects projects = dte.Solution.Projects;
             String projectFilePath = Path.Combine(CopyUtil.backupStartDirPath, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
+            CopyUtil.backupSolutionFile(projectFilePath);
             //保存信息
-            //MessageBox.Show(mes);
             FileLogUtil.logSolutionOpenEvent(dte2.Solution.FullName,1,mes,projectFilePath);
-            if (!Directory.Exists(projectFilePath))
-            {
-                Directory.CreateDirectory(projectFilePath);
-            }
-            foreach (Project project in projects)
-            {
-                CopyUtil.copyProjectFilesToTmp(project.ProjectItems, Path.Combine(projectFilePath, project.Name));
-            }
+           
             //创建中间文件夹
             String middlePath = Path.Combine(CopyUtil.backupMiddleDirPath, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
             if (!Directory.Exists(middlePath))
