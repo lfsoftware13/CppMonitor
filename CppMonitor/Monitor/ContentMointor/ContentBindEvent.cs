@@ -109,24 +109,28 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public void ReLog(TextPoint StartPoint, TextPoint EndPoint,
             ref String ReplacingText, ref String ReplacedText)
         {
-            //处理定时刷入
+            //处理定时刷入,如果当前存在那么就直接取消掉  fixbug6-26:将生成新的定时器的时间点拖后，减少冲突
             {
                 if(cts != null){
                     cts.Cancel();
                 }
-                cts = new CancellationTokenSource();
-                Task.Delay(5000, cts.Token).ContinueWith(token =>
-                {
-                    if(!token.IsCanceled){
-                        EditState.FlushBuffer();
-                        SetState(new StartState(this));
-                    }
-                });
             }
             //end 
 
             EditState.LogInfo(StartPoint, EndPoint,
                 ref ReplacingText, ref ReplacedText);
+            //生成下一个5秒后刷入的定时器
+            {
+                cts = new CancellationTokenSource();
+                Task.Delay(5000, cts.Token).ContinueWith(token =>
+                {
+                    if (!token.IsCanceled)
+                    {
+                        EditState.FlushBuffer();
+                        SetState(new StartState(this));
+                    }
+                });
+            }
         }
 
         private static bool IsDocValid(Document Doc)
@@ -301,10 +305,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public void SetState(IEditState State)
         {
             sem.WaitOne();
-
-            EditState = State;
-
-            Context.Buffer.Clear();
+            //fixbug6-26:当状态没有改变时不需要清空buffer
+            if(EditState.GetType() != State.GetType()){
+                EditState.FlushBuffer();
+                EditState = State;
+            }
             sem.Release();
         }
 
