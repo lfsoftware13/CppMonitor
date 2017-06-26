@@ -41,7 +41,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into build_info (time,buildstarttime,buildendtime,content) values (@time,@buildstarttime,@buildendtime,@content)";
+                string sql = "insert into build_info (time,buildstarttime,buildendtime,solutionname,content) values (@time,@buildstarttime,@buildendtime,@solutionname,@content)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //加时间戳
@@ -57,6 +57,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             break;
                         case "buildendtime":
                             cmd.Parameters.Add(new SQLiteParameter("@buildendtime", paramPair.Value.ToString()));
+                            break;
+                        case "solutionname":
+                            cmd.Parameters.Add(new SQLiteParameter("@solutionname", paramPair.Value.ToString()));
                             break;
                         case "content":
                             cmd.Parameters.Add(new SQLiteParameter("@content", paramPair.Value.ToString()));
@@ -84,7 +87,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into build_project_info (time,buildid,buildstarttime,buildendtime,projectname,configurationname,configurationtype,runcommand,commandarguments,buildlogfile,buildlogcontent,compilercommand,linkcommand) values (@time,@buildid,@buildstarttime,@buildendtime,@projectname,@configurationname,@configurationtype,@runcommand,@commandarguments,@buildlogfile,@buildlogcontent,@compilercommand,@linkcommand)";
+                string sql = "insert into build_project_info (time,buildid,buildstarttime,buildendtime,solutionname,projectname,configurationname,configurationtype,runcommand,commandarguments,buildlogfile,buildlogcontent,compilercommand,linkcommand) values (@time,@buildid,@buildstarttime,@buildendtime,@solutionname,@projectname,@configurationname,@configurationtype,@runcommand,@commandarguments,@buildlogfile,@buildlogcontent,@compilercommand,@linkcommand)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //时间戳
@@ -106,6 +109,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             break;
                         case "projectname":
                             cmd.Parameters.Add(new SQLiteParameter("@projectname", paramPair.Value.ToString()));
+                            break;
+                        case "solutionname":
+                            cmd.Parameters.Add(new SQLiteParameter("@solutionname", paramPair.Value.ToString()));
                             break;
                         case "configurationname":
                             cmd.Parameters.Add(new SQLiteParameter("@configurationname", paramPair.Value.ToString()));
@@ -153,11 +159,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立build_info
-            string sql = "create table if not exists build_info (id INTEGER PRIMARY KEY autoincrement, time char[22],buildstarttime TEXT,buildendtime TEXT,content TEXT)";
+            string sql = "create table if not exists build_info (id INTEGER PRIMARY KEY autoincrement, time char[22],buildstarttime TEXT, buildendtime TEXT, solutionname TEXT, content TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             //建立build_project_info
-            sql = "create table if not exists build_project_info (id INTEGER PRIMARY KEY autoincrement, time char[22],buildid TEXT,buildstarttime TEXT,buildendtime TEXT,projectname TEXT,configurationname TEXT,configurationtype TEXT,runcommand TEXT,commandarguments TEXT,buildlogfile TEXT,buildlogcontent TEXT,compilercommand TEXT,linkcommand TEXT)";
+            sql = "create table if not exists build_project_info (id INTEGER PRIMARY KEY autoincrement, time char[22],buildid TEXT,buildstarttime TEXT,buildendtime TEXT, solutionname TEXT, projectname TEXT,configurationname TEXT,configurationtype TEXT,runcommand TEXT,commandarguments TEXT,buildlogfile TEXT,buildlogcontent TEXT,compilercommand TEXT,linkcommand TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();

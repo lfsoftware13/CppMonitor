@@ -12,6 +12,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
         private string _BuildProjectEndTime;
         private string _ConfigurationName;
         private string _ConfigurationType;
+        private string _SolutionName;
         private string _ProjectName;
         private string _CommandArguments;
         private string _RunCommand;
@@ -65,6 +66,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.BO
             set
             {
                 _ConfigurationType = value;
+            }
+        }
+
+        public string SolutionName
+        {
+            get
+            {
+                return _SolutionName;
+            }
+            set
+            {
+                _SolutionName = value;
             }
         }
 

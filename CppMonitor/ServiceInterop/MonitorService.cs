@@ -3,6 +3,7 @@ using NanjingUniversity.CppMonitor.Common;
 using NanjingUniversity.CppMonitor.DAO;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ namespace NanjingUniversity.CppMonitor.ServiceInterop
         public string BeforeUpload()
         {
             DBHelper dbHelper = DBHelper.getInstance();
+            string pa = AddressCommon.getCommonAppDataPath();
             return GetMonitorDBPath();
         }
 
@@ -42,5 +44,17 @@ namespace NanjingUniversity.CppMonitor.ServiceInterop
         {
             return AddressCommon.FileModuleRootPath;
         }
+
+        public string GetMonitorPath()
+        {
+            return AddressCommon.getAppDataPath();
+        }
+
+        public string GetBrowserFilePath()
+        {
+            return AddressCommon.ChromePath;
+        }
+
+
     }
 }

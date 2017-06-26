@@ -11,6 +11,7 @@ namespace NanjingUniversity.CppMonitor.Common
     {
         private static string dbFilePath;
         private static string fileModuleRootPath;
+        private static string chromePath;
 
         public static string DBFilePath
         {
@@ -31,12 +32,22 @@ namespace NanjingUniversity.CppMonitor.Common
             }
         }
 
+        public static string ChromePath
+        {
+            get
+            {
+                return chromePath;
+            }
+        }
+
         static AddressCommon()
         {
             String appDataPath = getAppDataPath();
             dbFilePath = Path.Combine(appDataPath,"Dao\\log.db");
 
             fileModuleRootPath = Path.Combine(appDataPath,"File");
+
+            chromePath = Path.Combine(getCommonAppDataPath(), "Google", "Chrome", "User Data", "Default", "Local Storage", "chrome-extension_gnodhpdneljjpjdoiadhmigdcblneeoa_0.localstorage");
         }
 
         public static String getAppDataPath()
@@ -48,6 +59,12 @@ namespace NanjingUniversity.CppMonitor.Common
             {
                 Directory.CreateDirectory(path);    
             }
+            return path;
+        }
+
+        public static String getCommonAppDataPath()
+        {
+            string path = Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData );
             return path;
         }
     }
