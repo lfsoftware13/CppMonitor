@@ -94,18 +94,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
                 }
                 else
                 {
-                    //将回车换行汇聚到前一次插入事件 实现按照换行切分插入事件的功能
-                    if(ReplacingText.EndsWith("\n")){
+                    //将回车换行汇聚到前一次插入事件 实现按照换行切分插入事件的功能 fixbug6-26:在聚合回车换行的时候要保证内容连续
+                    if(StartPoint.AbsoluteCharOffset==Context.LastEndOffset&&ReplacingText.EndsWith("\n")){
                         Buffer.Append(ReplacingText);
                         FlushBuffer();
+                        Context.LineBeforeFlush = EndPoint.Line;
+                        Context.LineOffsetBeforeFlush = EndPoint.LineCharOffset;
                     }
                     else
                     {
+                        //fixbug6-26：在将之前改变刷入日志之后记录新修改的起始位置
                         FlushBuffer();
+                        Context.LineBeforeFlush = StartPoint.Line;
+                        Context.LineOffsetBeforeFlush = StartPoint.LineCharOffset;
                         Buffer.Append(ReplacingText);
                     }
-                    Context.LineBeforeFlush = EndPoint.Line;
-                    Context.LineOffsetBeforeFlush = EndPoint.LineCharOffset;
+                    
                 }
             }
         }
