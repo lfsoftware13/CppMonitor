@@ -35,7 +35,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             if(logger != null){
                 List<KeyValuePair<String, Object>> logParams = new List<KeyValuePair<string, object>>();
 
-                HashSet<string> keyNames = new HashSet<string>() { "Action", "Name", "Path", "Content" };
+                HashSet<string> keyNames = new HashSet<string>() { "Action", "Name", "Path", "Content" ,"Project"};
 
                 foreach (KeyValuePair<string, object> item in list)
                 {
@@ -60,7 +60,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
             {
                 List<KeyValuePair<String, Object>> logParams = new List<KeyValuePair<string, object>>();
 
-                HashSet<string> keyNames = new HashSet<string>() { "Action", "FilePath", "PasteFileType", "PasteTo" };
+                HashSet<string> keyNames = new HashSet<string>() { "Action", "FilePath", "PasteFileType", "PasteTo", "Project" };
 
                 foreach (KeyValuePair<string, object> item in list)
                 {

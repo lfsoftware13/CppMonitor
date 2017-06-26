@@ -21,8 +21,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
         private List<KeyValuePair<String, object>> list;
 
-        private CommandUtil util;
-
         public HandleCopy()
         {
             // TODO: Complete member initialization
@@ -31,7 +29,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             DteEvents = Dte.Events;
             DocEvents = DteEvents.DocumentEvents;
             list = new List<KeyValuePair<string, object>>();
-            util = new CommandUtil();
         }
         public void handleText()
         {
@@ -45,6 +42,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
                 list.Add(new KeyValuePair<String, object>("Name", Dte.ActiveDocument.Name));
                 list.Add(new KeyValuePair<String, object>("Path", Dte.ActiveDocument.Path));
                 list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+                list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : doc.ProjectItem.ContainingProject.Name));
             }
             else
             {
@@ -90,11 +88,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             list.Add(new KeyValuePair<String, object>("Action", "Copy"));
             list.Add(new KeyValuePair<String, object>("Type", "File"));
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
-            List<string> Ie = util.GetSelectedFilePaths(_applicationObject);
+            List<string> Ie = CommandUtil.GetSelectedFilePaths(_applicationObject);
             if(Ie!=null){
                 list.Add(new KeyValuePair<String, object>("FilePath", string.Join(",", Ie)));
 
             }
+            list.Add(new KeyValuePair<String, object>("Project", CommandUtil.GetActiveProjects(Dte as DTE2)));
             ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
 
         }
