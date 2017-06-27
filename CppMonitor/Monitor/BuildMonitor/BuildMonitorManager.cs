@@ -166,7 +166,11 @@ namespace NanjingUniversity.CppMonitor.Monitor
             string[] strs = content.Split(new string[] { "\r\n" }, StringSplitOptions.None);
             foreach(string str in strs){
                 string line = str.Trim();
-                if (line.Length > 3 && "cl ".Equals(line.Substring(0, 3)) && (".cpp".Equals(line.Substring(line.Length - 4, 4)) || ".cxx".Equals(line.Substring(line.Length - 4, 4)) || ".c".Equals(line.Substring(line.Length - 2, 2)) || ".C".Equals(line.Substring(line.Length - 2, 2))))
+                if (line.Length > 3 && "cl ".Equals(line.Substring(0, 3)) && 
+                    (".cpp".Equals(line.Substring(line.Length - 4, 4)) || ".cpp\"".Equals(line.Substring(line.Length - 5, 5))  ||
+                    ".cxx".Equals(line.Substring(line.Length - 4, 4)) || ".cxx\"".Equals(line.Substring(line.Length - 5, 5)) ||
+                    ".c".Equals(line.Substring(line.Length - 2, 2)) || ".c\"".Equals(line.Substring(line.Length - 3, 3)) ||
+                    ".C".Equals(line.Substring(line.Length - 2, 2)) || ".C\"".Equals(line.Substring(line.Length - 3, 3)) ))
                 {
                     command = line;
                 }
@@ -185,7 +189,7 @@ namespace NanjingUniversity.CppMonitor.Monitor
             foreach (string str in strs)
             {
                 string line = str.Trim();
-                if (line.Length>6 && "\"/OUT:".Equals(line.Substring(0, 6)) && ".obj".Equals(line.Substring(line.Length-4, 4)))
+                if (line.Length > 6 && "\"/OUT:".Equals(line.Substring(0, 6)) && (".obj".Equals(line.Substring(line.Length - 4, 4)) || ".obj\"".Equals(line.Substring(line.Length - 5, 5)) ))
                 {
                     command = line;
                 }
