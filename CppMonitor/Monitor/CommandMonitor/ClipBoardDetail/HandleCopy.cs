@@ -32,7 +32,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         }
         public void handleText()
         {
-            MessageBox.Show("Copy Text!");
+            //MessageBox.Show("Copy Text!");
             string ctype = "Text";
             object obj = Clipboard.GetText();
             Document doc = Dte.ActiveDocument;
