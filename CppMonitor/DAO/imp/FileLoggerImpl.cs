@@ -44,7 +44,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 string sql = "insert into solution_open_event (time,solutionname,type,info,targetfolder) values(@time,@solutionname,@type,@info,@targetfolder)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
-                string current = DateTime.Now.ToString();
+                long current = DateTime.Now.Ticks;
                 cmd.Parameters.Add(new SQLiteParameter("@time", current));
                 foreach (KeyValuePair<string, object> paramPair in list)
                 {
@@ -88,7 +88,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 string sql = "insert into file_event (time,filename,projectname,type,targetFile) values(@time,@filename,@projectname,@type,@targetFile)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
-                string current = DateTime.Now.ToString();
+                long current = DateTime.Now.Ticks;
                 cmd.Parameters.Add(new SQLiteParameter("@time", current));
                 foreach (KeyValuePair<string, object> paramPair in list)
                 {

@@ -33,7 +33,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 string sql = "insert into content_info (time,operation,fullpath,textfrom,textto,line,lineoffset,happentime,project) values(@time,@operation,@fullpath,@textfrom,@textto, @lie, @lineoffset,@happentime,@project)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
-                string current = DateTime.Now.ToString();
+                long current = DateTime.Now.Ticks;
                 cmd.Parameters.Add(new SQLiteParameter("@time", current));
                 foreach (KeyValuePair<string, object> paramPair in list)
                 {

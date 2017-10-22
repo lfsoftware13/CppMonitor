@@ -32,11 +32,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         }
         public void handleText()
         {
-            //MessageBox.Show("Copy Text!");
+            MessageBox.Show("Copy Text!");
             string ctype = "Text";
             object obj = Clipboard.GetText();
             Document doc = Dte.ActiveDocument;
             if(doc!=null){
+          
+                //System.Diagnostics.Debug.Assert(false, (string)obj);
                 list.Add(new KeyValuePair<String, object>("Action", "Copy"));
                 list.Add(new KeyValuePair<String, object>("Type", ctype));
                 list.Add(new KeyValuePair<String, object>("Name", Dte.ActiveDocument.Name));

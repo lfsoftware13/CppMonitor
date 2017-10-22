@@ -42,7 +42,7 @@ namespace NanjingUniversity.CppMonitor.Monitor
                         _CurrentBuild.SolutionName = pro.Value as string;
                     }
                 }
-                _CurrentBuild.BuildStartTime = DateTime.Now.ToString();
+                _CurrentBuild.BuildStartTime = DateTime.Now.Ticks.ToString();
             }
         }
 
@@ -50,7 +50,7 @@ namespace NanjingUniversity.CppMonitor.Monitor
         {
             if (_CurrentBuild != null)
             {
-                _CurrentBuild.BuildEndTime = DateTime.Now.ToString();
+                _CurrentBuild.BuildEndTime = DateTime.Now.Ticks.ToString();
                 string content = BuildMonitorUtil.GetOrderBuildOutput();
                 _CurrentBuild.Content = content;
                 BuildLogUtil.LogBuildInfo(_CurrentBuild);
@@ -76,7 +76,7 @@ namespace NanjingUniversity.CppMonitor.Monitor
             }
 
             BuildProjectInfo info = new BuildProjectInfo();
-            info.BuildProjectStartTime = DateTime.Now.ToString();
+            info.BuildProjectStartTime = DateTime.Now.Ticks.ToString();
             _CurrentBuild.Projects.Add(info);
             if (con.BuildLogFile != null)
             {
@@ -133,7 +133,7 @@ namespace NanjingUniversity.CppMonitor.Monitor
                 }
                 if (info.ProjectName.Equals(pro.Name))
                 {
-                    info.BuildProjectEndTime = DateTime.Now.ToString();
+                    info.BuildProjectEndTime = DateTime.Now.Ticks.ToString();
                     if (info.BuildLogFile == null)
                     {
                         if (con.BuildLogFile != null)

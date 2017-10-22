@@ -31,6 +31,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         public void RegisterEvent()
         {
+            System.Diagnostics.Debug.WriteLine("debug注册");
             Dictionary<string, StringBuilder> debugOutputs = new Dictionary<string, StringBuilder>();
             debuggerEvents.OnEnterBreakMode += (dbgEventReason Reason, ref dbgExecutionAction ExecutionAction) =>
             {
@@ -214,7 +215,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         private string getNextTag()
         {
-            return string.Format("bp#{0}@{1}", ++nextIndex, DateTime.Now.ToLongTimeString());
+            return string.Format("bp#{0}@{1}", ++nextIndex, DateTime.Now.Ticks.ToString());
         }
 
         private static int nextIndex = 0;

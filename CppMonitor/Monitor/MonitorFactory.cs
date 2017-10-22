@@ -17,7 +17,7 @@ namespace NanjingUniversity.CppMonitor.Monitor
 
         public static MonitorFactory monitorFactory
         {
-            get
+            get                                                      
             {
                 if (_MonitorFactory == null)
                 {
@@ -36,15 +36,19 @@ namespace NanjingUniversity.CppMonitor.Monitor
                 case "Build":
                     res = new BuildBindEvent();
                     break;
+                    
                 case "Command":
                     res = new CommandBindEvent();
                     break;
+                    
                 case "Content":
                     res = new ContentBindEvent();
                     break;
+                   
                 case "Debug":
                     res = new DebugBindEvent();
                     break;
+                    
                 case "File":
                     res = new FileBindEvent();
                     break;

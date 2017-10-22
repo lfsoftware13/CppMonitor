@@ -45,7 +45,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //加时间戳
-                string current = DateTime.Now.ToString();
+                long current = DateTime.Now.Ticks;
                 cmd.Parameters.Add(new SQLiteParameter("@time", current));
 
                 foreach (KeyValuePair<string, object> paramPair in list)
@@ -91,7 +91,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //时间戳
-                string current = DateTime.Now.ToString();
+                long current = DateTime.Now.Ticks;
                 cmd.Parameters.Add(new SQLiteParameter("@time", current));
 
                 foreach (KeyValuePair<string, object> paramPair in list)
