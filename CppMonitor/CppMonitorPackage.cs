@@ -14,6 +14,7 @@ using NanjingUniversity.CppMonitor.DAO.imp;
 using MonitorInterop.ServiceInterop;
 using NanjingUniversity.CppMonitor.ServiceInterop;
 
+
 namespace NanjingUniversity.CppMonitor
 {
     /// <summary>
@@ -79,6 +80,27 @@ namespace NanjingUniversity.CppMonitor
         /// </summary>
         protected override void Initialize()
         {
+            //询问使用Visual Studio的目的，如果是用于规定的练习，则记录日志
+            //用于自己的练习则不记录日志
+            bool isWriteLog = true;
+            System.Windows.Forms.DialogResult res = System.Windows.Forms.MessageBox.Show(
+                "做课堂练习或者进行考试？",
+                "提示",
+                System.Windows.Forms.MessageBoxButtons.YesNo,
+                System.Windows.Forms.MessageBoxIcon.Information);
+
+            if (res == System.Windows.Forms.DialogResult.No){
+                //确定已经提交
+                isWriteLog = false;
+            }
+
+
+            if (!isWriteLog){
+                //如果是自己练习，则不需要注册插件直接就返回了
+                return;
+            }
+
+            //否则注册插件进行日志的记录
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
             

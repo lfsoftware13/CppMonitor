@@ -83,6 +83,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         private bool logBuildProjectInfo(List<KeyValuePair<String, Object>> list)
         {
+
             DBHelper dbHelper = DBHelper.getInstance();
             try
             {
