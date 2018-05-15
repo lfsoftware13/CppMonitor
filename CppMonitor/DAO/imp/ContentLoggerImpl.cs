@@ -26,6 +26,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         private bool logContentInfo(List<KeyValuePair<String, Object>> list)
         {
+
             DBHelper dbHelper = DBHelper.getInstance();
             try
             {
