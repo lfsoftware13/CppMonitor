@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.VCProjectEngine;
 using System;
@@ -33,10 +34,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
 
         private ProjectEngineRegister()
         {
-            DTE dte = (DTE)ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
+            DTE2 dte = (DTE2)ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
             if (dte != null)
             {
-                vcProjectEvents = dte.Events.GetObject("VCProjectEngineEventsObject") as VCProjectEngineEvents;
+                Object eventsObject = dte.Events.GetObject("VCProjectEngineEventsObject");
+                vcProjectEvents =  eventsObject as VCProjectEngineEvents;
             }
         }
 

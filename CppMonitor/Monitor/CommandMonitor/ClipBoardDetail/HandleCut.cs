@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using EnvDTE80;
+using Microsoft.VisualStudio.Shell.Interop;
 using NanjingUniversity.CppMonitor.DAO;
 using System;
 using System.Collections.Generic;

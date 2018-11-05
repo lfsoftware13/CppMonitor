@@ -49,7 +49,7 @@ namespace NanjingUniversity.CppMonitor
         public CppMonitorPackage()
         {
             Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
-
+            
             IServiceContainer serviceContainer = this as IServiceContainer;
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
             serviceContainer.AddService(typeof(SMonitorService), callback, true);
