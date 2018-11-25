@@ -44,9 +44,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         private IEditState EditState;
 
         #region 定时刷入
-        //用于管理异步请求是否取消的上下文
-        private CancellationTokenSource cts = null;
-        //保证setState 和 flushbuffer操作同时只有一个线程使用,减少冲突
+        ////用于管理异步请求是否取消的上下文
+        //private CancellationTokenSource cts = null;
+        //保证保证onTextChange顺序处理
         private Semaphore sem = null;
         #endregion
 
@@ -84,12 +84,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
          */
         private void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
+           
             Context.ActiveDoc = StartPoint.Parent.Parent;
             if (!IsDocValid(Context.ActiveDoc))
             {
                 return;
             }
-
+            sem.WaitOne();
             String Content = GetDocContent();
             Tuple<String, String> ReplaceText = ContentUtil.GetReplaceText(
                 StartPoint, Context.LastDocContent, Content
@@ -101,6 +102,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
             Context.LastDocContent = Content;
             Context.LastEndOffset = EndPoint.AbsoluteCharOffset;
+            sem.Release();
         }
 
         /**
@@ -109,28 +111,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         public void ReLog(TextPoint StartPoint, TextPoint EndPoint,
             ref String ReplacingText, ref String ReplacedText)
         {
-            //处理定时刷入,如果当前存在那么就直接取消掉  fixbug6-26:将生成新的定时器的时间点拖后，减少冲突
-            {
-                if(cts != null){
-                    cts.Cancel();
-                }
-            }
-            //end 
-
+            //2018-11-25：每次事件直接记录，不做任何处理
             EditState.LogInfo(StartPoint, EndPoint,
                 ref ReplacingText, ref ReplacedText);
-            //生成下一个5秒后刷入的定时器
-            {
-                cts = new CancellationTokenSource();
-                Task.Delay(5000, cts.Token).ContinueWith(token =>
-                {
-                    if (!token.IsCanceled)
-                    {
-                        EditState.FlushBuffer();
-                        SetState(new StartState(this));
-                    }
-                });
-            }
+            EditState.FlushBuffer();
+            TransferToStartState();
         }
 
         private static bool IsDocValid(Document Doc)
@@ -247,7 +232,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public void FlushBuffer(Operation Op, String From, String To)
         {
-            sem.WaitOne();
+            //sem.WaitOne();
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
             list.Add(new KeyValuePair<string, Object>(
@@ -294,7 +279,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             Logger.LogInfo("",list);
-            sem.Release();
+            //sem.Release();
         }
 
         public int GetContentDelta(String CurrentContent)
@@ -304,13 +289,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         public void SetState(IEditState State)
         {
-            sem.WaitOne();
+            //sem.WaitOne();
             //fixbug6-26:当状态没有改变时不需要清空buffer
             if(EditState.GetType() != State.GetType()){
                 EditState.FlushBuffer();
                 EditState = State;
             }
-            sem.Release();
+            //sem.Release();
         }
 
         /*====================== Get Property Method Start ==================================*/

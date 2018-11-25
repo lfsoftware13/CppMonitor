@@ -74,9 +74,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
         {
             String projectFilePath = Path.Combine(CopyUtil.backupBuildDirPath, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
             CopyUtil.backupSolutionFile(projectFilePath);
-
             BuildMonitorManager manager = BuildBindEvent.Manager;
-
             DTE dte = (DTE)ServiceProvider.GlobalProvider.GetService(typeof(EnvDTE.DTE));
             if (dte.Solution != null && dte.Solution.Projects!=null)
             {
@@ -95,11 +93,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
                 }
             }
 
-
             if (manager != null)
             {
                 manager.StartBuild();
             }
+
         }
 
         BackgroundWorker worker;
