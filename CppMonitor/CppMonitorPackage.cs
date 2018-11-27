@@ -3,17 +3,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.ComponentModel.Design;
-using Microsoft.Win32;
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
-using System.Collections.Generic;
-using NanjingUniversity.CppMonitor.Monitor;
-using NanjingUniversity.CppMonitor.DAO.imp;
 using MonitorInterop.ServiceInterop;
 using NanjingUniversity.CppMonitor.ServiceInterop;
-
+using NanjingUniversity.CppMonitor.DTEMonitor;
 
 namespace NanjingUniversity.CppMonitor
 {
@@ -49,7 +43,7 @@ namespace NanjingUniversity.CppMonitor
         public CppMonitorPackage()
         {
             Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering constructor for: {0}", this.ToString()));
-            
+
             IServiceContainer serviceContainer = this as IServiceContainer;
             ServiceCreatorCallback callback = new ServiceCreatorCallback(CreateService);
             serviceContainer.AddService(typeof(SMonitorService), callback, true);
@@ -80,6 +74,9 @@ namespace NanjingUniversity.CppMonitor
         /// </summary>
         protected override void Initialize()
         {
+            Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
+            base.Initialize();
+
             //询问使用Visual Studio的目的，如果是用于规定的练习，则记录日志
             //用于自己的练习则不记录日志
             bool isWriteLog = true;
@@ -101,18 +98,10 @@ namespace NanjingUniversity.CppMonitor
             }
 
             //否则注册插件进行日志的记录
-            Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
-            base.Initialize();
-            
-            String[] list={"Build", "Command", "Content", "Debug", "File","Key"};
 
-            foreach(String key in list){
-                IBindEvent bind=MonitorFactory.monitorFactory.GetEventBinder(key);
-                if (bind != null)
-                {
-                    bind.RegisterEvent();
-                }
-            }
+            //注册DTE组件
+            DTE_Initializer dTE_Initializer = new DTE_Initializer();
+            dTE_Initializer.initializeMonitor();
 
         }
        

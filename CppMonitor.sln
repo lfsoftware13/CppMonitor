@@ -7,6 +7,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CppMonitor", "CppMonitor\Cp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitorInterop", "MonitorInterop\MonitorInterop.csproj", "{9913A2A7-DEBF-469A-9113-C05A1C34274D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CppMonitor.Util", "CppMonitor.Util\CppMonitor.Util.csproj", "{D70353FB-1113-4BFF-AAC2-828E2DBC2214}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CppMonitor.DAO", "CppMonitor.DAO\CppMonitor.DAO.csproj", "{7DB7A9B8-8591-4553-B694-5DBE48AEBC01}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E0BD5686-EEF4-41E5-A02A-7BE631DB04F8} = {E0BD5686-EEF4-41E5-A02A-7BE631DB04F8}
+		{D70353FB-1113-4BFF-AAC2-828E2DBC2214} = {D70353FB-1113-4BFF-AAC2-828E2DBC2214}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CppMonitor.Model", "CppMonitor.Model\CppMonitor.Model.csproj", "{E0BD5686-EEF4-41E5-A02A-7BE631DB04F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CppMonitor.MEF", "CppMonitor.MEF\CppMonitor.MEF.csproj", "{0E685EBB-6136-4044-BF5D-E6B4F08A65BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CppMonitor.DTE", "CppMonitor.DTE\CppMonitor.DTE.csproj", "{BC6BE839-5488-4ED9-8744-633EC8DB0F91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +35,26 @@ Global
 		{9913A2A7-DEBF-469A-9113-C05A1C34274D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9913A2A7-DEBF-469A-9113-C05A1C34274D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9913A2A7-DEBF-469A-9113-C05A1C34274D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D70353FB-1113-4BFF-AAC2-828E2DBC2214}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D70353FB-1113-4BFF-AAC2-828E2DBC2214}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D70353FB-1113-4BFF-AAC2-828E2DBC2214}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D70353FB-1113-4BFF-AAC2-828E2DBC2214}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DB7A9B8-8591-4553-B694-5DBE48AEBC01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DB7A9B8-8591-4553-B694-5DBE48AEBC01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DB7A9B8-8591-4553-B694-5DBE48AEBC01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DB7A9B8-8591-4553-B694-5DBE48AEBC01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0BD5686-EEF4-41E5-A02A-7BE631DB04F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0BD5686-EEF4-41E5-A02A-7BE631DB04F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0BD5686-EEF4-41E5-A02A-7BE631DB04F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0BD5686-EEF4-41E5-A02A-7BE631DB04F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E685EBB-6136-4044-BF5D-E6B4F08A65BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E685EBB-6136-4044-BF5D-E6B4F08A65BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E685EBB-6136-4044-BF5D-E6B4F08A65BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E685EBB-6136-4044-BF5D-E6B4F08A65BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC6BE839-5488-4ED9-8744-633EC8DB0F91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC6BE839-5488-4ED9-8744-633EC8DB0F91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC6BE839-5488-4ED9-8744-633EC8DB0F91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC6BE839-5488-4ED9-8744-633EC8DB0F91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
