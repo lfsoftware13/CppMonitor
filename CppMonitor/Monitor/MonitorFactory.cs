@@ -3,6 +3,7 @@ using NanjingUniversity.CppMonitor.Monitor.CommandMonitor;
 using NanjingUniversity.CppMonitor.Monitor.ContentMointor;
 using NanjingUniversity.CppMonitor.Monitor.DebugMonitor;
 using NanjingUniversity.CppMonitor.Monitor.FileMonitor;
+using NanjingUniversity.CppMonitor.Monitor.KeyMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,9 @@ namespace NanjingUniversity.CppMonitor.Monitor
                     break;
                 case "File":
                     res = new FileBindEvent();
+                    break;
+                case "Key":
+                    res = new KeyBindEvent();
                     break;
                 default:
                     break;

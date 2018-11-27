@@ -104,7 +104,7 @@ namespace NanjingUniversity.CppMonitor
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
             
-            String[] list={"Build", "Command", "Content", "Debug", "File"};
+            String[] list={"Build", "Command", "Content", "Debug", "File","Key"};
 
             foreach(String key in list){
                 IBindEvent bind=MonitorFactory.monitorFactory.GetEventBinder(key);

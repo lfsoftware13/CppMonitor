@@ -12,18 +12,18 @@ using Microsoft.VisualStudio.Utilities;
 namespace NanjingUniversity.CppMonitor.Monitor.KeyMonitor
 {
     [Export(typeof(IKeyProcessorProvider))]
-    [TextViewRole(PredefinedTextViewRoles.PrimaryDocument)]
-    [ContentType("any")]
+    [TextViewRole(PredefinedTextViewRoles.Document)]
+    [ContentType("code")]
     [Name("KeyMonitorIKeyProcessorProvider")]
-    [Order(Before = "default")]
-    class KeyMonitorIKeyProcessorProvider : IKeyProcessorProvider
+    [Order(Before = "DefaultKeyProcessor")]
+    internal class KeyMonitorIKeyProcessorProvider : IKeyProcessorProvider
     {
         [ImportingConstructor]
         public KeyMonitorIKeyProcessorProvider()
         {
 
         }
-        KeyProcessor IKeyProcessorProvider.GetAssociatedProcessor(IWpfTextView wpfTextView)
+        public KeyProcessor GetAssociatedProcessor(IWpfTextView wpfTextView)
         {
             if (wpfTextView == null)
                 return null;
@@ -32,11 +32,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.KeyMonitor
         }
     }
 
-    class KeyMonitorKeyProcessor : KeyProcessor
+    internal sealed class KeyMonitorKeyProcessor : KeyProcessor
     {
-        public override void PreviewKeyDown(KeyEventArgs args)
+        public override void KeyDown(KeyEventArgs args)
         {
-            Debug.WriteLine("key down"+args.Key);
+            base.KeyDown(args);
+            Debug.WriteLine("KeyDown received: {0}", args.Key);
         }
     }
 }
