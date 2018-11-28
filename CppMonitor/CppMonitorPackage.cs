@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.Shell;
 using MonitorInterop.ServiceInterop;
 using NanjingUniversity.CppMonitor.ServiceInterop;
 using NanjingUniversity.CppMonitor.DTEMonitor;
+using NanjingUniversity.CppMonitor.Util.Common;
 
 namespace NanjingUniversity.CppMonitor
 {
@@ -91,6 +92,7 @@ namespace NanjingUniversity.CppMonitor
                 isWriteLog = false;
             }
 
+            PersistentObjectManager.isLogOn = isWriteLog;//会决定MEF组件是否安装
 
             if (!isWriteLog){
                 //如果是自己练习，则不需要注册插件直接就返回了
@@ -98,7 +100,6 @@ namespace NanjingUniversity.CppMonitor
             }
 
             //否则注册插件进行日志的记录
-
             //注册DTE组件
             DTE_Initializer dTE_Initializer = new DTE_Initializer();
             dTE_Initializer.initializeMonitor();

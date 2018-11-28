@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.VCProjectEngine;
 using NanjingUniversity.CppMonitor.Util;
+using NanjingUniversity.CppMonitor.Util.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;

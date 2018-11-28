@@ -1,5 +1,5 @@
 ﻿using MonitorInterop.ServiceInterop;
-using NanjingUniversity.CppMonitor.Common;
+using NanjingUniversity.CppMonitor.Util.Common;
 using NanjingUniversity.CppMonitor.DAO;
 
 namespace NanjingUniversity.CppMonitor.ServiceInterop

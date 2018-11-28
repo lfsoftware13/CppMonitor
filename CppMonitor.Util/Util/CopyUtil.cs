@@ -1,6 +1,6 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
-using NanjingUniversity.CppMonitor.Common;
+using NanjingUniversity.CppMonitor.Util.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NanjingUniversity.CppMonitor.Util
+namespace NanjingUniversity.CppMonitor.Util.Util
 {
     public class CopyUtil
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NanjingUniversity.CppMonitor.Common
+namespace NanjingUniversity.CppMonitor.Util.Common
 {
     public class AddressCommon
     {

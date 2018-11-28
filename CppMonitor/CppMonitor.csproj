@@ -165,6 +165,12 @@
     <ProjectReference Include="..\CppMonitor.MEF\CppMonitor.MEF.csproj">
       <Project>{0e685ebb-6136-4044-bf5d-e6b4f08a65bf}</Project>
       <Name>CppMonitor.MEF</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
+    </ProjectReference>
+    <ProjectReference Include="..\CppMonitor.Util\CppMonitor.Util.csproj">
+      <Project>{D70353FB-1113-4BFF-AAC2-828E2DBC2214}</Project>
+      <Name>CppMonitor.Util</Name>
     </ProjectReference>
     <ProjectReference Include="..\MonitorInterop\MonitorInterop.csproj">
       <Project>{9913a2a7-debf-469a-9113-c05a1c34274d}</Project>

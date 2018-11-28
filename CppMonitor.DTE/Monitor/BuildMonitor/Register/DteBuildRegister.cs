@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.VCProjectEngine;
 using NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util;
 using NanjingUniversity.CppMonitor.Util;
+using NanjingUniversity.CppMonitor.Util.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
