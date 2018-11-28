@@ -116,9 +116,7 @@
       <Name>CppMonitor.Util</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Monitor\KeyMonitor\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="dtekey.pfx" />
   </ItemGroup>

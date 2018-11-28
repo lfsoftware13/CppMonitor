@@ -70,7 +70,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.Util
             Documents documents = dte.Documents;
             foreach (Document document in documents)
             {
-                if (document.FullName.Equals(textViewFilePath)) ;
+                if (document.FullName.Equals(textViewFilePath))
                 {
                     targetDocument = document;
                     break;
@@ -108,6 +108,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.Util
             }
 
             string filePath = textDocument.FilePath;
+
             return filePath;
         }
 

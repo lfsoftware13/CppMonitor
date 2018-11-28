@@ -104,6 +104,7 @@ namespace NanjingUniversity.CppMonitor
             DTE_Initializer dTE_Initializer = new DTE_Initializer();
             dTE_Initializer.initializeMonitor();
 
+            //MEF部分是自动装载的，所以不需要手动注册，这里 通过全局变量来控制是否记录日志
         }
        
         #endregion

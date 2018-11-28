@@ -1,4 +1,5 @@
-﻿using EnvDTE;
+﻿using CppMonitor.Model;
+using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -18,6 +19,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
 {
     [Export(typeof(IVsTextViewCreationListener))]
     [TextViewRole(PredefinedTextViewRoles.Editable)]
+    [Order(Before = "default")]
     [ContentType("code")]
     class CppMonitorTextViewLisenter : IVsTextViewCreationListener
     {
@@ -79,6 +81,8 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
                 string charInfo = targetCmdIdToStrDict[nCmdID];
 
                 Debug.WriteLine("inchar : "+ charInfo + " : project : " + projectName + " filePath : " + filePath);
+
+                Util.KeyEventLogUtil.logKeyEvent("keyView",filePath,projectName,charInfo,new KeyModifier());
             }
 
             

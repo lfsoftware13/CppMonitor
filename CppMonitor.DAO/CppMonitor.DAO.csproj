@@ -60,7 +60,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Log\DBHelper.cs" />
+    <Compile Include="Log\decorator\KeyLoggerDecorator.cs" />
+    <Compile Include="Log\decorator\LoggerDecoratorBase.cs" />
     <Compile Include="Log\ILoggerDao.cs" />
+    <Compile Include="Log\imp\SummaryLoggerImpl.cs" />
+    <Compile Include="Log\imp\KeyLoggerImpl.cs" />
     <Compile Include="Log\imp\BuildLoggerImpl.cs" />
     <Compile Include="Log\imp\CommandLoggerImpl.cs" />
     <Compile Include="Log\imp\ContentLoggerImpl.cs" />

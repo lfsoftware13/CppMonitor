@@ -63,6 +63,7 @@
     <Compile Include="KeyMonitor\CppMonitorKeyProcessor.cs" />
     <Compile Include="KeyMonitor\CppMonitorTextViewLisenter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\KeyEventLogUtil.cs" />
     <Compile Include="Util\Util.cs" />
   </ItemGroup>
   <ItemGroup>
