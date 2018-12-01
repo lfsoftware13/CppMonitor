@@ -25,6 +25,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             debuggerEvents = dte.Events.DebuggerEvents;
             buildEvents = dte.Events.BuildEvents;
             windowEvents = dte.Events.WindowEvents;
+            watcher = new BreakpointWatcher(dte.Debugger);
         }
 
         public void RegisterEvent()
@@ -36,6 +37,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 this.lastBreakpoint = dte.Debugger.BreakpointLastHit;
                 if (!(Reason == dbgEventReason.dbgEventReasonEndProgram || Reason == dbgEventReason.dbgEventReasonStopDebugging)) lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name;
                 DebugLogUtil.LogDebugBreak(lastDebugTarget, Reason + "", lastBreakpoint, dte.Debugger.CurrentStackFrame.Locals);
+                watcher.watch();
             };
 
             // 调试结束
@@ -84,9 +86,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
                 DebugLogUtil.LogDebugExceptionThrown(dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
-
-            watcher = new BreakpointWatcher(dte.Debugger);
-            watcher.Start();
         }
 
         private DTE dte;
@@ -109,31 +108,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             this.debugger = debugger;
             cache = makeCache(debugger.Breakpoints);
-            checkThread = new System.Threading.Thread(() =>
-            {
-                while (true)
-                {
-                    var New = makeCache(debugger.Breakpoints);
-                    findDifference(New, cache);
-                    cache = New;
-                    System.Threading.Thread.Sleep(500);
-                }
-            });
         }
 
-        public void Start()
+        public void watch()
         {
-            checkThread.Start();
-        }
-
-        public void Stop()
-        {
-             checkThread.Interrupt();
+             var New = makeCache(debugger.Breakpoints);
+             findDifference(New, cache);
+             cache = New;
         }
 
         private void findDifference(BreakpointCache New, BreakpointCache Old)
         {
-            if (New == null || Old == null)
+            if (New == null)
             {
                 cache = makeCache(debugger.Breakpoints);
                 return;
@@ -141,7 +127,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             List<string> common = new List<string>();
             foreach (var key in New.Keys)
             {
-                if (!Old.Keys.Contains(key))
+                if (Old == null || !Old.Keys.Contains(key))
                 {
                     // TODO: 触发 断点新增 事件。
                     DebugLogUtil.LogBreakpointEvent("add", New[key]);
@@ -150,6 +136,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 {
                     common.Add(key);
                 }
+            }
+
+            if (Old == null)
+            {
+                return;
             }
 
             foreach (var key in Old.Keys)
@@ -217,7 +208,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         private static int nextIndex = 0;
         private BreakpointCache cache;
-        private System.Threading.Thread checkThread;
         private EnvDTE.Debugger debugger;
     }
 
