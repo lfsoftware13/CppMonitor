@@ -45,12 +45,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             {
                 if (dte.Debugger.DebuggedProcesses.Count < 1)
                 {
-                    DebugLogUtil.LogDebugBreak(lastDebugTarget, Reason + "", null, null);
+                    DebugLogUtil.LogDebugExit(lastDebugTarget, Reason + "", null, null);
                 }
                 else
                 {
-                    DebugLogUtil.LogDebugBreak(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", null, dte.Debugger.CurrentStackFrame.Locals);
+                    DebugLogUtil.LogDebugExit(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", null, dte.Debugger.CurrentStackFrame.Locals);
                 }
+                watcher.watch();
                 isStarted = false;
             };
 
@@ -69,12 +70,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                     //MessageBox.Show("[DebugEvent] 调试继续");
                     DebugLogUtil.LogDebugContinue(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, lastBreakpoint);
                 }
+                watcher.watch();
             };
 
             debuggerEvents.OnExceptionNotHandled += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) =>
             {
                 string exceptionType = ExceptionType;
                 string description = Description;
+                watcher.watch();
 
                 DebugLogUtil.LogDebugExceptionNotHandled(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
@@ -83,6 +86,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             {
                 string exceptionType = ExceptionType;
                 string description = Description;
+                watcher.watch();
 
                 DebugLogUtil.LogDebugExceptionThrown(dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
