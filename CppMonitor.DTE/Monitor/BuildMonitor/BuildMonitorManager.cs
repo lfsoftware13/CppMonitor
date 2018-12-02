@@ -51,7 +51,7 @@ namespace NanjingUniversity.CppMonitor.Monitor
             if (_CurrentBuild != null)
             {
                 _CurrentBuild.BuildEndTime = DateTime.Now.ToString();
-                string content = BuildMonitorUtil.GetOrderBuildOutput();
+                string content = BuildMonitorUtil.GetCurrentErrorListContent();
                 _CurrentBuild.Content = content;
                 BuildLogUtil.LogBuildInfo(_CurrentBuild);
                 CleanBuildInfo();

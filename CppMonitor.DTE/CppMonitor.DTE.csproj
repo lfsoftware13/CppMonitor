@@ -57,6 +57,9 @@
     <Reference Include="Microsoft.VisualStudio.VCProjectEngine, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\CppMonitor\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
@@ -73,6 +76,7 @@
     <Compile Include="Monitor\BuildMonitor\BO\BuildProjectInfo.cs" />
     <Compile Include="Monitor\BuildMonitor\BuildBindEvent.cs" />
     <Compile Include="Monitor\BuildMonitor\BuildMonitorManager.cs" />
+    <Compile Include="Monitor\BuildMonitor\Model\ErrorListItem.cs" />
     <Compile Include="Monitor\BuildMonitor\Register\DteBuildRegister.cs" />
     <Compile Include="Monitor\BuildMonitor\Register\ProjectEngineRegister.cs" />
     <Compile Include="Monitor\BuildMonitor\Util\BuildLogUtil.cs" />
@@ -116,7 +120,6 @@
       <Name>CppMonitor.Util</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="dtekey.pfx" />
   </ItemGroup>

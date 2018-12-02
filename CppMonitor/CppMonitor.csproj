@@ -131,6 +131,10 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Newtonsoft.Json.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Package.ico" />
     <Content Include="SQLite.Interop.dll">
       <IncludeInVSIX>true</IncludeInVSIX>

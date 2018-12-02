@@ -100,17 +100,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Register
 
         }
 
-        BackgroundWorker worker;
         public void OnBuildDone(vsBuildScope Scope, vsBuildAction Action)
         {
-            worker = new BackgroundWorker();
-            worker.DoWork += new DoWorkEventHandler(EndBuildAsync);
-            worker.RunWorkerAsync();
-        }
-
-        void EndBuildAsync(object sender, DoWorkEventArgs e)
-        {
-            System.Threading.Thread.Sleep(2000);
             BuildMonitorManager manager = BuildBindEvent.Manager;
             if (manager != null)
             {

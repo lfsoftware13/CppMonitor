@@ -7,11 +7,50 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CpppMonitor.DTE.Monitor.BuildMonitor.Model;
+using Newtonsoft.Json;
+using NanjingUniversity.CppMonitor.Util.Common;
 
 namespace NanjingUniversity.CppMonitor.Monitor.BuildMonitor.Util
 {
     class BuildMonitorUtil
     {
+        public static string GetCurrentErrorListContent()
+        {
+            List<ErrorListItem> errorListItems = new List<ErrorListItem>();
+
+            DTE2 dte2 = PersistentObjectManager.dte2;
+
+            ErrorItems errorItems = dte2.ToolWindows.ErrorList.ErrorItems;
+            for (int i = 1; i <= errorItems.Count; i++ )
+            {
+                ErrorListItem errorListItem = new ErrorListItem();
+
+                ErrorItem errorItem = errorItems.Item(i);
+                //根据OBSIDE中的注释，开发者表示部分情况下 下面的转换过程会出现引用无效的问题
+                try
+                {
+                    errorListItem.Column = errorItem.Column;
+                    errorListItem.Line = errorItem.Line;
+                    errorListItem.FileName = errorItem.FileName;
+                    errorListItem.Project = errorItem.Project;
+                    errorListItem.Description = errorItem.Description;
+                    errorListItem.ErrorLevel = (int)errorItem.ErrorLevel;
+                }
+                catch (Exception)
+                {
+                    errorListItem = null;
+                }
+
+                if (errorListItem != null)
+                {
+                    errorListItems.Add(errorListItem);
+                }
+
+            }
+
+            return JsonConvert.SerializeObject(errorListItems);
+        }
 
         public static string GetOrderBuildOutput()
         {
