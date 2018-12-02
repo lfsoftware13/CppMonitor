@@ -39,7 +39,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into command_text (time,action,name,path,content,happentime,project) values(@time,@action,@name,@path,@content,@happentime,@project)";
+                string sql = "insert into command_text (id,time,action,name,path,content,happentime,project) values(@id,@time,@action,@name,@path,@content,@happentime,@project)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -48,6 +48,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
+                        case "id":
+                            cmd.Parameters.Add(new SQLiteParameter("@id", paramPair.Value.ToString()));
+                            break;
                         case "Action":
                             cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
@@ -89,7 +92,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into command_file (time,action,filepath,pastefilepath,pasteto,project) values(@time,@action,@filepath,@pastefilepath,@pasteto,@project)";
+                string sql = "insert into command_file (id,time,action,filepath,pastefilepath,pasteto,project) values(@id,@time,@action,@filepath,@pastefilepath,@pasteto,@project)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -98,6 +101,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
+                        case "id":
+                            cmd.Parameters.Add(new SQLiteParameter("@id", paramPair.Value.ToString()));
+                            break;
                         case "Action":
                             cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
@@ -135,11 +141,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立command_text
-            string sql = "create table if not exists command_text (id INTEGER PRIMARY KEY AUTOINCREMENT, time char[22],action char[10],name TEXT,path TEXT,content TEXT,happentime int8,project TEXT)";
+            string sql = "create table if not exists command_text (id INTEGER, time char[22],action char[10],name TEXT,path TEXT,content TEXT,happentime int8,project TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             //建立command_file
-            sql = "create table if not exists command_file (id INTEGER PRIMARY KEY AUTOINCREMENT, time char[22],action char[5],filepath TEXT,pastefilepath TEXT,pasteto TEXT,project TEXT)";
+            sql = "create table if not exists command_file (id INTEGER, time char[22],action char[5],filepath TEXT,pastefilepath TEXT,pasteto TEXT,project TEXT)";
             cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
 

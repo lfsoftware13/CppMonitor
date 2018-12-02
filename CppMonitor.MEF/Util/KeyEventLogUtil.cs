@@ -19,9 +19,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.Util
                 logger = LoggerFactory.loggerFactory.getLogger("Key");
             }
         }
-        /*
-         * type: 1表示增加；2表示删除
-         */
+        
         public static void logKeyEvent(string source, string filePath, string projectName, string key, KeyModifier keyModifier)
         {
             if (logger != null)

@@ -12,6 +12,8 @@ namespace NanjingUniversity.CppMonitor.Util.Common
 
         public static readonly string UNKNOWN_PROJECTNAME = "[unknown_project]";
 
+        public static readonly string UNKNOWN_SOLUTIONNAME = "[unknown_solution]";
+
         public static readonly string UNKNOWN_ACTION = "[unknown_action]";
 
         public static readonly string UNKNOWN_SOLUTION_ACTION = "[uk_sol_action]";

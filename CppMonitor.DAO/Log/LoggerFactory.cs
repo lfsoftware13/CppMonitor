@@ -33,20 +33,24 @@ namespace NanjingUniversity.CppMonitor.DAO
             ILoggerDao subLogger = null;
             switch(key){
                 case "Build":
-                     logger = new BuildLoggerImpl();
-                     break;
+                    subLogger = new BuildLoggerImpl();
+                    logger = new BuildLoggerDecorator(subLogger);
+                    break;
                 case "Content":
-                     logger = new ContentLoggerImpl();
+                    subLogger = new ContentLoggerImpl();
+                    logger = new ContentLoggerDecorator(subLogger);
                      break;
                 case "File":
-                     logger = new FileLoggerImpl();
-                     break;
+                    subLogger = new FileLoggerImpl();
+                    logger = new FileLoggerDecorator(subLogger);
+                    break;
                 case "Command":
-                     logger = new CommandLoggerImpl();
-                     break;
+                    subLogger = new CommandLoggerImpl();
+                    logger = new CommandLoggerDecorator(subLogger);
+                    break;
                 case "Debug":
-                     logger = new DebugLoggerImpl();
-                     break;
+                    logger = new DebugLoggerImpl();
+                    break;
                 case "Key":
                     subLogger = new KeyLoggerImpl();
                     logger = new KeyLoggerDecorator(subLogger);
@@ -55,8 +59,8 @@ namespace NanjingUniversity.CppMonitor.DAO
                     logger = new SummaryLoggerImpl();
                     break;
                 default:
-                     logger = null;
-                     break;
+                    logger = null;
+                    break;
             }
             return logger;
         }

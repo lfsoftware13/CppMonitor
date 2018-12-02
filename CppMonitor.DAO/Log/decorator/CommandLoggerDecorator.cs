@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 namespace NanjingUniversity.CppMonitor.DAO.decorator
 {
-    class FileLoggerDecorator : LoggerDecoratorBase
+    class CommandLoggerDecorator : LoggerDecoratorBase
     {
-        public FileLoggerDecorator(ILoggerDao subLogger) : base(subLogger)
+        public CommandLoggerDecorator(ILoggerDao subLogger) : base(subLogger)
         {
         }
 
@@ -18,11 +18,11 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
             bool result = false;
             switch (target)
             {
-                case "solution_open_event":
-                    result = logSolutionOpenEvent(list);
+                case "text":
+                    result = logText(list);
                     break;
-                case "file_event":
-                    result = logFileEvent(list);
+                case "file":
+                    result = logFile(list);
                     break;
                 default:
                     break;
@@ -30,31 +30,24 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
             return result && subLogger.LogInfo(target, list);
         }
 
-        private bool logSolutionOpenEvent(List<KeyValuePair<String, Object>> list)
+        private bool logText(List<KeyValuePair<String, Object>> list)
         {
-            int type = 0;
-            foreach (KeyValuePair<String, Object> keyValuePair in list)
-            {
-                if (keyValuePair.Key.Equals("type"))
-                {
-                    type = (int)keyValuePair.Value;
-                    break;
-                }
-            }
-
-            string action = ConstantCommon.UNKNOWN_SOLUTION_ACTION;
+            string action = ConstantCommon.UNKNOWN_ACTION;
             string projectName = ConstantCommon.UNKNOWN_PROJECTNAME;
 
-            switch (type)
+            foreach (KeyValuePair<String, Object> keyValuePair in list)
             {
-                case 1:
-                    action = "solutionOpen";
-                    break;
-                case 2:
-                    action = "solutionClose";
-                    break;
-                default:
-                    break;
+                switch (keyValuePair.Key)
+                {
+                    case "Project":
+                        projectName = keyValuePair.Value.ToString();
+                        break;
+                    case "Action":
+                        action = "text" + keyValuePair.Value.ToString();
+                        break;
+                    default:
+                        break;
+                }
             }
 
             List<KeyValuePair<String, Object>> summaryParamsList = new List<KeyValuePair<string, object>>();
@@ -69,43 +62,24 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
             return id > 0;
         }
 
-        private bool logFileEvent(List<KeyValuePair<String, Object>> list)
+        private bool logFile(List<KeyValuePair<String, Object>> list)
         {
-            int type = 0;
+            string action = ConstantCommon.UNKNOWN_FILE_ACTION;
             string projectName = ConstantCommon.UNKNOWN_PROJECTNAME;
+
             foreach (KeyValuePair<String, Object> keyValuePair in list)
             {
                 switch (keyValuePair.Key)
                 {
-                    case "type":
-                        type = (int)keyValuePair.Value;
-                        break;
-                    case "projectName":
+                    case "Project":
                         projectName = keyValuePair.Value.ToString();
+                        break;
+                    case "Action":
+                        action = "file" + keyValuePair.Value.ToString();
                         break;
                     default:
                         break;
                 }
-            }
-
-            string action = ConstantCommon.UNKNOWN_FILE_ACTION;
-
-            switch (type)
-            {
-                case 1:
-                    action = "fileAdd";
-                    break;
-                case 2:
-                    action = "fileDel";
-                    break;
-                case 3:
-                    action = "filterAdd";
-                    break;
-                case 4:
-                    action = "filterDel";
-                    break;
-                default:
-                    break;
             }
 
             List<KeyValuePair<String, Object>> summaryParamsList = new List<KeyValuePair<string, object>>();

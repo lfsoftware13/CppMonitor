@@ -39,7 +39,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into build_info (time,buildstarttime,buildendtime,solutionname,content) values (@time,@buildstarttime,@buildendtime,@solutionname,@content)";
+                string sql = "insert into build_info (id,time,buildstarttime,buildendtime,solutionname,content) values (@id,@time,@buildstarttime,@buildendtime,@solutionname,@content)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //加时间戳
@@ -50,6 +50,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
+                        case "id":
+                            cmd.Parameters.Add(new SQLiteParameter("@id", paramPair.Value.ToString()));
+                            break;
                         case "buildstarttime":
                             cmd.Parameters.Add(new SQLiteParameter("@buildstarttime", paramPair.Value.ToString()));
                             break;
@@ -86,7 +89,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into build_project_info (time,buildid,buildstarttime,buildendtime,solutionname,projectname,configurationname,configurationtype,runcommand,commandarguments,buildlogfile,buildlogcontent,compilercommand,linkcommand) values (@time,@buildid,@buildstarttime,@buildendtime,@solutionname,@projectname,@configurationname,@configurationtype,@runcommand,@commandarguments,@buildlogfile,@buildlogcontent,@compilercommand,@linkcommand)";
+                string sql = "insert into build_project_info (id,time,buildid,buildstarttime,buildendtime,solutionname,projectname,configurationname,configurationtype,runcommand,commandarguments,buildlogfile,buildlogcontent,compilercommand,linkcommand) values (@id,@time,@buildid,@buildstarttime,@buildendtime,@solutionname,@projectname,@configurationname,@configurationtype,@runcommand,@commandarguments,@buildlogfile,@buildlogcontent,@compilercommand,@linkcommand)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //时间戳
@@ -97,6 +100,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 {
                     switch (paramPair.Key)
                     {
+                        case "id":
+                            cmd.Parameters.Add(new SQLiteParameter("@id", paramPair.Value.ToString()));
+                            break;
                         case "buildid":
                             cmd.Parameters.Add(new SQLiteParameter("@buildid", paramPair.Value.ToString()));
                             break;
