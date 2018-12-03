@@ -32,18 +32,26 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
 
         private bool logSolutionOpenEvent(List<KeyValuePair<String, Object>> list)
         {
+            string action = ConstantCommon.UNKNOWN_SOLUTION_ACTION;
+            string solutionName = ConstantCommon.UNKNOWN_SOLUTIONNAME;
+
             int type = 0;
             foreach (KeyValuePair<String, Object> keyValuePair in list)
             {
-                if (keyValuePair.Key.Equals("type"))
+                switch (keyValuePair.Key)
                 {
-                    type = (int)keyValuePair.Value;
-                    break;
+                    case "type":
+                        type = (int)keyValuePair.Value;
+                        break;
+                    case "solutionName":
+                        solutionName = keyValuePair.Value.ToString();
+                        break;
+                    default:
+                        break;
                 }
             }
 
-            string action = ConstantCommon.UNKNOWN_SOLUTION_ACTION;
-            string projectName = ConstantCommon.UNKNOWN_PROJECTNAME;
+            
 
             switch (type)
             {
@@ -59,7 +67,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
 
             List<KeyValuePair<String, Object>> summaryParamsList = new List<KeyValuePair<string, object>>();
             summaryParamsList.Add(new KeyValuePair<string, object>("action", action));
-            summaryParamsList.Add(new KeyValuePair<string, object>("projectName", projectName));
+            summaryParamsList.Add(new KeyValuePair<string, object>("projectName", solutionName));
 
             int id = 0;
 

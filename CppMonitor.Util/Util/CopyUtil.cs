@@ -1,8 +1,10 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.VCProjectEngine;
 using NanjingUniversity.CppMonitor.Util.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -65,6 +67,12 @@ namespace NanjingUniversity.CppMonitor.Util.Util
             return false;
         }
 
+        private static List<string> targetItemTypeList = new List<string>()
+        {
+            "ClInclude",
+            "ClCompile",
+        };
+
         public static bool copyProjectFilesToTmp(ProjectItems parentItems, String parentDir)
         {
             bool containsFile = false;//判断是否有文件
@@ -72,11 +80,17 @@ namespace NanjingUniversity.CppMonitor.Util.Util
             {
                 string itemName = item.Name;
                 string subParentPath = Path.Combine(parentDir, itemName);
-                try
+                if (item.Object is VCFilter)
                 {
-                    item.Properties.Item("ItemType");//确保存在这个属性
-                    //MessageBox.Show((String)item.Properties.Item("ItemType").Value);
-                    if (item.Properties.Item("ItemType").Value.Equals("ClInclude") || item.Properties.Item("ItemType").Value.Equals("ClCompile"))
+                    containsFile = containsFile | copyProjectFilesToTmp(item.ProjectItems, subParentPath);
+                }
+                else if (item.Object is VCFile)
+                {
+                    VCFile theVCFile = item.Object as VCFile;
+                    string itemType = theVCFile.ItemType;
+
+                    ///这里复制vc编译会用到的和vcxproj.filters文件
+                    if (targetItemTypeList.Contains(itemType) || theVCFile.FileType == eFileType.eFileTypeFilters)
                     {
                         for (short i = 0; i < item.FileCount; i++)
                         {
@@ -87,17 +101,8 @@ namespace NanjingUniversity.CppMonitor.Util.Util
                             }
                         }
                     }
-                    else
-                    {
-                        containsFile = containsFile | copyProjectFilesToTmp(item.ProjectItems, subParentPath);
-                    }
                 }
-                catch (Exception)
-                {
-                    //MessageBox.Show("exception");
-                    containsFile = containsFile | copyProjectFilesToTmp(item.ProjectItems, subParentPath);
-                    continue;
-                }
+                
             }
 
             return containsFile;
