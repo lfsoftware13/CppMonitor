@@ -1,5 +1,6 @@
 ﻿using NanjingUniversity.CppMonitor.DAO;
 using NanjingUniversity.CppMonitor.Util.Common;
+using NanjingUniversity.CppMonitor.Util.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,12 +46,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
                 solutionEventParams.Add(new KeyValuePair<String, Object>("type", type));
                 solutionEventParams.Add(new KeyValuePair<String, Object>("fullPath", solutionFullPath));
 
-                string solutionName = ConstantCommon.UNKNOWN_SOLUTIONNAME;
-
-                int lindex = solutionFullPath.LastIndexOf("\\");
-                int diff = solutionFullPath.LastIndexOf(".")-lindex;
-                solutionName = solutionFullPath.Substring(lindex+1, diff-1);
+                string solutionName = SolutionUtil.getSolutionName();
                 solutionEventParams.Add(new KeyValuePair<String, Object>("solutionName", solutionName));
+
                 if (info == null)
                 {
                     info = "";//处理空值

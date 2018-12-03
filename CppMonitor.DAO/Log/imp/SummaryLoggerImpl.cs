@@ -1,4 +1,5 @@
 ﻿using NanjingUniversity.CppMonitor.Util.Common;
+using NanjingUniversity.CppMonitor.Util.Util;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -35,13 +36,15 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into summary_info (time,action,target) values (@time,@action,@target)";
+                string sql = "insert into summary_info (time,action,solutionName,projectName) values (@time,@action,@solutionName,@projectName)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //加时间戳
                 string current = DateTime.Now.ToString();
                 cmd.Parameters.Add(new SQLiteParameter("@time", current));
 
+                string projectName = null;
+                string solutionName = null;
                 foreach (KeyValuePair<string, object> paramPair in list)
                 {
                     switch (paramPair.Key)
@@ -50,15 +53,23 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
                         case "projectName":
-                            cmd.Parameters.Add(new SQLiteParameter("@target", paramPair.Value.ToString()));
+                            projectName = paramPair.Value.ToString();
                             break;
                         case "solutionName":
-                            cmd.Parameters.Add(new SQLiteParameter("@target", paramPair.Value.ToString()));
+                            solutionName = paramPair.Value.ToString();
                             break;
                         default:
                             break;
                     }
                 }
+
+                if (solutionName == null)
+                {
+                    solutionName = SolutionUtil.getSolutionName();
+                }
+
+                cmd.Parameters.Add(new SQLiteParameter("@projectName", projectName));
+                cmd.Parameters.Add(new SQLiteParameter("@solutionName", solutionName));
                 cmd.ExecuteNonQuery();
                 return true;
             }
@@ -77,7 +88,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立key_info
-            string sql = "create table if not exists summary_info (id INTEGER PRIMARY KEY autoincrement, time char[22],action char[20],target TEXT)";
+            string sql = "create table if not exists summary_info (id INTEGER PRIMARY KEY autoincrement, time char[22],action char[20],solutionName TEXT,projectName TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();

@@ -66,6 +66,7 @@
     <Compile Include="Common\PersistentObjectManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\CopyUtil.cs" />
+    <Compile Include="Util\SolutionUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="utilkey.pfx" />
