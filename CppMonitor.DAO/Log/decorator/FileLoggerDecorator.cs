@@ -51,23 +51,11 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
                 }
             }
 
-            
-
-            switch (type)
-            {
-                case 1:
-                    action = "solutionOpen";
-                    break;
-                case 2:
-                    action = "solutionClose";
-                    break;
-                default:
-                    break;
-            }
+            action = ((SolutionAction)type).ToString();            
 
             List<KeyValuePair<String, Object>> summaryParamsList = new List<KeyValuePair<string, object>>();
             summaryParamsList.Add(new KeyValuePair<string, object>("action", action));
-            summaryParamsList.Add(new KeyValuePair<string, object>("projectName", solutionName));
+            summaryParamsList.Add(new KeyValuePair<string, object>("solutionName", solutionName));
 
             int id = 0;
 

@@ -60,6 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\ActionEnumCommon.cs" />
     <Compile Include="Common\AddressCommon.cs" />
     <Compile Include="Common\ConstantCommon.cs" />
     <Compile Include="Common\PersistentObjectManager.cs" />

@@ -35,7 +35,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into summary_info (time,action,projectName) values (@time,@action,@projectName)";
+                string sql = "insert into summary_info (time,action,target) values (@time,@action,@target)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //加时间戳
@@ -50,7 +50,10 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             cmd.Parameters.Add(new SQLiteParameter("@action", paramPair.Value.ToString()));
                             break;
                         case "projectName":
-                            cmd.Parameters.Add(new SQLiteParameter("@projectName", paramPair.Value.ToString()));
+                            cmd.Parameters.Add(new SQLiteParameter("@target", paramPair.Value.ToString()));
+                            break;
+                        case "solutionName":
+                            cmd.Parameters.Add(new SQLiteParameter("@target", paramPair.Value.ToString()));
                             break;
                         default:
                             break;
@@ -74,7 +77,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立key_info
-            string sql = "create table if not exists summary_info (id INTEGER PRIMARY KEY autoincrement, time char[22],action char[20],projectName TEXT)";
+            string sql = "create table if not exists summary_info (id INTEGER PRIMARY KEY autoincrement, time char[22],action char[20],target TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();

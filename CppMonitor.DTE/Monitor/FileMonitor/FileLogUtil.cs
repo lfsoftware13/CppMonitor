@@ -37,7 +37,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
         /*
          * type:  1表示打开  2表示关闭
          */ 
-        public static void logSolutionOpenEvent(string solutionFullPath, int type, string info=null, string targetFolder = null)
+        public static void logSolutionEvent(string solutionFullPath, int type, string info=null, string targetFolder = null)
         {
             if(logger != null){
 

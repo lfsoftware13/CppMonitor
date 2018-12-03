@@ -47,7 +47,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
 
             List<KeyValuePair<String, Object>> summaryParamsList = new List<KeyValuePair<string, object>>();
             summaryParamsList.Add(new KeyValuePair<string, object>("action", action));
-            summaryParamsList.Add(new KeyValuePair<string, object>("projectName", solutionName));
+            summaryParamsList.Add(new KeyValuePair<string, object>("solutionName", solutionName));
 
             int id = 0;
 
