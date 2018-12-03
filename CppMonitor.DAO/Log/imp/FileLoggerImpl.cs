@@ -39,7 +39,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into solution_open_event (id,time,solutionname,type,info,targetfolder) values(@id,@time,@solutionname,@type,@info,@targetfolder)";
+                string sql = "insert into solution_open_event (id,time,solutionname,fullpath,type,info,targetfolder) values(@id,@time,@solutionname,@fullpath,@type,@info,@targetfolder)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
                 //加时间戳
                 string current = DateTime.Now.ToString();
@@ -53,6 +53,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                             break;
                         case "solutionName":
                             cmd.Parameters.Add(new SQLiteParameter("@solutionname", paramPair.Value.ToString()));
+                            break;
+                        case "fullPath":
+                            cmd.Parameters.Add(new SQLiteParameter("@fullpath", paramPair.Value));
                             break;
                         case "info":
                             cmd.Parameters.Add(new SQLiteParameter("@info", paramPair.Value.ToString()));
@@ -132,7 +135,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立solution_open_event
-            string sql = "create table if not exists solution_open_event (id INTEGER, time char[22],solutionname TEXT,type tinyint,info TEXT,targetfolder TEXT)";
+            string sql = "create table if not exists solution_open_event (id INTEGER, time char[22],solutionname TEXT,fullpath Text,type tinyint,info TEXT,targetfolder TEXT)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             //建立file_event

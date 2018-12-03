@@ -1,4 +1,5 @@
 ﻿using NanjingUniversity.CppMonitor.DAO;
+using NanjingUniversity.CppMonitor.Util.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,11 +37,19 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
         /*
          * type:  1表示打开  2表示关闭
          */ 
-        public static void logSolutionOpenEvent(string solutionName, int type, string info=null, string targetFolder = null)
+        public static void logSolutionOpenEvent(string solutionFullPath, int type, string info=null, string targetFolder = null)
         {
             if(logger != null){
+
                 List<KeyValuePair<String, Object>> solutionEventParams = new List<KeyValuePair<string, object>>();
                 solutionEventParams.Add(new KeyValuePair<String, Object>("type", type));
+                solutionEventParams.Add(new KeyValuePair<String, Object>("fullPath", solutionFullPath));
+
+                string solutionName = ConstantCommon.UNKNOWN_SOLUTIONNAME;
+
+                int lindex = solutionFullPath.LastIndexOf("\\");
+                int diff = solutionFullPath.LastIndexOf(".")-lindex;
+                solutionName = solutionFullPath.Substring(lindex+1, diff-1);
                 solutionEventParams.Add(new KeyValuePair<String, Object>("solutionName", solutionName));
                 if (info == null)
                 {
