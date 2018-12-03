@@ -17,10 +17,6 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         public DebugLoggerImpl()
         {
             handlers = new Dictionary<string, LogHandler>();
-            handlers["debug_break"] = logDebugBreak;
-            handlers["debug_run"] = logDebugRun;
-            handlers["debug_exception_thrown"] = logDebugExceptionThrown;
-            handlers["debug_exception_not_handled"] = logDebugExceptionNotHandled;
             handlers["breakpoint"] = logBreakpoint;
             handlers["exception"] = logException;
             handlers["local_varialble"] = logLocalVarialbles;
@@ -30,7 +26,6 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 "debug_info", "breakpoint", "exception", "breakpoint_event", "local_variable"
             };
             tableNameList = tableNames;
-
         }
 
         public override bool LogInfo(string target, List<KeyValuePair<String, Object>> list)
@@ -106,8 +101,8 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             ddls.Add("CREATE TABLE IF NOT EXISTS debug_info (id INTEGER PRIMARY KEY,type TEXT NOT NULL, exception_id INTEGER, timestamp DATETIME NOT NULL DEFAULT current_time, break_reason TEXT,breakpoint_current_hit integer, debug_target TEXT, config_name TEXT);");
             ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint ( id INTEGER PRIMARY KEY, tag TEXT, condition TEXT, condition_type TEXT, current_hits INT DEFAULT 0, file TEXT NOT NULL, file_column INT NOT NULL, file_line INT NOT NULL, function_name TEXT, location_type TEXT NOT NULL , enabled TEXT DEFAULT true NOT NULL);");
             ddls.Add("CREATE TABLE IF NOT EXISTS exception ( id INTEGER PRIMARY KEY, type TEXT, name TEXT, description TEXT, code INT, action TEXT NOT NULL);");
-            ddls.Add("CREATE TABLE IF NOT EXISTS local_variable ( id INTEGER PRIMARY KEY, debug_id INTEGER NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL );");
-            ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint_event ( id INTEGER PRIMARY KEY AUTOINCREMENT, modification TEXT NOT NULL, breakpoint_id INTEGER );");
+            ddls.Add("CREATE TABLE IF NOT EXISTS local_variable ( id INTEGER PRIMARY KEY, debug_id INTEGER NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint_event ( id INTEGER PRIMARY KEY AUTOINCREMENT, modification TEXT NOT NULL, breakpoint_id INTEGER, old_breakpoint_id INTEGER);");
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             foreach (string sql in ddls)
@@ -127,6 +122,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 string keys = "", vals = "";
                 foreach (var pair in list)
                 {
+                    if (pair.Key.Equals("id"))
+                    {
+                        continue;
+                    }
+
                     if (!keys.Equals("")) 
                     {
                         keys += ", ";
@@ -157,32 +157,59 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             return true;
         }
 
-        private bool logDebugRun(List<KeyValuePair<string, object>> vals)
+        private bool updateBreakpoint(List<KeyValuePair<string, object>> list)
         {
-            int id = CreateNewDebugEvent("run", vals);
-            vals.Add(new KeyValuePair<string, object>("id", id));
-            return defaultLogHandler("debug_run", vals);
-        }
+            var dbHelper = DBHelper.getInstance();
+            try
+            {
+                int id = -1;
+                string keyVals = "";
+                foreach (var pair in list)
+                {
+                    if (pair.Key.Equals("id"))
+                    {
+                        id = (int)pair.Value;
+                        continue;
+                    }
 
-        private bool logDebugBreak(List<KeyValuePair<string, object>> vals)
-        {
-            int id = CreateNewDebugEvent("break", vals);
-            vals.Add(new KeyValuePair<string, object>("id", id));
-            return defaultLogHandler("debug_break", vals);
-        }
+                    if (pair.Key.Equals("tag") || pair.Key.Equals("current_hits"))
+                    {
+                        continue;
+                    }
 
-        private bool logDebugExceptionThrown(List<KeyValuePair<string, object>> vals)
-        {
-            int id = CreateNewDebugEvent("exception_thrown", vals);
-            vals.Add(new KeyValuePair<string, object>("id", id));
-            return defaultLogHandler("debug_exception_thrown", vals);
-        }
+                    if (!keyVals.Equals(""))
+                    {
+                        keyVals += ", ";
+                    }
+                    keyVals += String.Format("{0} = {1}", pair.Key, "@" + pair.Key);
+                }
 
-        private bool logDebugExceptionNotHandled(List<KeyValuePair<string, object>> vals)
-        {
-            int id = CreateNewDebugEvent("exception_not_handled", vals);
-            vals.Add(new KeyValuePair<string, object>("id", id));
-            return defaultLogHandler("debug_exception_not_handled", vals);
+                SQLiteConnection conn = dbHelper.getConnection();
+                if(id == -1)
+                {
+                    Debug.Write("update breakpoint failed, insert a new line");
+                    return defaultLogHandler("breakpoint", list);
+                }
+
+                string sql = String.Format("update breakpoint set current_hits = current_hits + 1, {0} where id = {1}", keyVals, id);
+                SQLiteCommand cmd = new SQLiteCommand(sql, conn);
+
+                foreach (var pair in list)
+                {
+                    cmd.Parameters.Add(new SQLiteParameter("@" + pair.Key, pair.Value + ""));
+                }
+                Debug.Write("execute update sql: " + cmd.CommandText);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                dbHelper.returnConnection();
+            }
+            return true;
         }
 
         private bool logException(List<KeyValuePair<string, object>> vals)
@@ -192,6 +219,18 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         private bool logBreakpoint(List<KeyValuePair<string, object>> vals)
         {
+            foreach(KeyValuePair<string, object> val in vals)
+            {
+                if(val.Key.Equals("id"))
+                {
+                    if((int)val.Value == -1)
+                    {
+                        break;
+                    }
+
+                    return updateBreakpoint(vals);
+                }
+            }
             return defaultLogHandler("breakpoint", vals);
         }
 

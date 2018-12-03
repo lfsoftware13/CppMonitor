@@ -160,8 +160,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             {
                 BreakpointVO _new = New[key];
                 BreakpointVO _old = Old[key];
-                bool ne = _new.Enabled;
-                bool oe = _old.Enabled;
                 if (_new.Enabled != _old.Enabled)
                 {
                     // TODO: 触发 断点更改事件
@@ -174,8 +172,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                         DebugLogUtil.LogBreakpointEvent("disable", New[key]);
                     }
                 }
-                string _nc = _new.Condition;
-                string _oc = _old.Condition;
                 if (!(_new.Condition + "").Equals(_old.Condition + ""))
                 {
                     // TODO: 触发 断点更改事件
@@ -211,7 +207,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         }
 
         private static int nextIndex = 0;
-        private BreakpointCache cache;
+        private static BreakpointCache cache;
         private EnvDTE.Debugger debugger;
     }
 
@@ -219,6 +215,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
     {
         public BreakpointVO(Breakpoint bp)
         {
+            id = -1;
+            old_id = -1;
+            //if (bp == null)
+            //{
+            //    Tag = "";
+            //    Enabled = true;
+            //    Condition = "";
+            //    ConditionType = dbgBreakpointConditionType.dbgBreakpointConditionTypeWhenTrue;
+            //    CurrentHits = 0;
+            //    File = "";
+            //    FileColumn = 0;
+            //    FunctionName = "";
+            //    LocationType = dbgBreakpointLocationType.dbgBreakpointLocationTypeNone;
+            //    return;
+            //}
+
             Tag = bp.Tag;
             Enabled = bp.Enabled;
             Condition = bp.Condition;
@@ -230,6 +242,37 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             FunctionName = bp.FunctionName;
             LocationType = bp.LocationType;
         }
+
+        //是否是同一个breakpoint
+        public override bool Equals(Object obj)
+        {
+            if(obj == null || this == null)
+            {
+                return false;
+            }
+
+            BreakpointVO bp = obj as BreakpointVO;
+            return bp.Condition == this.Condition && bp.ConditionType == this.ConditionType
+                        && bp.File.Equals(this.File)&& bp.FileColumn == this.FileColumn
+                        && bp.FileLine == this.FileLine && bp.LocationType == this.LocationType
+                        && bp.Enabled == this.Enabled;
+        }
+
+        //是否由原breakpoint修改而来的breakpoint
+        public bool hasOld(Object obj)
+        {
+            if (obj == null || this == null)
+            {
+                return false;
+            }
+
+            BreakpointVO bp = obj as BreakpointVO;
+            return bp.File.Equals(this.File) && bp.FileColumn == this.FileColumn
+                        && bp.FileLine == this.FileLine && bp.LocationType == this.LocationType;
+        }
+
+        public int id;
+        public int old_id;
         public string Tag;
         public bool Enabled;
         public string Condition;

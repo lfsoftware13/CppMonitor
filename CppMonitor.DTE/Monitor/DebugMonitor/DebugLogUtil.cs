@@ -16,6 +16,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         static DebugLogUtil()
         {
             logger = LoggerFactory.loggerFactory.getLogger("Debug");
+            breakpoints = new List<BreakpointVO>();
         }
 
         public static SolutionConfiguration GetCurrentProjectConfiguration()
@@ -38,10 +39,19 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
             debugParam.Add(new KeyValuePair<string, object>("type", type));
-
+            int bid = -1;
             if (bp != null)
             {
-                int bid = LogBreakpoint(new BreakpointVO(bp));
+                BreakpointVO breakpoint = new BreakpointVO(bp);
+                foreach (BreakpointVO breakpointVO in breakpoints)
+                {
+                    if (breakpoint.hasOld(breakpointVO))
+                    {
+                        breakpoint = breakpointVO;
+                        bid = breakpointVO.id;
+                        break;
+                    }
+                }
                 debugParam.Add(new KeyValuePair<string, object>("breakpoint_current_hit", bid));
             }
 
@@ -76,7 +86,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             return LogDebugBreak(debugTarget, breakReason, bp, vars, false);
         }
 
-            private static int LogDebugBreak(string debugTarget, string breakReason, Breakpoint bp, Expressions vars, bool isExit)
+        private static int LogDebugBreak(string debugTarget, string breakReason, Breakpoint bp, Expressions vars, bool isExit)
         {
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
@@ -168,7 +178,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         public static int LogBreakpoint(BreakpointVO bp)
         {
+            if (bp.id != -1)
+            {
+                bp.old_id = bp.id;
+            } else if (breakpoints != null && breakpoints.Count > 0)
+            {
+                foreach (BreakpointVO breakpoint in breakpoints)
+                {
+                    if (breakpoint.Equals(bp))
+                    {
+                        bp.id = breakpoint.id;
+                        break;
+                    }
+                }
+            }
             var bpParam = new List<KeyValuePair<string, object>>();
+            bpParam.Add(new KeyValuePair<string, object>("id", bp.id));
             bpParam.Add(new KeyValuePair<string, object>("tag", bp.Tag));
             bpParam.Add(new KeyValuePair<string, object>("condition", bp.Condition));
             bpParam.Add(new KeyValuePair<string, object>("condition_type", bp.ConditionType));
@@ -197,11 +222,40 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             int breakpointId = LogBreakpoint(bp);
             var param = new List<KeyValuePair<string, object>>();
+            if (modification.Equals("add"))
+            {
+                bp.id = breakpointId;
+                breakpoints.Add(bp);
+            } else if (modification.Equals("delete"))
+            {
+                breakpointId = bp.id;
+                breakpoints.Remove(bp);
+            } else if (modification.Equals("changeCondition") || modification.Equals("enable") || modification.Equals("disable"))
+            {
+                foreach (BreakpointVO breakpoint in breakpoints)
+                {
+                    if (!bp.Equals(breakpoint) && bp.hasOld(breakpoint))
+                    {
+                        bp.old_id = breakpoint.id;
+                        bp.id = breakpointId;
+                        breakpoints.Remove(breakpoint);
+                        break;
+                    }
+                }
+
+                param.Add(new KeyValuePair<string, object>("old_breakpoint_id", bp.old_id));
+                breakpoints.Add(bp);
+            } else
+            {
+                /* Reserved */
+            }
+
             param.Add(new KeyValuePair<string, object>("modification", modification));
             param.Add(new KeyValuePair<string, object>("breakpoint_id", breakpointId));
             return logger.returnKeyAfterLogInfo("breakpoint_event", param);
         }
 
         private static ILoggerDao logger;
+        private static List<BreakpointVO> breakpoints;
     }
 }
