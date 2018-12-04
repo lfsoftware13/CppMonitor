@@ -16,6 +16,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         static DebugLogUtil()
         {
             logger = LoggerFactory.loggerFactory.getLogger("Debug");
+            breakpoints = new List<BreakpointVO>();
         }
 
         public static SolutionConfiguration GetCurrentProjectConfiguration()
@@ -33,53 +34,69 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             return null;
         }
 
-        public static int LogDebugStart(string debugTarget)
+        private static int LogDebug(string debugTarget, Breakpoint bp, string type)
         {
-            var param = new List<KeyValuePair<string, object>>();
-            param.Add(new KeyValuePair<string, object>("run_type", "start"));
-            param.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
+            var debugParam = new List<KeyValuePair<string, object>>();
+            debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
+            debugParam.Add(new KeyValuePair<string, object>("type", type));
+            int bid = -1;
+            if (bp != null)
+            {
+                BreakpointVO breakpoint = new BreakpointVO(bp);
+                foreach (BreakpointVO breakpointVO in breakpoints)
+                {
+                    if (breakpoint.hasOld(breakpointVO))
+                    {
+                        breakpoint = breakpointVO;
+                        bid = breakpointVO.id;
+                        break;
+                    }
+                }
+                debugParam.Add(new KeyValuePair<string, object>("breakpoint_current_hit", bid));
+            }
+
             SolutionConfiguration con = GetCurrentProjectConfiguration();
             string configName = "";
             if (con != null)
             {
                 configName = con.Name;
             }
-            param.Add(new KeyValuePair<string, object>("config_name", configName));
-            return logger.returnKeyAfterLogInfo("debug_run", param);
+            debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
+
+            return logger.returnKeyAfterLogInfo("debug_info", debugParam);
+        }
+
+        public static int LogDebugStart(string debugTarget)
+        {
+            return LogDebug(debugTarget, null, "start");
         }
 
         public static int LogDebugContinue(string debugTarget, Breakpoint bp)
         {
-            var debugParam = new List<KeyValuePair<string, object>>();
-            debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
-            debugParam.Add(new KeyValuePair<string, object>("run_type", "continue"));
+            return LogDebug(debugTarget, bp, "continue");
+        }
 
-            if (bp != null) {
-                int bid = LogBreakpoint(new BreakpointVO(bp));
-                debugParam.Add(new KeyValuePair<string, object>("breakpoint_last_hit", bid));
-            }
-
-            SolutionConfiguration con = GetCurrentProjectConfiguration();
-            string configName = "";
-            if (con != null)
-            {
-                configName = con.Name;
-            }
-            debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
-
-            return logger.returnKeyAfterLogInfo("debug_run", debugParam);
+        public static int LogDebugExit(string debugTarget, string breakReason, Breakpoint bp, Expressions vars)
+        {
+            return LogDebugBreak(debugTarget, breakReason, bp, vars, true);
         }
 
         public static int LogDebugBreak(string debugTarget, string breakReason, Breakpoint bp, Expressions vars)
         {
+            return LogDebugBreak(debugTarget, breakReason, bp, vars, false);
+        }
+
+        private static int LogDebugBreak(string debugTarget, string breakReason, Breakpoint bp, Expressions vars, bool isExit)
+        {
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
             debugParam.Add(new KeyValuePair<string, object>("break_reason", breakReason));
+            debugParam.Add(new KeyValuePair<string, object>("type", isExit ? "exit" : "break"));
 
-            if (bp != null) 
+            if (bp != null)
             {
                 int bid = LogBreakpoint(new BreakpointVO(bp));
-                debugParam.Add(new KeyValuePair<string, object>("breakpoint_last_hit", bid));
+                debugParam.Add(new KeyValuePair<string, object>("breakpoint_current_hit", bid));
             }
 
             SolutionConfiguration con = GetCurrentProjectConfiguration();
@@ -90,7 +107,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             }
             debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
 
-            int debugId = logger.returnKeyAfterLogInfo("debug_break", debugParam);
+            int debugId = logger.returnKeyAfterLogInfo("debug_info", debugParam);
 
             // 记录本地变量值
             if (vars != null)
@@ -104,8 +121,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                     logger.LogInfo("local_variable", varParam);
                 }
             }
-
-
+            
             return debugId;
         }
 
@@ -113,6 +129,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
+            debugParam.Add(new KeyValuePair<string, object>("type", "exception_thrown"));
 
             int eid = LogException(type, name, description, code, action);
             debugParam.Add(new KeyValuePair<string, object>("exception_id", eid));
@@ -125,13 +142,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             }
             debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
 
-            return logger.returnKeyAfterLogInfo("debug_exception_thrown", debugParam);
+            return logger.returnKeyAfterLogInfo("debug_info", debugParam);
         }
 
         public static int LogDebugExceptionNotHandled(string debugTarget, string type, string name, string description, int code, string action)
         {
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
+            debugParam.Add(new KeyValuePair<string, object>("type", "exception_not_handled"));
 
             int eid = LogException(type, name, description, code, action);
             debugParam.Add(new KeyValuePair<string, object>("exception_id", eid));
@@ -144,7 +162,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             }
             debugParam.Add(new KeyValuePair<string, object>("config_name", configName));
 
-            return logger.returnKeyAfterLogInfo("debug_exception_not_handled", debugParam);
+            return logger.returnKeyAfterLogInfo("debug_info", debugParam);
         }
 
         public static void LogLocalVarialbles(int debugId, Expressions vars)
@@ -160,7 +178,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         public static int LogBreakpoint(BreakpointVO bp)
         {
+            if (bp.id != -1)
+            {
+                bp.old_id = bp.id;
+            } else if (breakpoints != null && breakpoints.Count > 0)
+            {
+                foreach (BreakpointVO breakpoint in breakpoints)
+                {
+                    if (breakpoint.Equals(bp))
+                    {
+                        bp.id = breakpoint.id;
+                        break;
+                    }
+                }
+            }
             var bpParam = new List<KeyValuePair<string, object>>();
+            bpParam.Add(new KeyValuePair<string, object>("id", bp.id));
             bpParam.Add(new KeyValuePair<string, object>("tag", bp.Tag));
             bpParam.Add(new KeyValuePair<string, object>("condition", bp.Condition));
             bpParam.Add(new KeyValuePair<string, object>("condition_type", bp.ConditionType));
@@ -189,11 +222,40 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             int breakpointId = LogBreakpoint(bp);
             var param = new List<KeyValuePair<string, object>>();
+            if (modification.Equals("add"))
+            {
+                bp.id = breakpointId;
+                breakpoints.Add(bp);
+            } else if (modification.Equals("delete"))
+            {
+                breakpointId = bp.id;
+                breakpoints.Remove(bp);
+            } else if (modification.Equals("changeCondition") || modification.Equals("enable") || modification.Equals("disable") || modification.Equals("changeAttri"))
+            {
+                foreach (BreakpointVO breakpoint in breakpoints)
+                {
+                    if (!bp.Equals(breakpoint) && bp.hasOld(breakpoint))
+                    {
+                        bp.old_id = breakpoint.id;
+                        bp.id = breakpointId;
+                        breakpoints.Remove(breakpoint);
+                        break;
+                    }
+                }
+
+                param.Add(new KeyValuePair<string, object>("old_breakpoint_id", bp.old_id));
+                breakpoints.Add(bp);
+            } else
+            {
+                /* Reserved */
+            }
+
             param.Add(new KeyValuePair<string, object>("modification", modification));
             param.Add(new KeyValuePair<string, object>("breakpoint_id", breakpointId));
             return logger.returnKeyAfterLogInfo("breakpoint_event", param);
         }
 
         private static ILoggerDao logger;
+        private static List<BreakpointVO> breakpoints;
     }
 }

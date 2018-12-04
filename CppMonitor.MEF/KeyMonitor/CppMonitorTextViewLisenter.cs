@@ -76,6 +76,11 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
             {
                 string projectName;
                 string filePath;
+
+                if (relatedDocument == null)
+                {
+                    relatedDocument = Util.Util.utilInstance.getDocumentInfoFromTextView(textView);
+                }
                 Util.Util.utilInstance.getProjectInfo(textView,relatedDocument,out projectName, out filePath);
 
                 string charInfo = targetCmdIdToStrDict[nCmdID];
