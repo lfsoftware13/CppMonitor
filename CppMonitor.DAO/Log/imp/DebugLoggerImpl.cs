@@ -21,6 +21,12 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             handlers["exception"] = logException;
             handlers["local_varialble"] = logLocalVarialbles;
             handlers["breakpoint_event"] = logBreakpointEvent;
+            handlers["debug_info"] = logDebugInfo;
+
+            tableNamesWithIdentiedId = new List<string>()
+            {
+                 "debug_info","breakpoint_event",
+            };
 
             string[] tableNames = new string[] {
                 "debug_info", "breakpoint", "exception", "breakpoint_event", "local_variable"
@@ -30,15 +36,12 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         public override bool LogInfo(string target, List<KeyValuePair<String, Object>> list)
         {
-            if (!handlers.Keys.Contains(target)) 
-            {
-                return defaultLogHandler(target, list);
-            }
-            else
+            if (handlers.Keys.Contains(target)) 
             {
                 var log = handlers[target];
                 return log(list);
             }
+            return false;
         }
 
         public int GetBreakpointId(string tag)
@@ -87,7 +90,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 } 
             }
             List<KeyValuePair<string, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<string, object>("timestamp", DateTime.Now));
+            list.Add(new KeyValuePair<string, object>("timestamp", DateTime.Now.ToString()));
             list.Add(new KeyValuePair<string, object>("debug_target", debug_target));
             list.Add(new KeyValuePair<string, object>("type", type));
             list.Add(new KeyValuePair<string, object>("config_name", configName));
@@ -98,11 +101,11 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
         {
             
             List<string> ddls = new List<string>();
-            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info (id INTEGER PRIMARY KEY,type TEXT NOT NULL, exception_id INTEGER, timestamp DATETIME NOT NULL DEFAULT current_time, break_reason TEXT,breakpoint_current_hit integer, debug_target TEXT, config_name TEXT);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS debug_info (id INTEGER PRIMARY KEY,type TEXT NOT NULL, exception_id INTEGER, timestamp TEXT NOT NULL DEFAULT current_time, break_reason TEXT,breakpoint_current_hit integer, debug_target TEXT, config_name TEXT);");
             ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint ( id INTEGER PRIMARY KEY, tag TEXT, condition TEXT, condition_type TEXT, current_hits INT DEFAULT 0, file TEXT NOT NULL, file_column INT NOT NULL, file_line INT NOT NULL, function_name TEXT, location_type TEXT NOT NULL , enabled TEXT DEFAULT true NOT NULL);");
             ddls.Add("CREATE TABLE IF NOT EXISTS exception ( id INTEGER PRIMARY KEY, type TEXT, name TEXT, description TEXT, code INT, action TEXT NOT NULL);");
             ddls.Add("CREATE TABLE IF NOT EXISTS local_variable ( id INTEGER PRIMARY KEY, debug_id INTEGER NOT NULL, name TEXT NOT NULL, value TEXT NOT NULL);");
-            ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint_event ( id INTEGER PRIMARY KEY AUTOINCREMENT, modification TEXT NOT NULL, breakpoint_id INTEGER, old_breakpoint_id INTEGER);");
+            ddls.Add("CREATE TABLE IF NOT EXISTS breakpoint_event ( id INTEGER PRIMARY KEY, modification TEXT NOT NULL, breakpoint_id INTEGER, old_breakpoint_id INTEGER);");
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             foreach (string sql in ddls)
@@ -122,7 +125,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 string keys = "", vals = "";
                 foreach (var pair in list)
                 {
-                    if (pair.Key.Equals("id"))
+                    if (pair.Key.Equals("id") && !tableNamesWithIdentiedId.Contains(tableName))
                     {
                         continue;
                     }
@@ -155,6 +158,24 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                 dbHelper.returnConnection();
             }
             return true;
+        }
+
+        private bool logDebugInfo(List<KeyValuePair<string, object>> list)
+        {
+            bool containsTime = false;
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].Key.Equals("timestamp"))
+                {
+                    containsTime = true;
+                    break;
+                }
+            }
+            if (!containsTime)
+            {
+                list.Add(new KeyValuePair<string, object>("timestamp", DateTime.Now.ToString()));
+            }
+            return defaultLogHandler("debug_info",list);
         }
 
         private bool updateBreakpoint(List<KeyValuePair<string, object>> list)
@@ -248,7 +269,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
 
         private Dictionary<string, LogHandler> handlers;
 
-        public delegate bool LogHandler(List<KeyValuePair<string, object>> vals); 
+        public delegate bool LogHandler(List<KeyValuePair<string, object>> vals);
+
+        private List<string> tableNamesWithIdentiedId;
     }
 
     public class NoSuchBreakpointException : Exception 

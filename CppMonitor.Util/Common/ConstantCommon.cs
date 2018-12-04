@@ -19,5 +19,7 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         public static readonly string UNKNOWN_SOLUTION_ACTION = "[uk_sol_action]";
 
         public static readonly string UNKNOWN_FILE_ACTION = "[uk_file_action]";
+
+        public static readonly string UNKNOWN_DEBUG_ACTION = "[uk_debug_action]";
     }
 }

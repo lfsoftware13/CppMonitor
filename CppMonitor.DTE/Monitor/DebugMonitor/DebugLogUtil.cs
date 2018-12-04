@@ -8,6 +8,7 @@ using NanjingUniversity.CppMonitor.DAO.imp;
 using EnvDTE;
 using Microsoft.VisualStudio.VCProjectEngine;
 using Microsoft.VisualStudio.Shell;
+using NanjingUniversity.CppMonitor.Util.Common;
 
 namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 {
@@ -17,6 +18,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             logger = LoggerFactory.loggerFactory.getLogger("Debug");
             breakpoints = new List<BreakpointVO>();
+
+            bpChangeActionList = new List<string>()
+            {
+                BreakpointAction.bpEnable.ToString(),
+                BreakpointAction.bpDisable.ToString(),
+                BreakpointAction.bpChangeCondition.ToString(),
+                BreakpointAction.bpChangeAttri.ToString(),
+            };
         }
 
         public static SolutionConfiguration GetCurrentProjectConfiguration()
@@ -68,12 +77,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         public static int LogDebugStart(string debugTarget)
         {
-            return LogDebug(debugTarget, null, "start");
+            return LogDebug(debugTarget, null, DebugAction.debugStart.ToString());
         }
 
         public static int LogDebugContinue(string debugTarget, Breakpoint bp)
         {
-            return LogDebug(debugTarget, bp, "continue");
+            return LogDebug(debugTarget, bp, DebugAction.debugContinue.ToString());
         }
 
         public static int LogDebugExit(string debugTarget, string breakReason, Breakpoint bp, Expressions vars)
@@ -91,7 +100,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
             debugParam.Add(new KeyValuePair<string, object>("break_reason", breakReason));
-            debugParam.Add(new KeyValuePair<string, object>("type", isExit ? "exit" : "break"));
+            debugParam.Add(new KeyValuePair<string, object>("type", isExit ? DebugAction.debugExit.ToString() : DebugAction.debugBreak.ToString()));
 
             if (bp != null)
             {
@@ -129,7 +138,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
-            debugParam.Add(new KeyValuePair<string, object>("type", "exception_thrown"));
+            debugParam.Add(new KeyValuePair<string, object>("type", DebugAction.debugException.ToString()));
 
             int eid = LogException(type, name, description, code, action);
             debugParam.Add(new KeyValuePair<string, object>("exception_id", eid));
@@ -149,7 +158,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             var debugParam = new List<KeyValuePair<string, object>>();
             debugParam.Add(new KeyValuePair<string, object>("debug_target", debugTarget));
-            debugParam.Add(new KeyValuePair<string, object>("type", "exception_not_handled"));
+            debugParam.Add(new KeyValuePair<string, object>("type", DebugAction.debugExpNothandle.ToString()));
 
             int eid = LogException(type, name, description, code, action);
             debugParam.Add(new KeyValuePair<string, object>("exception_id", eid));
@@ -222,15 +231,15 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             int breakpointId = LogBreakpoint(bp);
             var param = new List<KeyValuePair<string, object>>();
-            if (modification.Equals("add"))
+            if (modification.Equals(BreakpointAction.bpAdd.ToString()))
             {
                 bp.id = breakpointId;
                 breakpoints.Add(bp);
-            } else if (modification.Equals("delete"))
+            } else if (modification.Equals(BreakpointAction.bpDelete.ToString()))
             {
                 breakpointId = bp.id;
                 breakpoints.Remove(bp);
-            } else if (modification.Equals("changeCondition") || modification.Equals("enable") || modification.Equals("disable") || modification.Equals("changeAttri"))
+            } else if (bpChangeActionList.Contains(modification))
             {
                 foreach (BreakpointVO breakpoint in breakpoints)
                 {
@@ -257,5 +266,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         private static ILoggerDao logger;
         private static List<BreakpointVO> breakpoints;
+        private static List<string> bpChangeActionList;
     }
 }

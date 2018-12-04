@@ -49,7 +49,8 @@ namespace NanjingUniversity.CppMonitor.DAO
                     logger = new CommandLoggerDecorator(subLogger);
                     break;
                 case "Debug":
-                    logger = new DebugLoggerImpl();
+                    subLogger = new DebugLoggerImpl();
+                    logger = new DebugLoggerDecorator(subLogger);
                     break;
                 case "Key":
                     subLogger = new KeyLoggerImpl();

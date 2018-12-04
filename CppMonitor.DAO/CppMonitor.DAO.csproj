@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Log\DBHelper.cs" />
+    <Compile Include="Log\decorator\DebugLoggerDecorator.cs" />
     <Compile Include="Log\decorator\CommandLoggerDecorator.cs" />
     <Compile Include="Log\decorator\ContentLoggerDecorator.cs" />
     <Compile Include="Log\decorator\BuildLoggerDecorator.cs" />

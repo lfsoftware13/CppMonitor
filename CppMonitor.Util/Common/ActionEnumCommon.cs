@@ -16,5 +16,24 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         solRenameProject,
     }
 
+    public enum DebugAction
+    {
+        debugStart,
+        debugBreak,
+        debugContinue,
+        debugExit,
+        debugException,
+        debugExpNothandle,
+    }
+
+    public enum BreakpointAction
+    {
+        bpAdd,
+        bpDelete,
+        bpChangeCondition,
+        bpEnable,
+        bpDisable,
+        bpChangeAttri,
+    }
 
 }

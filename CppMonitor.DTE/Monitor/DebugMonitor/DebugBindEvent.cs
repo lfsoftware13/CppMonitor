@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Shell;
 using System.Diagnostics;
 using System.Threading;
+using NanjingUniversity.CppMonitor.Util.Common;
 
 namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 {
@@ -139,7 +140,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                     if (Old == null || !Old.Keys.Contains(key))
                     {
                         // TODO: 触发 断点新增 事件。
-                        DebugLogUtil.LogBreakpointEvent("add", New[key]);
+                        DebugLogUtil.LogBreakpointEvent(BreakpointAction.bpAdd.ToString(), New[key]);
                     }
                     else
                     {
@@ -156,7 +157,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                     if (New == null || !New.Keys.Contains(key))
                     {
                         // TODO: 触发 断点删除 事件
-                        DebugLogUtil.LogBreakpointEvent("delete", Old[key]);
+                        DebugLogUtil.LogBreakpointEvent(BreakpointAction.bpDelete.ToString(), Old[key]);
                     }
                 }
             }
@@ -171,19 +172,19 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                     // TODO: 触发 断点更改事件
                     if (_new.Enabled)
                     {
-                        DebugLogUtil.LogBreakpointEvent("enable", New[key]);
+                        DebugLogUtil.LogBreakpointEvent(BreakpointAction.bpEnable.ToString(), New[key]);
                     }
                     else
                     {
-                        DebugLogUtil.LogBreakpointEvent("disable", New[key]);
+                        DebugLogUtil.LogBreakpointEvent(BreakpointAction.bpDisable.ToString(), New[key]);
                     }
                 }else if (!(_new.Condition + "").Equals(_old.Condition + ""))
                 {
                     // TODO: 触发 断点更改事件
-                    DebugLogUtil.LogBreakpointEvent("changeCondition", New[key]);
+                    DebugLogUtil.LogBreakpointEvent(BreakpointAction.bpChangeCondition.ToString(), New[key]);
                 }else if (! _new.Equals(_old))
                 {
-                    DebugLogUtil.LogBreakpointEvent("changeAttri", New[key]);
+                    DebugLogUtil.LogBreakpointEvent(BreakpointAction.bpChangeAttri.ToString(), New[key]);
                 }
             }
         }
@@ -241,6 +242,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             FileLine = bp.FileLine;
             FunctionName = bp.FunctionName;
             LocationType = bp.LocationType;
+
         }
 
         //是否是同一个breakpoint
