@@ -54,7 +54,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (Context.Buffer.Length > 0)
             {
                 Context.FlushBuffer(
-                    ContentBindEvent.Operation.Insert,
+                    Util.Common.ContentAction.contentInsert,
                     String.Empty,
                     Context.Buffer.ToString()
                 );

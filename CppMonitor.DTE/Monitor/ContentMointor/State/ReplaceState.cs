@@ -52,7 +52,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (ReplacingText.Length > 0 || ReplacedText.Length > 0)
             {
                 Context.FlushBuffer(
-                    ContentBindEvent.Operation.Replace,
+                    Util.Common.ContentAction.contentReplace,
                     ReplacedText, ReplacingText
                 );
             }

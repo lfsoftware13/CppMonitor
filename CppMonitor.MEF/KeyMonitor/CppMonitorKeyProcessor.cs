@@ -58,7 +58,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
             KeyModifier keyModifier = checkKeyModifier();
 
             Debug.WriteLine("KeyDown received: {0} : project : {1} : filePath : {2} : modifier : {3}", args.Key,projectName,filePath,keyModifier);
-            Util.KeyEventLogUtil.logKeyEvent("keyDown", filePath, projectName, args.Key.ToString(), keyModifier);
+            Util.KeyEventLogUtil.logKeyEvent(KeyAction.keyDown.ToString(), filePath, projectName, args.Key.ToString(), keyModifier);
         }
 
         public override void KeyUp(KeyEventArgs args)
@@ -72,7 +72,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
             KeyModifier keyModifier = checkKeyModifier();
 
             Debug.WriteLine("KeyUp received: {0} : project : {1} : filePath : {2} : modifier : {3}", args.Key, projectName, filePath, keyModifier);
-            Util.KeyEventLogUtil.logKeyEvent("keyUp", filePath, projectName, args.Key.ToString(), keyModifier);
+            Util.KeyEventLogUtil.logKeyEvent(KeyAction.keyUp.ToString(), filePath, projectName, args.Key.ToString(), keyModifier);
         }
 
         private KeyModifier checkKeyModifier()

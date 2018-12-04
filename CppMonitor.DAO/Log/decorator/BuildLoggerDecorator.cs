@@ -35,7 +35,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
             string action = ConstantCommon.UNKNOWN_SOLUTION_ACTION;
             string solutionName = ConstantCommon.UNKNOWN_SOLUTIONNAME;
 
-            action = "buildSolution";
+            action = BuildAction.buildSolution.ToString();
 
             foreach (KeyValuePair<String, Object> keyValuePair in list)
             {
@@ -62,7 +62,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
             string action = ConstantCommon.UNKNOWN_FILE_ACTION;
             string projectName = ConstantCommon.UNKNOWN_PROJECTNAME;
 
-            action = "buildProject";
+            action = BuildAction.buildProject.ToString();
             foreach (KeyValuePair<String, Object> keyValuePair in list)
             {
                 if (keyValuePair.Key.Equals("projectname"))

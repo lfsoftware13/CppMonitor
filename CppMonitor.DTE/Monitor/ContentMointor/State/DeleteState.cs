@@ -50,7 +50,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor.State
             if (Context.Buffer.Length > 0)
             {
                 Context.FlushBuffer(
-                    ContentBindEvent.Operation.Delete,
+                    Util.Common.ContentAction.contentDelete,
                     Context.Buffer.ToString(),
                     String.Empty
                 );

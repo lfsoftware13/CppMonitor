@@ -87,7 +87,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
 
                 Debug.WriteLine("inchar : "+ charInfo + " : project : " + projectName + " filePath : " + filePath);
 
-                Util.KeyEventLogUtil.logKeyEvent("keyInput",filePath,projectName,charInfo,new KeyModifier());
+                Util.KeyEventLogUtil.logKeyEvent(KeyAction.keyCmd.ToString(),filePath,projectName,charInfo,new KeyModifier());
             }
 
             

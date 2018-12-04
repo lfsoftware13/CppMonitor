@@ -11,16 +11,12 @@ using NanjingUniversity.CppMonitor.DAO;
 using NanjingUniversity.CppMonitor.Monitor.ContentMointor.State;
 using System.Threading;
 using NanjingUniversity.CppMonitor.Util.Util;
+using NanjingUniversity.CppMonitor.Util.Common;
 
 namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 {
     class ContentBindEvent : IBindEvent
     {
-        public enum Operation
-        {
-            Insert, Delete, Replace, Save
-        }
-
         private enum RecordKey
         {
             Operation, FilePath, From, To, Line, LineOffset,HappenTime,Project
@@ -171,7 +167,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
             Context.ActiveDoc = Doc;
             EditState.FlushBuffer();
-            FlushBuffer(Operation.Save, String.Empty, String.Empty);
+            FlushBuffer(ContentAction.contentSave, String.Empty, String.Empty);
         }
 
         /*====================== Document Event Method End ==================================*/
@@ -231,7 +227,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             return DocStart.GetText(Doc.EndPoint);
         }
 
-        public void FlushBuffer(Operation Op, String From, String To)
+        public void FlushBuffer(ContentAction Op, String From, String To)
         {
             //sem.WaitOne();
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();

@@ -28,6 +28,7 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         fileChangeProp,
     }
 
+    //debug模块
     public enum DebugAction
     {
         debugStart,
@@ -48,6 +49,7 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         bpChangeAttri,
     }
 
+    //cmd模块
     public enum CommandAction
     {
         cmdSave,
@@ -61,5 +63,30 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         cmdCopyFile,
         cmdPasteFile,
         cmdCutFile,
+    }
+
+    //content模块
+    public enum ContentAction
+    {
+        contentInsert,
+        contentDelete,
+        contentReplace,
+        contentSave,
+        contentUnknown,
+    }
+
+    //key模块
+    public enum KeyAction
+    {
+        keyDown,
+        keyUp,
+        keyCmd,
+    }
+
+    //Build模块
+    public enum BuildAction
+    {
+        buildSolution,
+        buildProject,
     }
 }
