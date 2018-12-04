@@ -33,16 +33,19 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             Dictionary<string, StringBuilder> debugOutputs = new Dictionary<string, StringBuilder>();
             debuggerEvents.OnEnterBreakMode += (dbgEventReason Reason, ref dbgExecutionAction ExecutionAction) =>
             {
+                watcher.watch();
+
                 string breakReason = Reason + "";
                 this.lastBreakpoint = dte.Debugger.BreakpointLastHit;
                 if (!(Reason == dbgEventReason.dbgEventReasonEndProgram || Reason == dbgEventReason.dbgEventReasonStopDebugging)) lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name;
                 DebugLogUtil.LogDebugBreak(lastDebugTarget, Reason + "", lastBreakpoint, dte.Debugger.CurrentStackFrame.Locals);
-                watcher.watch();
             };
 
             // 调试结束
             debuggerEvents.OnEnterDesignMode += (dbgEventReason Reason) =>
             {
+                watcher.watch();
+
                 if (dte.Debugger.DebuggedProcesses.Count < 1)
                 {
                     DebugLogUtil.LogDebugExit(lastDebugTarget, Reason + "", null, null);
@@ -51,13 +54,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 {
                     DebugLogUtil.LogDebugExit(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, Reason + "", null, dte.Debugger.CurrentStackFrame.Locals);
                 }
-                watcher.watch();
                 isStarted = false;
             };
 
             // 调试开始 or 继续
             debuggerEvents.OnEnterRunMode += (dbgEventReason Reason) =>
             {
+                watcher.watch();
+
                 if (!isStarted)
                 {
                     //MessageBox.Show("[DebugEvent] 调试开始");
@@ -70,7 +74,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                     //MessageBox.Show("[DebugEvent] 调试继续");
                     DebugLogUtil.LogDebugContinue(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, lastBreakpoint);
                 }
-                watcher.watch();
             };
 
             debuggerEvents.OnExceptionNotHandled += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) =>
@@ -84,10 +87,10 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
             debuggerEvents.OnExceptionThrown += (string ExceptionType, string Name, int Code, string Description, ref dbgExceptionAction ExceptionAction) =>
             {
-                string exceptionType = ExceptionType;
-                string description = Description;
                 watcher.watch();
 
+                string exceptionType = ExceptionType;
+                string description = Description;
                 DebugLogUtil.LogDebugExceptionThrown(dte.Debugger.DebuggedProcesses.Item(1).Name, ExceptionType, Name, Description, Code, ExceptionAction + "");
             };
         }
@@ -114,6 +117,9 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             cache = makeCache(debugger.Breakpoints);
         }
 
+        /// <summary>
+        /// 查看当前断点的状态，如果和已经记录的状态存在差异，那么就将对应的差异刷入数据库
+        /// </summary>
         public void watch()
         {
              var New = makeCache(debugger.Breakpoints);
@@ -123,39 +129,39 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
 
         private void findDifference(BreakpointCache New, BreakpointCache Old)
         {
-            if (New == null)
-            {
-                cache = makeCache(debugger.Breakpoints);
-                return;
-            }
             List<string> common = new List<string>();
-            foreach (var key in New.Keys)
-            {
-                if (Old == null || !Old.Keys.Contains(key))
-                {
-                    // TODO: 触发 断点新增 事件。
-                    DebugLogUtil.LogBreakpointEvent("add", New[key]);
-                }
-                else
-                {
-                    common.Add(key);
-                }
-            }
 
-            if (Old == null)
+            //确认新增的断点
+            if (New != null)
             {
-                return;
-            }
-
-            foreach (var key in Old.Keys)
-            {
-                if (!New.Keys.Contains(key))
+                foreach (var key in New.Keys)
                 {
-                    // TODO: 触发 断点删除 事件
-                    DebugLogUtil.LogBreakpointEvent("delete", Old[key]);
+                    if (Old == null || !Old.Keys.Contains(key))
+                    {
+                        // TODO: 触发 断点新增 事件。
+                        DebugLogUtil.LogBreakpointEvent("add", New[key]);
+                    }
+                    else
+                    {
+                        common.Add(key);
+                    }
                 }
             }
-
+            
+            //确认删除的断点
+            if (Old != null)
+            {
+                foreach (var key in Old.Keys)
+                {
+                    if (New == null || !New.Keys.Contains(key))
+                    {
+                        // TODO: 触发 断点删除 事件
+                        DebugLogUtil.LogBreakpointEvent("delete", Old[key]);
+                    }
+                }
+            }
+            
+            //确认修改的断点
             foreach (var key in common)
             {
                 BreakpointVO _new = New[key];
@@ -171,15 +177,22 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                     {
                         DebugLogUtil.LogBreakpointEvent("disable", New[key]);
                     }
-                }
-                if (!(_new.Condition + "").Equals(_old.Condition + ""))
+                }else if (!(_new.Condition + "").Equals(_old.Condition + ""))
                 {
                     // TODO: 触发 断点更改事件
                     DebugLogUtil.LogBreakpointEvent("changeCondition", New[key]);
+                }else if (! _new.Equals(_old))
+                {
+                    DebugLogUtil.LogBreakpointEvent("changeAttri", New[key]);
                 }
             }
         }
 
+        /// <summary>
+        /// 记录并返回当前的断点，给每个断点赋予一个标签
+        /// </summary>
+        /// <param name="bps"></param>
+        /// <returns></returns>
         private BreakpointCache makeCache(Breakpoints bps)
         {
             BreakpointCache result = new BreakpointCache();
@@ -217,19 +230,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
         {
             id = -1;
             old_id = -1;
-            //if (bp == null)
-            //{
-            //    Tag = "";
-            //    Enabled = true;
-            //    Condition = "";
-            //    ConditionType = dbgBreakpointConditionType.dbgBreakpointConditionTypeWhenTrue;
-            //    CurrentHits = 0;
-            //    File = "";
-            //    FileColumn = 0;
-            //    FunctionName = "";
-            //    LocationType = dbgBreakpointLocationType.dbgBreakpointLocationTypeNone;
-            //    return;
-            //}
 
             Tag = bp.Tag;
             Enabled = bp.Enabled;

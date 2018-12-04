@@ -230,7 +230,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             {
                 breakpointId = bp.id;
                 breakpoints.Remove(bp);
-            } else if (modification.Equals("changeCondition") || modification.Equals("enable") || modification.Equals("disable"))
+            } else if (modification.Equals("changeCondition") || modification.Equals("enable") || modification.Equals("disable") || modification.Equals("changeAttri"))
             {
                 foreach (BreakpointVO breakpoint in breakpoints)
                 {

@@ -68,6 +68,11 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.Util
             DTE2 dte = PersistentObjectManager.dte2;
             Document targetDocument = null;
             Documents documents = dte.Documents;
+            //在测试阶段，遇到过一次空指针问题
+            if (documents == null)
+            {
+                return null;
+            }
             foreach (Document document in documents)
             {
                 if (document.FullName.Equals(textViewFilePath))
