@@ -86,23 +86,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
 
             string action = ConstantCommon.UNKNOWN_FILE_ACTION;
 
-            switch (type)
-            {
-                case 1:
-                    action = "fileAdd";
-                    break;
-                case 2:
-                    action = "fileDel";
-                    break;
-                case 3:
-                    action = "filterAdd";
-                    break;
-                case 4:
-                    action = "filterDel";
-                    break;
-                default:
-                    break;
-            }
+            action = ((FileAction)type).ToString();
 
             List<KeyValuePair<String, Object>> summaryParamsList = new List<KeyValuePair<string, object>>();
             summaryParamsList.Add(new KeyValuePair<string, object>("action", action));

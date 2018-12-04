@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
+using NanjingUniversity.CppMonitor.Util.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             {
                 Object newName = null;
                 _pHierarchy.GetProperty(itemid, propid, out newName);
-                FileLogUtil.logFileEvent(7,newName as string,_name as string,_name as string);
+                FileLogUtil.logFileEvent((int)FileAction.fileChangeProp,newName as string,_name as string,_name as string);
                 _name = newName;
             }
            

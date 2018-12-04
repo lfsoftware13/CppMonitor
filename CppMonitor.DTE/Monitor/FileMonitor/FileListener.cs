@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using Microsoft.VisualStudio.VCProjectEngine;
 using NanjingUniversity.CppMonitor.Util;
+using NanjingUniversity.CppMonitor.Util.Common;
 using NanjingUniversity.CppMonitor.Util.Util;
 using System;
 using System.Collections.Generic;
@@ -49,13 +50,13 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
                if (pitem.Kind.Equals("VCFile"))
                {
                    VCFile f = Item as VCFile;
-                   FileLogUtil.logFileEvent(5, f.FullPath, (f.project).Name,OldName);//记录日志
+                   FileLogUtil.logFileEvent((int)FileAction.fileRenameFile, f.FullPath, (f.project).Name,OldName);//记录日志
                    String desDir = getDesDir(f.FullPath);
                }
                else if (pitem.Kind.Equals("VCFilter"))
                {
                    VCFilter f = Item as VCFilter;
-                   FileLogUtil.logFileEvent(6, f.CanonicalName, f.project.Name,OldName);//记录日志
+                   FileLogUtil.logFileEvent((int)FileAction.fileRenameFilter, f.CanonicalName, f.project.Name,OldName);//记录日志
                }
           }
         }
@@ -68,7 +69,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             {
                 VCFile f = Item as VCFile;
                 //MessageBox.Show("remove file: " + f.FullPath);
-                FileLogUtil.logFileEvent(2,f.FullPath,(f.project).Name);//记录日志
+                FileLogUtil.logFileEvent((int)FileAction.fileDelFile,f.FullPath,(f.project).Name);//记录日志
                 String desDir = getDesDir(f.FullPath);
                 //CopyUtil.copyFile(f.FullPath, Path.Combine(desDir, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-(-)" + f.Name));
             }
@@ -76,7 +77,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             {
                 VCFilter f = Item as VCFilter;
                 //MessageBox.Show("remove filter: " + f.CanonicalName);
-                FileLogUtil.logFileEvent(4,f.CanonicalName,f.project.Name);//记录日志
+                FileLogUtil.logFileEvent((int)FileAction.fileDelFilter,f.CanonicalName,f.project.Name);//记录日志
             }
         }
 
@@ -91,14 +92,14 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
                 String desDir = getDesDir(f.FullPath);
                 string desFile = Path.Combine(desDir, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-(+)" + f.Name);
                 CopyUtil.copyFile(f.FullPath, desFile);
-                FileLogUtil.logFileEvent(1, f.FullPath, (f.project).Name,desFile);//记录日志
+                FileLogUtil.logFileEvent((int)FileAction.fileAddFile, f.FullPath, (f.project).Name,desFile);//记录日志
                 
             }
             else if (pitem.Kind.Equals("VCFilter"))
             {
                 VCFilter f = Item as VCFilter;
                 //MessageBox.Show("add filter: " + f.CanonicalName);
-                FileLogUtil.logFileEvent(3, f.CanonicalName, (f.project).Name);//记录日志
+                FileLogUtil.logFileEvent((int)FileAction.fileAddFilter, f.CanonicalName, (f.project).Name);//记录日志
             }
         }
 

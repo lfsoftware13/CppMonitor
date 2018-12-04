@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace NanjingUniversity.CppMonitor.Util.Common
 {
+    //file模块
     public enum SolutionAction
     {
         solutionOpen,
@@ -14,6 +15,17 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         solAddProject,
         solDelProject,
         solRenameProject,
+    }
+
+    public enum FileAction
+    {
+        fileAddFile,
+        fileAddFilter,
+        fileDelFile,
+        fileDelFilter,
+        fileRenameFile,
+        fileRenameFilter,
+        fileChangeProp,
     }
 
     public enum DebugAction
