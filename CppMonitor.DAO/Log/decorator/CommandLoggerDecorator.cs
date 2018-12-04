@@ -43,7 +43,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
                         projectName = keyValuePair.Value.ToString();
                         break;
                     case "Action":
-                        action = "text" + keyValuePair.Value.ToString();
+                        action = keyValuePair.Value.ToString();
                         break;
                     default:
                         break;
@@ -75,7 +75,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
                         projectName = keyValuePair.Value.ToString();
                         break;
                     case "Action":
-                        action = "file" + keyValuePair.Value.ToString();
+                        action = keyValuePair.Value.ToString();
                         break;
                     default:
                         break;

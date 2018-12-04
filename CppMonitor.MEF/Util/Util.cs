@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using NanjingUniversity.CppMonitor.Util.Common;
+using NanjingUniversity.CppMonitor.Util.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -133,7 +134,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.Util
             }
 
             filePath = relatedDocument.FullName;
-            projectName = relatedDocument.ProjectItem.ProjectItems.ContainingProject.Name;
+            projectName = ProjectUtil.getProjectNameFromDoc(relatedDocument,ConstantCommon.UNKNOWN_PROJECTNAME);
         }
 
 

@@ -36,4 +36,18 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         bpChangeAttri,
     }
 
+    public enum CommandAction
+    {
+        cmdSave,
+        cmdStartUndo,
+        cmdStartRedo,
+        cmdEndUndo,
+        cmdEndRedo,
+        cmdCopyText,
+        cmdPasteText,
+        cmdCutText,
+        cmdCopyFile,
+        cmdPasteFile,
+        cmdCutFile,
+    }
 }

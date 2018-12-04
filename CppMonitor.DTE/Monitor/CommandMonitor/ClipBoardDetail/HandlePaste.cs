@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.Collections.Specialized;
 using System.Drawing;
 using System.IO;
+using NanjingUniversity.CppMonitor.Util.Common;
+using NanjingUniversity.CppMonitor.Util.Util;
 
 namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 {
@@ -37,21 +39,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             string ctype = "Text";
             object obj = Clipboard.GetText();
             Document doc = Dte.ActiveDocument;
+
+            list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdPasteText.ToString()));
+            list.Add(new KeyValuePair<String, object>("Type", ctype));
+            list.Add(new KeyValuePair<String, object>("Content", (string)obj));
+
             if (doc != null)
             {
-                list.Add(new KeyValuePair<String, object>("Action", "Paste"));
-                list.Add(new KeyValuePair<String, object>("Type", ctype));
                 list.Add(new KeyValuePair<String, object>("Name", Dte.ActiveDocument.Name));
                 list.Add(new KeyValuePair<String, object>("Path", Dte.ActiveDocument.Path));
-                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
-                list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : doc.ProjectItem.ContainingProject.Name));
+                list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : ProjectUtil.getProjectNameFromDoc(doc,"")));
             }
-            else
-            {
-                list.Add(new KeyValuePair<String, object>("Action", "Paste"));
-                list.Add(new KeyValuePair<String, object>("Type", ctype));
-                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
-            }
+            
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
@@ -61,7 +60,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             string ctype = "File";
             object obj = Clipboard.GetFileDropList();
             StringCollection file_list = (StringCollection)obj;
-            list.Add(new KeyValuePair<String, object>("Action", "Paste"));
+            list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdPasteFile.ToString()));
             list.Add(new KeyValuePair<String, object>("Type", ctype));
             list.Add(new KeyValuePair<String, object>("PasteFileType", "out_visualstudio"));            
 
@@ -94,7 +93,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
         public void handleVSProjectItem()
         {
             //MessageBox.Show("VSProjectItem Paste");
-            list.Add(new KeyValuePair<String, object>("Action", "Paste"));
+            list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdPasteFile.ToString()));
             list.Add(new KeyValuePair<String, object>("Type", "File"));
             list.Add(new KeyValuePair<String, object>("PasteFileType", "in_visualstudio"));   
 

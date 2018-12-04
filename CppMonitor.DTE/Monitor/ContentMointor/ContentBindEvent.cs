@@ -10,6 +10,7 @@ using EnvDTE;
 using NanjingUniversity.CppMonitor.DAO;
 using NanjingUniversity.CppMonitor.Monitor.ContentMointor.State;
 using System.Threading;
+using NanjingUniversity.CppMonitor.Util.Util;
 
 namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 {
@@ -247,7 +248,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
             list.Add(new KeyValuePair<string, object>(
                 ContentUtil.ToUTF8(RecordKey.Project.ToString()),
-                ContentUtil.ToUTF8(Context.ActiveDoc.ProjectItem.ContainingProject.Name)
+                ContentUtil.ToUTF8(ProjectUtil.getProjectNameFromDoc(Context.ActiveDoc,""))
             ));
 
             list.Add(new KeyValuePair<string, object>(

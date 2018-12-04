@@ -2,6 +2,8 @@
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell.Interop;
 using NanjingUniversity.CppMonitor.DAO;
+using NanjingUniversity.CppMonitor.Util.Common;
+using NanjingUniversity.CppMonitor.Util.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -37,21 +39,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             string ctype = "Text";
             object obj = Clipboard.GetText();
             Document doc = Dte.ActiveDocument;
+
+            list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdCutText.ToString()));
+            list.Add(new KeyValuePair<String, object>("Type", ctype));
+            list.Add(new KeyValuePair<String, object>("Content", (string)obj));
             if (doc != null)
             {
-                list.Add(new KeyValuePair<String, object>("Action", "Cut"));
-                list.Add(new KeyValuePair<String, object>("Type", ctype));
+                
                 list.Add(new KeyValuePair<String, object>("Name", doc.Name));
                 list.Add(new KeyValuePair<String, object>("Path", doc.Path));
-                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
-                list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : doc.ProjectItem.ContainingProject.Name));
+                list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : ProjectUtil.getProjectNameFromDoc(doc,"")));
             }
-            else
-            {
-                list.Add(new KeyValuePair<String, object>("Action", "Cut"));
-                list.Add(new KeyValuePair<String, object>("Type", ctype));
-                list.Add(new KeyValuePair<String, object>("Content", (string)obj));
-            }
+            
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
         }
 
@@ -65,7 +64,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
             {
                 path_content += file_name + "\n";
             }
-            list.Add(new KeyValuePair<String, object>("Action", "Cut"));
+            list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdCutFile.ToString()));
             list.Add(new KeyValuePair<String, object>("Type", ctype));
             list.Add(new KeyValuePair<String, object>("FilePath", path_content));
             ILoggerDaoImpl_stub.CommandLogger.LogFile(list);
@@ -83,7 +82,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor.ClipBoardDetail
 
         public void handleVSProjectItem()
         {
-            list.Add(new KeyValuePair<String, object>("Action", "Cut"));
+            list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdCutFile.ToString()));
             list.Add(new KeyValuePair<String, object>("Type", "File"));
             EnvDTE80.DTE2 _applicationObject = (DTE2)Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
             List<string> Ie = CommandUtil.GetSelectedFilePaths(_applicationObject);

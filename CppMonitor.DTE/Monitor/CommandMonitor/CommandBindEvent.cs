@@ -17,6 +17,8 @@ using System.Globalization;
 using NanjingUniversity.CppMonitor.DAO.imp;
 using NanjingUniversity.CppMonitor.DAO;
 using System.Windows.Forms;
+using NanjingUniversity.CppMonitor.Util.Common;
+using NanjingUniversity.CppMonitor.Util.Util;
 
 namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
 {
@@ -163,11 +165,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         {
             string content = GetCurrentDocContent();
             List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Action", "Save"));
+            list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdSave.ToString()));
             list.Add(new KeyValuePair<String, object>("Name", doc.Name));
             list.Add(new KeyValuePair<String, object>("Path", doc.Path));
             list.Add(new KeyValuePair<String, object>("Content", content));
-            list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : doc.ProjectItem.ContainingProject.Name));
+            list.Add(new KeyValuePair<String, object>("Project", doc == null ? "" : ProjectUtil.getProjectNameFromDoc(doc,"")));
             ILoggerDaoImpl_stub.CommandLogger.LogText(list);
 
         }
@@ -235,14 +237,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         private void HandleUndoEvent()
         {
             Document Doc = Dte.ActiveDocument;
-            List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Action", "StartUndo"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc==null?"":Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
-            list.Add(new KeyValuePair<String, object>("Content", ""));
-            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
-            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
-
+            string projectName = ProjectUtil.getProjectNameFromDoc(Doc);
+            if (projectName != null)
+            { 
+                List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
+                list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdStartUndo.ToString()));
+                list.Add(new KeyValuePair<String, object>("Name", Doc==null?"":Doc.Name));
+                list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+                list.Add(new KeyValuePair<String, object>("Content", ""));
+                list.Add(new KeyValuePair<String, object>("Project", projectName));
+                ILoggerDaoImpl_stub.CommandLogger.LogText(list);
+            }
+            
         }
 
         /**
@@ -251,39 +257,50 @@ namespace NanjingUniversity.CppMonitor.Monitor.CommandMonitor
         private void HandleRedoEvent()
         {
             Document Doc = Dte.ActiveDocument;
-            List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Action", "StartRedo"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
-            list.Add(new KeyValuePair<String, object>("Content", ""));
-            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
-            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
+            string projectName = ProjectUtil.getProjectNameFromDoc(Doc);
+            if (projectName != null)
+            {
+                List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
+                list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdStartRedo.ToString()));
+                list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
+                list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+                list.Add(new KeyValuePair<String, object>("Content", ""));
+                list.Add(new KeyValuePair<String, object>("Project", projectName));
+                ILoggerDaoImpl_stub.CommandLogger.LogText(list);
+            }
         }
 
         private void HandleUndoEventAft()
         {
             Document Doc = Dte.ActiveDocument;
-            List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Action", "UndoEnd"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
-            list.Add(new KeyValuePair<String, object>("Content", ""));
-            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
-            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
+            string projectName = ProjectUtil.getProjectNameFromDoc(Doc);
+            if (projectName != null)
+            {
+                List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
+                list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdEndUndo.ToString()));
+                list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
+                list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+                list.Add(new KeyValuePair<String, object>("Content", ""));
+                list.Add(new KeyValuePair<String, object>("Project", projectName));
+                ILoggerDaoImpl_stub.CommandLogger.LogText(list);
+            }
         }
 
         private void HandleRedoEventAft()
         {
             Document Doc = Dte.ActiveDocument;
-            List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
-            list.Add(new KeyValuePair<String, object>("Action", "RedoEnd"));
-            list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
-            list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
-            list.Add(new KeyValuePair<String, object>("Content", ""));
-            list.Add(new KeyValuePair<String, object>("Project", Doc == null ? "" : Doc.ProjectItem.ContainingProject.Name));
-            ILoggerDaoImpl_stub.CommandLogger.LogText(list);
+            string projectName = ProjectUtil.getProjectNameFromDoc(Doc);
+            if (projectName != null)
+            {
+                List<KeyValuePair<String, object>> list = new List<KeyValuePair<string, object>>();
+                list.Add(new KeyValuePair<String, object>("Action", CommandAction.cmdEndRedo.ToString()));
+                list.Add(new KeyValuePair<String, object>("Name", Doc == null ? "" : Doc.Name));
+                list.Add(new KeyValuePair<String, object>("Path", Doc == null ? "" : Doc.Path));
+                list.Add(new KeyValuePair<String, object>("Content", ""));
+                list.Add(new KeyValuePair<String, object>("Project", projectName));
+                ILoggerDaoImpl_stub.CommandLogger.LogText(list);
+            }
         }
-
 
         public object content { get; set; }
     }
