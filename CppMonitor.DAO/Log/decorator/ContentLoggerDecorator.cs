@@ -30,7 +30,7 @@ namespace NanjingUniversity.CppMonitor.DAO.decorator
                 switch (keyValuePair.Key)
                 {
                     case "Operation":
-                        action = "content" + keyValuePair.Value;
+                        action = keyValuePair.Value.ToString();
                         break;
                     case "Project":
                         projectName = keyValuePair.Value.ToString();
