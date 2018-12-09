@@ -8,7 +8,6 @@ using System.IO;
 using EnvDTE80;
 using EnvDTE;
 using NanjingUniversity.CppMonitor.DAO;
-using NanjingUniversity.CppMonitor.Monitor.ContentMointor.State;
 using System.Threading;
 using NanjingUniversity.CppMonitor.Util.Util;
 using NanjingUniversity.CppMonitor.Util.Common;
@@ -39,9 +38,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         //当前编辑的上下文信息
         private ContextState Context;
 
-        //当前的编辑状态
-        private IEditState EditState;
-
         #region 定时刷入
         ////用于管理异步请求是否取消的上下文
         //private CancellationTokenSource cts = null;
@@ -62,10 +58,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             Logger = LoggerFactory.loggerFactory.getLogger("Content");
 
             Context = new ContextState(
-                -1, -1, -1, new StringBuilder(), null, null
+                null, null
             );
-
-            EditState = new StartState(this);
 
             sem = new Semaphore(1,1);
         }
@@ -105,7 +99,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                     string content = GetDocumentContent(Context.ActiveDoc);
 
                     Context.LastDocContent = content;
-                    Context.LastEndOffset = -1;
                 }
             }
         }
@@ -130,32 +123,33 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             String ReplacingText = ReplaceText.Item1;
             String ReplacedText = ReplaceText.Item2;
 
-            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
+            LogLineChangedAction(ref StartPoint,ref ReplacingText, ref ReplacedText);
 
             Context.LastDocContent = Content;
-            Context.LastEndOffset = EndPoint.AbsoluteCharOffset;
             sem.Release();
         }
 
-        /**
-         * 重新处理文本事件变化
-         */
-        public void ReLog(TextPoint StartPoint, TextPoint EndPoint,
-            ref String ReplacingText, ref String ReplacedText)
+        private void LogLineChangedAction(ref TextPoint StartPoint,ref String ReplacingText, ref String ReplacedText)
         {
-            //2018-11-25：每次事件直接记录，不做任何处理
-            EditState.LogInfo(StartPoint, EndPoint,
-                ref ReplacingText, ref ReplacedText);
-            EditState.FlushBuffer();
-            TransferToStartState();
+            ContentAction contentAction = ContentAction.contentUnknown;
+            if (ContentUtil.IsInsertEvent(ReplacingText,ReplacedText))
+            {
+                contentAction = ContentAction.contentInsert;
+            }
+            else if (ContentUtil.IsDeleteEvent(ReplacingText, ReplacedText))
+            {
+                contentAction = ContentAction.contentDelete;
+            }else if (ContentUtil.IsReplaceEvent(ReplacingText, ReplacedText))
+            {
+                contentAction = ContentAction.contentReplace;
+            }
+            FlushBuffer(contentAction, ReplacedText,ReplacingText, StartPoint.Line, StartPoint.LineCharOffset);
         }
 
         private void clearContext()
         {
             Context.ActiveDoc = null;
-            Context.LastEndOffset = -1;
             Context.LastDocContent = null;
-            TransferToStartState();
         }
 
         private static bool IsWindowNeedToBeMonitored(Window targetWindow)
@@ -201,45 +195,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             LogDocumentAction(DocumentAction.documentSave,Doc);
         }
 
-        /*====================== Document Event Method End ==================================*/
-
-        /*====================== Edit State Method Start ==================================*/
-
-        public void TransferToDeleteState(TextPoint StartPoint, 
-            TextPoint EndPoint, ref String ReplacingText,
-            ref String ReplacedText)
-        {
-            EditState.FlushBuffer();
-            SetState(new DeleteState(this));
-            Context.HappenTime = DateTime.Now.Ticks;
-            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
-        }
-
-        public void TransferToReplaceState(TextPoint StartPoint,
-            TextPoint EndPoint, ref String ReplacingText,
-            ref String ReplacedText)
-        {
-            EditState.FlushBuffer();
-            SetState(new ReplaceState(this));
-            Context.HappenTime = DateTime.Now.Ticks;
-            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
-        }
-
-        public void TransferToInsertState(TextPoint StartPoint,
-            TextPoint EndPoint, ref String ReplacingText,
-            ref String ReplacedText)
-        {
-            EditState.FlushBuffer();
-            SetState(new InsertState(this));
-            Context.HappenTime = DateTime.Now.Ticks;
-            ReLog(StartPoint, EndPoint, ref ReplacingText, ref ReplacedText);
-        }
-
-        private void TransferToStartState()
-        {
-            SetState(new StartState(this));
-        }
-
         /*====================== Edit State Method End ==================================*/
 
         public String GetDocumentContent(Document targetDocument)
@@ -278,9 +233,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
            
         }
 
-        public void FlushBuffer(ContentAction Op, String From, String To)
+        public void FlushBuffer(ContentAction Op, String From, String To,int Line,int LineOffSet)
         {
-            //sem.WaitOne();
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
             list.Add(new KeyValuePair<string, Object>(
@@ -308,17 +262,16 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 ContentUtil.ToUTF8("`" + To + "`")
             ));
 
-            Context.Buffer.Clear();
             Context.HappenTime = DateTime.Now.Ticks;//重置操作时间
 
             list.Add(new KeyValuePair<string, object>(
                 ContentUtil.ToUTF8(RecordKey.Line.ToString()),
-                ContentUtil.ToUTF8(Context.LineBeforeFlush.ToString())
+                ContentUtil.ToUTF8(Line.ToString())
             ));
 
             list.Add(new KeyValuePair<string, object>(
                 ContentUtil.ToUTF8(RecordKey.LineOffset.ToString()),
-                ContentUtil.ToUTF8((Context.LineOffsetBeforeFlush - 1).ToString())
+                ContentUtil.ToUTF8(LineOffSet.ToString())
             ));
 
             list.Add(new KeyValuePair<string, object>(
@@ -327,7 +280,6 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             ));
 
             Logger.LogInfo("content",list);
-            //sem.Release();
         }
 
         public int GetContentDelta(String CurrentContent)
@@ -335,41 +287,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             return CurrentContent.Length - Context.LastDocContent.Length;
         }
 
-        public void SetState(IEditState State)
-        {
-            //sem.WaitOne();
-            //fixbug6-26:当状态没有改变时不需要清空buffer
-            if(EditState.GetType() != State.GetType()){
-                EditState.FlushBuffer();
-                EditState = State;
-            }
-            //sem.Release();
-        }
-
         /*====================== Get Property Method Start ==================================*/
-
-        public int LastEndOffset
-        {
-            get { return Context.LastEndOffset; }
-        }
-
-        public int LineOffsetBeforeFlush
-        {
-            get { return Context.LineOffsetBeforeFlush; }
-            set { Context.LineOffsetBeforeFlush = value; }
-        }
-
-        public int LineBeforeFlush
-        {
-            get { return Context.LineBeforeFlush; }
-            set { Context.LineBeforeFlush = value; }
-        }
-
-        public StringBuilder Buffer
-        {
-            get { return Context.Buffer; }
-        }
-
         public Document ActiveDoc
         {
             get { return Context.ActiveDoc; }

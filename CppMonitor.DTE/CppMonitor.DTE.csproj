@@ -92,12 +92,6 @@
     <Compile Include="Monitor\ContentMointor\ContentBindEvent.cs" />
     <Compile Include="Monitor\ContentMointor\ContentUtil.cs" />
     <Compile Include="Monitor\ContentMointor\ContextState.cs" />
-    <Compile Include="Monitor\ContentMointor\State\DeleteState.cs" />
-    <Compile Include="Monitor\ContentMointor\State\IEditState.cs" />
-    <Compile Include="Monitor\ContentMointor\State\InsertAfterEnterState.cs" />
-    <Compile Include="Monitor\ContentMointor\State\InsertState.cs" />
-    <Compile Include="Monitor\ContentMointor\State\ReplaceState.cs" />
-    <Compile Include="Monitor\ContentMointor\State\StartState.cs" />
     <Compile Include="Monitor\DebugMonitor\DebugBindEvent.cs" />
     <Compile Include="Monitor\DebugMonitor\DebugLogUtil.cs" />
     <Compile Include="Monitor\FileMonitor\FileBindEvent.cs" />
