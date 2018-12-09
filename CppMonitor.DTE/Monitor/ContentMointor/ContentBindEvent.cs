@@ -32,6 +32,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         private SelectionEvents SelectEvents;
 
+        private WindowEvents WindowEvents;
+
         private ILoggerDao Logger;
 
         //当前编辑的上下文信息
@@ -55,6 +57,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             TextEvents = DteEvents.TextEditorEvents;
             DocEvents = DteEvents.DocumentEvents;
             SelectEvents = DteEvents.SelectionEvents;
+            this.WindowEvents = DteEvents.WindowEvents; 
 
             Logger = LoggerFactory.loggerFactory.getLogger("Content");
 
@@ -74,6 +77,37 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             DocEvents.DocumentOpened += OnDocOpened;
             DocEvents.DocumentClosing += OnDocClosing;
             DocEvents.DocumentSaved += OnDocSaved;
+
+            this.WindowEvents.WindowActivated += onWindowActivited;
+        }
+
+        /**
+         * 监听代码窗口活跃状态，用来管理上下文中的文档对象
+         */
+        private void onWindowActivited(Window GotFocus, Window LostFocus)
+        {
+            if (IsWindowNeedToBeMonitored(LostFocus) && IsDocValid(LostFocus.Document))
+            {
+                Document oldDocument = LostFocus.Document;
+                LogDocumentAction(DocumentAction.documentDeactive,oldDocument);
+                clearContext();
+            }
+            if (IsWindowNeedToBeMonitored(GotFocus)&&IsDocValid(GotFocus.Document))
+            {
+                Document newDocument = GotFocus.Document;
+
+                LogDocumentAction(DocumentAction.documentActive, newDocument);
+
+                if (newDocument != Context.ActiveDoc)
+                {
+                    Context.ActiveDoc = newDocument;
+
+                    string content = GetDocumentContent(Context.ActiveDoc);
+
+                    Context.LastDocContent = content;
+                    Context.LastEndOffset = -1;
+                }
+            }
         }
 
         /**
@@ -81,17 +115,18 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
          */
         private void OnTextChange(TextPoint StartPoint, TextPoint EndPoint, int Hint)
         {
-           
-            Context.ActiveDoc = StartPoint.Parent.Parent;
-            if (!IsDocValid(Context.ActiveDoc))
+            //对象获取过程 TextPoint -> TextDocument -> Document
+            Document sourceDocument = StartPoint.Parent.Parent;
+            if (!IsDocValid(sourceDocument) && sourceDocument != Context.ActiveDoc)
             {
                 return;
             }
             sem.WaitOne();
-            String Content = GetDocContent();
+            String Content = GetDocumentContent(Context.ActiveDoc);
             Tuple<String, String> ReplaceText = ContentUtil.GetReplaceText(
-                StartPoint, Context.LastDocContent, Content
+                StartPoint, EndPoint, Context.LastDocContent, Content
             );
+            Debug.WriteLine("ReplacingText:{0} :ReplacedText:{1}",ReplaceText.Item1,ReplaceText.Item2);
             String ReplacingText = ReplaceText.Item1;
             String ReplacedText = ReplaceText.Item2;
 
@@ -115,6 +150,19 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             TransferToStartState();
         }
 
+        private void clearContext()
+        {
+            Context.ActiveDoc = null;
+            Context.LastEndOffset = -1;
+            Context.LastDocContent = null;
+            TransferToStartState();
+        }
+
+        private static bool IsWindowNeedToBeMonitored(Window targetWindow)
+        {
+            return targetWindow != null && targetWindow.Type == vsWindowType.vsWindowTypeDocument;
+        }
+
         private static bool IsDocValid(Document Doc)
         {
             return Doc != null && ContentUtil.IsCppFile(Doc.Name);
@@ -129,15 +177,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 return;
             }
 
-            if (Context.ActiveDoc != null)
-            {
-                EditState.FlushBuffer();
-            }
+            LogDocumentAction(DocumentAction.documentOpen, Doc);
 
-            Context.ActiveDoc = Doc;
-            Context.LastEndOffset = -1;
-            Context.LastDocContent = GetDocContent();
-            TransferToStartState();
         }
 
         private void OnDocClosing(Document Doc)
@@ -147,15 +188,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 return;
             }
 
-            if (Context.ActiveDoc != null)
-            {
-                EditState.FlushBuffer();
-            }
-
-            Context.ActiveDoc = null;
-            Context.LastEndOffset = -1;
-            Context.LastDocContent = GetDocContent();
-            TransferToStartState();
+            LogDocumentAction(DocumentAction.documentClose,Doc);
         }
 
         private void OnDocSaved(Document Doc)
@@ -165,9 +198,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 return;
             }
 
-            Context.ActiveDoc = Doc;
-            EditState.FlushBuffer();
-            FlushBuffer(ContentAction.contentSave, String.Empty, String.Empty);
+            LogDocumentAction(DocumentAction.documentSave,Doc);
         }
 
         /*====================== Document Event Method End ==================================*/
@@ -211,20 +242,40 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
 
         /*====================== Edit State Method End ==================================*/
 
-        public String GetDocContent()
+        public String GetDocumentContent(Document targetDocument)
         {
-            if (Context.ActiveDoc == null)
+            if (targetDocument == null)
             {
-                if (Dte2.ActiveWindow.Document == null)
-                {
-                    return String.Empty;
-                }
-                Context.ActiveDoc = Dte2.ActiveWindow.Document;
+                //在假设里这一行不会被执行到，只是单纯做异常处理
+                return null;
             }
 
-            TextDocument Doc = (TextDocument)Context.ActiveDoc.Object("TextDocument");
+            TextDocument Doc = (TextDocument)targetDocument.Object("TextDocument");
             EditPoint DocStart = Doc.StartPoint.CreateEditPoint();
             return DocStart.GetText(Doc.EndPoint);
+        }
+
+        private void LogDocumentAction(DocumentAction actionType,Document validDocument)
+        {
+            string fileFullPath = validDocument.FullName;
+            string projectName = ConstantCommon.UNKNOWN_PROJECTNAME;
+            //当事件类型是DocmentClose的时候 ProjectItem会触发异常，也就是此时document不再有Project属性
+            if (actionType != DocumentAction.documentClose 
+                    &&  validDocument.ProjectItem != null 
+                    &&  validDocument.ProjectItem.ContainingProject != null)
+            {
+                projectName = validDocument.ProjectItem.ContainingProject.Name;
+            }
+
+            Debug.WriteLine("DocumentAction:{0}:file:{1}",actionType.ToString(),fileFullPath);
+
+            List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
+            list.Add(new KeyValuePair<string, object>("Operation", actionType.ToString()));
+            list.Add(new KeyValuePair<string, object>("FilePath", fileFullPath));
+            list.Add(new KeyValuePair<string, object>("Project", projectName));
+
+            Logger.LogInfo("document",list);
+           
         }
 
         public void FlushBuffer(ContentAction Op, String From, String To)
@@ -275,7 +326,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 Context.HappenTime
             ));
 
-            Logger.LogInfo("",list);
+            Logger.LogInfo("content",list);
             //sem.Release();
         }
 

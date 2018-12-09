@@ -75,6 +75,15 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         contentUnknown,
     }
 
+    public enum DocumentAction
+    {
+        documentOpen,
+        documentActive,
+        documentDeactive,
+        documentClose,
+        documentSave,
+    }
+
     //key模块
     public enum KeyAction
     {

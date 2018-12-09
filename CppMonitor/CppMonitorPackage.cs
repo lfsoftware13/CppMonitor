@@ -9,6 +9,7 @@ using MonitorInterop.ServiceInterop;
 using NanjingUniversity.CppMonitor.ServiceInterop;
 using NanjingUniversity.CppMonitor.DTEMonitor;
 using NanjingUniversity.CppMonitor.Util.Common;
+using System.Reflection;
 
 namespace NanjingUniversity.CppMonitor
 {
@@ -77,6 +78,13 @@ namespace NanjingUniversity.CppMonitor
         {
             Debug.WriteLine(string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
+
+            //保证模块都被加载，在调试阶段遇到过这个问题
+            Assembly.Load("CppMonitor.Model");
+            Assembly.Load("CppMonitor.Util");
+            Assembly.Load("CppMonitor.DAO");
+            Assembly.Load("MonitorInterop");
+            Assembly.Load("CppMonitor.MEF");
 
             //询问使用Visual Studio的目的，如果是用于规定的练习，则记录日志
             //用于自己的练习则不记录日志

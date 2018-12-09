@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -70,37 +71,20 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
          * 返回的元组中第一项为替换的文本，
          * 第二项为被替换的文本
          */
-        public static Tuple<String, String> GetReplaceText(TextPoint StartPoint,
+        public static Tuple<String, String> GetReplaceText(TextPoint StartPoint, TextPoint EndPoint,
             String LastDoc, String CurrentDoc)
         {
             int Start = GetCharOffset(StartPoint);
+            int End = GetCharOffset(EndPoint);
             int OldLength = LastDoc.Length;
             int NewLength = CurrentDoc.Length;
 
-            if (Start >= OldLength || Start >= NewLength)
-            {
-                return new Tuple<string, string>(
-                    Start >= NewLength ? String.Empty : CurrentDoc.Substring(Start),
-                    Start >= OldLength ? String.Empty : LastDoc.Substring(Start)
-                );
-            }
-
-            // 截去两个文本后面相同的部分
-            String OldDoc = LastDoc.Substring(Start);
-            String NewDoc = CurrentDoc.Substring(Start);
-            int OldIndex = OldDoc.Length - 1;
-            int NewIndex = NewDoc.Length - 1;
-            while (OldIndex >= 0 && NewIndex >= 0)
-            {
-                if (OldDoc[OldIndex] != NewDoc[NewIndex]) break;
-                --OldIndex;
-                --NewIndex;
-            }
+            Debug.WriteLine("start:{0}:end:{1}:OldLength:{2}:NewLength:{3}",Start,End,OldLength,NewLength);
 
             return new Tuple<string, string>(
-                NewDoc.Substring(0, NewIndex + 1),
-                OldDoc.Substring(0, OldIndex + 1)
-            );
+                CurrentDoc.Substring(Start, End - Start),
+                LastDoc.Substring(Start,OldLength - (NewLength - End) - Start)
+                );
         }
 
         /**
@@ -108,7 +92,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
          */
         public static int GetCharOffset(TextPoint StartPoint)
         {
-            // 观察VS得到的结论
+            // 在textView中回车换行算一个字符，所以需要为每一个之前的行增加一个回车字符，Line是one-based
             return StartPoint.AbsoluteCharOffset + StartPoint.Line - 2;
         }
 
