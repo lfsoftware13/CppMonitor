@@ -90,7 +90,7 @@ namespace NanjingUniversity.CppMonitor.Util.Util
                     string itemType = theVCFile.ItemType;
 
                     ///这里复制vc编译会用到的和vcxproj.filters文件
-                    if (targetItemTypeList.Contains(itemType) || theVCFile.FileType == eFileType.eFileTypeFilters)
+                    if (targetItemTypeList.Contains(itemType) || itemName.EndsWith("vcxproj.filters"))
                     {
                         for (short i = 0; i < item.FileCount; i++)
                         {
