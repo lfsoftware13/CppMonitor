@@ -83,7 +83,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             {
                 targetFolder = Path.Combine(middleFilePath,DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")+"-(+)" + Project.Name);
                 Directory.CreateDirectory(targetFolder);
-                CopyUtil.copyProjectFilesToTmp(Project.ProjectItems,targetFolder);
+                CopyUtil.copyProjectFilesToTmp(Project,targetFolder);
             }
             else
             {
@@ -91,7 +91,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
                 targetFolder = "lose info";
             }
             //记录日志
-            FileLogUtil.logSolutionEvent(dte2.Solution.FullName,(int)SolutionAction.solAddProject,Project.Name,targetFolder);
+            FileLogUtil.logSolutionEvent(dte2.Solution.FullName,(int)SolutionAction.solAddProject,Project.FileName,targetFolder);
         }
 
         void se_RemoveProject(Project Project)
@@ -105,7 +105,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             JObject jObject = new JObject();
             jObject["OldName"] = OldName;
             jObject["NewName"] = Project.Name;
-            FileLogUtil.logSolutionEvent(dte2.Solution.FullName, (int)SolutionAction.solutionRename, jObject.ToString());
+            FileLogUtil.logSolutionEvent(dte2.Solution.FullName, (int)SolutionAction.solRenameProject, jObject.ToString());
         }
 
         void se_RenameSolution(string OldName){

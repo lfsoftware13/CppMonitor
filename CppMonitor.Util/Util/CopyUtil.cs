@@ -73,7 +73,18 @@ namespace NanjingUniversity.CppMonitor.Util.Util
             "ClCompile",
         };
 
-        public static bool copyProjectFilesToTmp(ProjectItems parentItems, String parentDir)
+        public static bool copyProjectFilesToTmp(Project project, String targetDir)
+        {
+            //备份内容
+            bool copyContentResult = copyProjectFilesToTmpInnter(project.ProjectItems, targetDir);
+            //备份项目的proj文件；
+            string proFullName = project.FullName;
+            backUpFile(proFullName, targetDir);
+
+            return copyContentResult;
+        }
+
+        private static bool copyProjectFilesToTmpInnter(ProjectItems parentItems, String parentDir)
         {
             bool containsFile = false;//判断是否有文件
             foreach (ProjectItem item in parentItems)
@@ -82,7 +93,7 @@ namespace NanjingUniversity.CppMonitor.Util.Util
                 string subParentPath = Path.Combine(parentDir, itemName);
                 if (item.Object is VCFilter)
                 {
-                    containsFile = containsFile | copyProjectFilesToTmp(item.ProjectItems, subParentPath);
+                    containsFile = containsFile | copyProjectFilesToTmpInnter(item.ProjectItems, subParentPath);
                 }
                 else if (item.Object is VCFile)
                 {
@@ -119,8 +130,22 @@ namespace NanjingUniversity.CppMonitor.Util.Util
             }
             foreach (Project project in projects)
             {
-                CopyUtil.copyProjectFilesToTmp(project.ProjectItems, Path.Combine(targetPath, project.Name));
+                string projectTargetPath = Path.Combine(targetPath, project.Name);
+                CopyUtil.copyProjectFilesToTmp(project, projectTargetPath);
             }
+
+            //备份解决方案的sln文件
+            Solution currentSolution = dte.Solution;
+            backUpFile(currentSolution.FullName,targetPath);
+        }
+
+        private static void backUpFile(string fileFullPath, String targetDir)
+        {
+            String fileName = fileFullPath.Substring(fileFullPath.LastIndexOf("\\")+1);
+            String dirFilePath = Path.Combine(targetDir, fileName);
+            //保证目标文件已经存在
+            Directory.CreateDirectory(targetDir);
+            File.Copy(fileFullPath,dirFilePath);
         }
     }
 }

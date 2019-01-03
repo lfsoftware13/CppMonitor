@@ -76,6 +76,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             int Start = GetCharOffset(StartPoint);
             int End = GetCharOffset(EndPoint);
+
+            //处理边界异常
+            if (LastDoc == null) {
+                LastDoc = "";
+            }
             int OldLength = LastDoc.Length;
             int NewLength = CurrentDoc.Length;
 
