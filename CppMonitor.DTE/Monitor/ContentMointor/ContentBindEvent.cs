@@ -110,7 +110,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         {
             //对象获取过程 TextPoint -> TextDocument -> Document
             Document sourceDocument = StartPoint.Parent.Parent;
-            if (!IsDocValid(sourceDocument) && sourceDocument != Context.ActiveDoc)
+            if (!IsDocValid(sourceDocument) || sourceDocument != Context.ActiveDoc)
             {
                 return;
             }
@@ -158,8 +158,8 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
         }
 
         private static bool IsDocValid(Document Doc)
-        {
-            return Doc != null && ContentUtil.IsCppFile(Doc.Name);
+         {
+             return Doc != null && ContentUtil.IsCppFile(Doc.Name);
         }
 
         /*====================== Document Event Method Start ==================================*/
