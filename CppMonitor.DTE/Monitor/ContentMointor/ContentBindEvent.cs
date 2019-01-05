@@ -18,7 +18,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
     {
         private enum RecordKey
         {
-            Operation, FilePath, From, To, Line, LineOffset,HappenTime,Project
+            Operation, FilePath, From, To, Line, LineOffset,HappenTime,Project,AbsoluteOffset
         }
     
         private DTE2 Dte2;
@@ -143,7 +143,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             {
                 contentAction = ContentAction.contentReplace;
             }
-            FlushBuffer(contentAction, ReplacedText,ReplacingText, StartPoint.Line, StartPoint.LineCharOffset);
+            FlushBuffer(contentAction, ReplacedText,ReplacingText, StartPoint.Line, StartPoint.LineCharOffset,ContentUtil.GetCharOffset(StartPoint));
         }
 
         private void clearContext()
@@ -233,7 +233,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
            
         }
 
-        public void FlushBuffer(ContentAction Op, String From, String To,int Line,int LineOffSet)
+        public void FlushBuffer(ContentAction Op, String From, String To,int Line,int LineOffSet,int absoluteOffset)
         {
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
 
@@ -272,6 +272,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             list.Add(new KeyValuePair<string, object>(
                 ContentUtil.ToUTF8(RecordKey.LineOffset.ToString()),
                 ContentUtil.ToUTF8(LineOffSet.ToString())
+            ));
+
+            list.Add(new KeyValuePair<string, object>(
+                ContentUtil.ToUTF8(RecordKey.AbsoluteOffset.ToString()),
+                ContentUtil.ToUTF8(absoluteOffset.ToString())
             ));
 
             list.Add(new KeyValuePair<string, object>(
