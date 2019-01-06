@@ -34,10 +34,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             Dictionary<string, StringBuilder> debugOutputs = new Dictionary<string, StringBuilder>();
             debuggerEvents.OnEnterBreakMode += (dbgEventReason Reason, ref dbgExecutionAction ExecutionAction) =>
             {
-                watcher.watch();
-
                 string breakReason = Reason + "";
                 this.lastBreakpoint = dte.Debugger.BreakpointLastHit;
+                watcher.watch();
+                watcher.checkCurrent(lastBreakpoint);
+
                 if (!(Reason == dbgEventReason.dbgEventReasonEndProgram || Reason == dbgEventReason.dbgEventReasonStopDebugging)) lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name;
                 DebugLogUtil.LogDebugBreak(lastDebugTarget, Reason + "", lastBreakpoint, dte.Debugger.CurrentStackFrame.Locals);
             };
@@ -72,6 +73,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
                 }
                 else
                 {
+                    this.lastBreakpoint = dte.Debugger.BreakpointLastHit;
                     //MessageBox.Show("[DebugEvent] 调试继续");
                     DebugLogUtil.LogDebugContinue(this.lastDebugTarget = dte.Debugger.DebuggedProcesses.Item(1).Name, lastBreakpoint);
                 }
@@ -126,6 +128,29 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
              var New = makeCache(debugger.Breakpoints);
              findDifference(New, cache);
              cache = New;
+        }
+
+        /// <summary>
+        /// 查看当前断点的状态，如果当前断点已经记录，则不做变更，若没有记录，则保存该断点
+        /// </summary>
+        public BreakpointVO checkCurrent(Breakpoint bp)
+        {
+            foreach (var value in cache.Values)
+            {
+                if (value.Equals(new BreakpointVO(bp)))
+                {
+                    bp.Tag = value.Tag;
+                    return value;
+                }
+            }
+
+            if (bp.Tag == null || bp.Tag.Length == 0)
+            {
+                bp.Tag = getNextTag();
+                cache[bp.Tag] = new BreakpointVO(bp);
+                DebugLogUtil.LogBreakpointEvent(BreakpointAction.bpAdd.ToString(), cache[bp.Tag]);
+            }
+            return cache[bp.Tag];
         }
 
         private void findDifference(BreakpointCache New, BreakpointCache Old)
