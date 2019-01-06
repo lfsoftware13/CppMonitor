@@ -19,7 +19,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             handlers = new Dictionary<string, LogHandler>();
             handlers["breakpoint"] = logBreakpoint;
             handlers["exception"] = logException;
-            handlers["local_varialble"] = logLocalVarialbles;
+            handlers["local_variable"] = logLocalVarialbles;
             handlers["breakpoint_event"] = logBreakpointEvent;
             handlers["debug_info"] = logDebugInfo;
 
