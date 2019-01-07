@@ -213,6 +213,11 @@ namespace NanjingUniversity.CppMonitor.Monitor.DebugMonitor
             bpParam.Add(new KeyValuePair<string, object>("function_name", bp.FunctionName));
             bpParam.Add(new KeyValuePair<string, object>("location_type", bp.LocationType));
             bpParam.Add(new KeyValuePair<string, object>("enabled", bp.Enabled));
+            if (bp.id != -1)
+            {
+                logger.returnKeyAfterLogInfo("breakpoint", bpParam);
+                return bp.id;
+            }
             return logger.returnKeyAfterLogInfo("breakpoint", bpParam);
         }
 
