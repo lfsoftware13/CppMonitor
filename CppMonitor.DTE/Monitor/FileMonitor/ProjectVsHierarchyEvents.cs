@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using NanjingUniversity.CppMonitor.Util.Common;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +50,12 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             {
                 Object newName = null;
                 _pHierarchy.GetProperty(itemid, propid, out newName);
-                FileLogUtil.logFileEvent((int)FileAction.fileChangeProp,newName as string,_name as string,_name as string);
+
+                JObject jObject = new JObject();
+                jObject["OldName"] = _name as string;
+                jObject["NewName"] = newName as string;
+                FileLogUtil.logSolutionEvent(PersistentObjectManager.dte2.Solution.FullName, (int)SolutionAction.solRenameProject, jObject.ToString());
+
                 _name = newName;
             }
            
