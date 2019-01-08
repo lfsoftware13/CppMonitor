@@ -76,15 +76,15 @@ namespace NanjingUniversity.CppMonitor.Util.Util
         public static bool copyProjectFilesToTmp(Project project, String targetDir)
         {
             //备份内容
-            bool copyContentResult = copyProjectFilesToTmpInnter(project.ProjectItems, targetDir);
+            bool copyContentResult = copyProjectFilesToTmpInnter(project.ProjectItems, targetDir, true);
             //备份项目的proj文件；
             string proFullName = project.FullName;
-            backUpFile(proFullName, targetDir);
+            backUpFile(proFullName, targetDir, true);
 
             return copyContentResult;
         }
 
-        private static bool copyProjectFilesToTmpInnter(ProjectItems parentItems, String parentDir)
+        private static bool copyProjectFilesToTmpInnter(ProjectItems parentItems, String parentDir, bool isRoot = false)
         {
             bool containsFile = false;//判断是否有文件
             foreach (ProjectItem item in parentItems)
@@ -106,6 +106,12 @@ namespace NanjingUniversity.CppMonitor.Util.Util
                         for (short i = 0; i < item.FileCount; i++)
                         {
                             String fileFullPath = item.get_FileNames(i);
+                            if (isRoot)
+                            {
+                                String fileFullDir = Path.GetDirectoryName(fileFullPath);
+                                fileFullDir = fileFullDir.Substring(fileFullDir.LastIndexOf("\\"));
+                                parentDir = parentDir.Substring(0, parentDir.LastIndexOf("\\")) + fileFullDir;
+                            }
                             if (File.Exists(fileFullPath))
                             {
                                 containsFile = containsFile | CopyUtil.copyFile(fileFullPath, Path.Combine(parentDir, Path.GetFileName(fileFullPath)));
@@ -139,9 +145,15 @@ namespace NanjingUniversity.CppMonitor.Util.Util
             backUpFile(currentSolution.FullName,targetPath);
         }
 
-        private static void backUpFile(string fileFullPath, String targetDir)
+        private static void backUpFile(string fileFullPath, String targetDir, bool isProjectFile = false)
         {
             String fileName = fileFullPath.Substring(fileFullPath.LastIndexOf("\\")+1);
+            if (isProjectFile)
+            {
+                String fileDir = Path.GetDirectoryName(fileFullPath);
+                fileDir = fileDir.Substring(fileDir.LastIndexOf("\\"));
+                targetDir = targetDir.Substring(0, targetDir.LastIndexOf("\\")) + fileDir;
+            }
             String dirFilePath = Path.Combine(targetDir, fileName);
             //保证目标文件已经存在
             Directory.CreateDirectory(targetDir);
