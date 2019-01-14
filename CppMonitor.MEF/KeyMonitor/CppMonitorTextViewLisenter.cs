@@ -85,7 +85,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
 
                 string charInfo = targetCmdIdToStrDict[nCmdID];
 
-                Debug.WriteLine("inchar : "+ charInfo + " : project : " + projectName + " filePath : " + filePath);
+                //Debug.WriteLine("inchar : "+ charInfo + " : project : " + projectName + " filePath : " + filePath);
 
                 Util.KeyEventLogUtil.logKeyEvent(KeyAction.keyCmd.ToString(),filePath,projectName,charInfo,new KeyModifier());
             }

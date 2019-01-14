@@ -119,7 +119,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             Tuple<String, String> ReplaceText = ContentUtil.GetReplaceText(
                 StartPoint, EndPoint, Context.LastDocContent, Content
             );
-            Debug.WriteLine("ReplacingText:{0} :ReplacedText:{1}",ReplaceText.Item1,ReplaceText.Item2);
+            //Debug.WriteLine("ReplacingText:{0} :ReplacedText:{1}",ReplaceText.Item1,ReplaceText.Item2);
             String ReplacingText = ReplaceText.Item1;
             String ReplacedText = ReplaceText.Item2;
 
@@ -222,7 +222,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
                 projectName = validDocument.ProjectItem.ContainingProject.Name;
             }
 
-            Debug.WriteLine("DocumentAction:{0}:file:{1}",actionType.ToString(),fileFullPath);
+            //Debug.WriteLine("DocumentAction:{0}:file:{1}",actionType.ToString(),fileFullPath);
 
             List<KeyValuePair<String, Object>> list = new List<KeyValuePair<string, object>>();
             list.Add(new KeyValuePair<string, object>("Operation", actionType.ToString()));

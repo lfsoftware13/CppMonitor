@@ -84,7 +84,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.ContentMointor
             int OldLength = LastDoc.Length;
             int NewLength = CurrentDoc.Length;
 
-            Debug.WriteLine("start:{0}:end:{1}:OldLength:{2}:NewLength:{3}",Start,End,OldLength,NewLength);
+            //Debug.WriteLine("start:{0}:end:{1}:OldLength:{2}:NewLength:{3}",Start,End,OldLength,NewLength);
 
             return new Tuple<string, string>(
                 CurrentDoc.Substring(Start, End - Start),

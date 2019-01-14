@@ -42,6 +42,12 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
             relatedDocument = Util.Util.utilInstance.getDocumentInfoFromTextView(textView);
         }
 
+        public override void TextInput(TextCompositionEventArgs args)
+        {
+            base.TextInput(args);
+
+        }
+
         public override void KeyDown(KeyEventArgs args)
         {
             base.KeyDown(args);
