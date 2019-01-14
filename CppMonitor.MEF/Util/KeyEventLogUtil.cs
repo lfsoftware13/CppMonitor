@@ -30,6 +30,7 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.Util
                 keyEventParams.Add(new KeyValuePair<String, Object>("source", source));
                 keyEventParams.Add(new KeyValuePair<String, Object>("projectName", projectName));
                 keyEventParams.Add(new KeyValuePair<String, Object>("filePath", filePath));
+                keyEventParams.Add(new KeyValuePair<String, Object>("timeticks", DateTime.Now.Ticks));
 
                 logger.LogInfo("key_info", keyEventParams);
             }

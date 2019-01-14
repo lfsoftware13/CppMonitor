@@ -90,6 +90,7 @@ namespace NanjingUniversity.CppMonitor.Util.Common
         keyDown,
         keyUp,
         keyCmd,
+        keyInput,
     }
 
     //Build模块

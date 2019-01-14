@@ -35,7 +35,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             try
             {
                 SQLiteConnection conn = dbHelper.getConnection();
-                string sql = "insert into key_info (id,time,key,modifier,source,projectName,filePath) values (@id,@time,@key,@modifier,@source,@projectName,@filePath)";
+                string sql = "insert into key_info (id,time,key,modifier,source,projectName,filePath,timeticks) values (@id,@time,@key,@modifier,@source,@projectName,@filePath,@timeticks)";
                 SQLiteCommand cmd = new SQLiteCommand(sql, conn);
 
                 //加时间戳
@@ -64,6 +64,9 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
                         case "filePath":
                             cmd.Parameters.Add(new SQLiteParameter("@filePath", paramPair.Value.ToString()));
                             break;
+                        case "timeticks":
+                            cmd.Parameters.Add(new SQLiteParameter("@timeticks", paramPair.Value.ToString()));
+                            break;
                         default:
                             break;
                     }
@@ -86,7 +89,7 @@ namespace NanjingUniversity.CppMonitor.DAO.imp
             SQLiteConnection conn = new SQLiteConnection("Data Source=" + AddressCommon.DBFilePath);
             conn.Open();
             //建立key_info
-            string sql = "create table if not exists key_info (id INTEGER, key char[22],modifier char[5],source char[8], projectName TEXT, filePath TEXT, time char[22])";
+            string sql = "create table if not exists key_info (id INTEGER, key char[22],modifier char[5],source char[8], projectName TEXT, filePath TEXT, time char[22],timeticks INTEGER)";
             SQLiteCommand cmd = new SQLiteCommand(sql, conn);
             cmd.ExecuteNonQuery();
             conn.Close();

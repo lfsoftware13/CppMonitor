@@ -87,7 +87,7 @@ namespace NanjingUniversity.CppMonitor.Monitor.FileMonitor
             }
             else
             {
-                Debug.WriteLine("solutionListener：中间文件夹不存在");
+                //Debug.WriteLine("solutionListener：中间文件夹不存在");
                 targetFolder = "lose info";
             }
             //记录日志

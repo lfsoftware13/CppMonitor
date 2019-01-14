@@ -60,8 +60,12 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
             relatedDocument = Util.Util.utilInstance.getDocumentInfoFromTextView(textView);
 
             targetCmdIdToStrDict = new Dictionary<uint, string>(2);
-            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.BACKSPACE, "backspace");
-            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.RETURN, "enter");
+            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.BACKSPACE, "Back");
+            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.RETURN, "Return");
+            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.UP, "Up");
+            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.DOWN, "Down");
+            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.LEFT, "Left");
+            targetCmdIdToStrDict.Add((uint)VSConstants.VSStd2KCmdID.RIGHT, "Right");
 
             adapter.AddCommandFilter(this, out nextCommandHandler);
         }

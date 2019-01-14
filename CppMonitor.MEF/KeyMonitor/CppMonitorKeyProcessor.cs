@@ -45,7 +45,16 @@ namespace NanjingUniversity.CppMonitor.MEFMonitor.KeyMonitor
         public override void TextInput(TextCompositionEventArgs args)
         {
             base.TextInput(args);
+            if (!String.IsNullOrEmpty(args.Text))
+            {
+                string filePath;
+                string projectName;
+                Util.Util.utilInstance.getProjectInfo(textView, relatedDocument, out projectName, out filePath);
 
+                KeyModifier keyModifier = checkKeyModifier();
+
+                Util.KeyEventLogUtil.logKeyEvent(KeyAction.keyInput.ToString(), filePath, projectName, args.Text, keyModifier);
+            }
         }
 
         public override void KeyDown(KeyEventArgs args)
